@@ -21,22 +21,22 @@ interface TopCardItem {
 const toneStyles: Record<TopCardTone, { card: string; text: string }> = {
   primary: {
     card: "bg-primary dark:bg-primary",
-    text: "text-primary",
+    text: "text-white",
   },
   secondary: {
     card: "bg-secondary dark:bg-secondary",
-    text: "text-secondary",
+    text: "text-white",
   },
   success: {
     card: "bg-success dark:bg-success",
-    text: "text-success",
+    text: "text-white",
   },
   warning: {
     card: "bg-warning dark:bg-warning",
-    text: "text-warning",
+    text: "text-white",
   },
-  info: { card: "bg-info dark:bg-info", text: "text-info" },
-  error: { card: "bg-error dark:bg-error", text: "text-error" },
+  info: { card: "bg-info dark:bg-info", text: "text-white" },
+  error: { card: "bg-error dark:bg-error", text: "text-white" },
 };
 
 interface DashboardTopCardsProps {
@@ -54,7 +54,7 @@ export function DashboardTopCards({ items }: DashboardTopCardsProps) {
           <div
             key={item.key}
             className={cn(
-              "col-span-12 rounded-md p-6 text-center md:col-span-6 lg:col-span-4",
+              "col-span-12 rounded-md p-4 text-center md:col-span-6 lg:col-span-4",
               styles.card,
             )}
           >
