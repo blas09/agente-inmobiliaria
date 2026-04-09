@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/shared/page-header";
+import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { createTenantAction } from "@/features/tenants/actions";
 import { TenantForm } from "@/features/tenants/tenant-form";
 import { requirePlatformAdmin } from "@/server/auth/tenant-context";
@@ -7,11 +7,8 @@ export default async function NewTenantPage() {
 	await requirePlatformAdmin();
 
 	return (
-		<>
-			<PageHeader
-				title="Nuevo tenant"
-				description="Alta de una nueva inmobiliaria con owner inicial ya existente en la plataforma."
-			/>
+		<div className="space-y-6">
+			<ProfileWelcome title="Nuevo tenant" />
 			<section className="mb-6 grid gap-4 md:grid-cols-3">
 				<div className="rounded-xl border border-border bg-card p-5">
 					<p className="text-sm font-medium text-foreground">Owner existente</p>
@@ -33,6 +30,6 @@ export default async function NewTenantPage() {
 				</div>
 			</section>
 			<TenantForm action={createTenantAction} showOwnerEmail />
-		</>
+		</div>
 	);
 }

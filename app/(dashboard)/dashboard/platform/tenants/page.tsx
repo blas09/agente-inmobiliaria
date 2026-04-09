@@ -1,9 +1,10 @@
 import Link from "next/link";
 
+import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { EmptyState } from "@/components/shared/empty-state";
 import { MetricCard } from "@/components/shared/metric-card";
-import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requirePlatformAdmin } from "@/server/auth/tenant-context";
@@ -15,12 +16,14 @@ export default async function PlatformTenantsPage() {
 	const activeTenants = tenants.filter((tenant) => tenant.status === "active").length;
 
 	return (
-		<>
-			<PageHeader
+		<div className="space-y-6">
+			<ProfileWelcome
 				title="Tenants"
-				description="Gestión central de inmobiliarias dentro de la plataforma."
-				actionHref="/dashboard/platform/tenants/new"
-				actionLabel="Nuevo tenant"
+				action={
+					<Link href="/dashboard/platform/tenants/new">
+						<Button>Nuevo tenant</Button>
+					</Link>
+				}
 			/>
 			<section className="grid gap-4 md:grid-cols-3">
 				<MetricCard label="Tenants" tone="primary" value={tenants.length} />
@@ -73,6 +76,6 @@ export default async function PlatformTenantsPage() {
 					</CardContent>
 				</Card>
 			)}
-		</>
+		</div>
 	);
 }

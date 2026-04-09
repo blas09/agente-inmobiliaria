@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/shared/page-header";
+import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { PropertyForm } from "@/features/properties/property-form";
 import { updatePropertyAction } from "@/features/properties/actions";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
@@ -14,13 +14,9 @@ export default async function EditPropertyPage({
 	const property = await getPropertyById(activeTenant.id, id);
 
 	return (
-		<>
-			<PageHeader
-				title="Editar propiedad"
-				description="Mantené consistente el catálogo que alimenta respuestas automáticas y operación humana."
-			/>
+		<div className="space-y-6">
+			<ProfileWelcome title="Editar propiedad" />
 			<PropertyForm action={updatePropertyAction.bind(null, property.id)} initialValues={property} />
-		</>
+		</div>
 	);
 }
-

@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/shared/page-header";
+import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { TenantForm } from "@/features/tenants/tenant-form";
 import { requirePlatformAdmin } from "@/server/auth/tenant-context";
 import { getTenantById } from "@/server/queries/tenants";
@@ -14,11 +14,8 @@ export default async function EditPlatformTenantPage({
 	const tenant = await getTenantById(id);
 
 	return (
-		<>
-			<PageHeader
-				title={`Editar ${tenant.name}`}
-				description="Administración de parámetros centrales del tenant desde plataforma."
-			/>
+		<div className="space-y-6">
+			<ProfileWelcome title={`Editar ${tenant.name}`} />
 			<section className="mb-6 grid gap-4 md:grid-cols-3">
 				<div className="rounded-xl border border-border bg-card p-5">
 					<p className="text-sm font-medium text-foreground">Slug</p>
@@ -34,6 +31,6 @@ export default async function EditPlatformTenantPage({
 				</div>
 			</section>
 			<TenantForm action={updatePlatformTenantAction.bind(null, tenant.id)} initialValues={tenant} />
-		</>
+		</div>
 	);
 }

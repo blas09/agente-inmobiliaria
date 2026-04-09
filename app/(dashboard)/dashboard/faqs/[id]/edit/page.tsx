@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/shared/page-header";
+import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { Button } from "@/components/ui/button";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { getFaqById } from "@/server/queries/faqs";
@@ -16,18 +16,18 @@ export default async function EditFaqPage({
 	const deleteAction = deleteFaqAction.bind(null, faq.id);
 
 	return (
-		<>
-			<PageHeader
+		<div className="space-y-6">
+			<ProfileWelcome
 				title="Editar FAQ"
-				description="Mantené las respuestas automáticas alineadas con las reglas del tenant."
-			>
-				<form action={deleteAction}>
-					<Button type="submit" variant="destructive" shape="pill">
-						Eliminar
-					</Button>
-				</form>
-			</PageHeader>
+				action={
+					<form action={deleteAction}>
+						<Button type="submit" variant="destructive" shape="pill">
+							Eliminar
+						</Button>
+					</form>
+				}
+			/>
 			<FaqForm action={updateFaqAction.bind(null, faq.id)} initialValues={faq} />
-		</>
+		</div>
 	);
 }
