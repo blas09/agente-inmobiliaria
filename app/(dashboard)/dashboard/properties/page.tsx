@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { CardBox } from "@/components/dashboard/card-box";
+import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
@@ -24,19 +25,14 @@ export default async function PropertiesPage({
 
 	return (
 		<div className="space-y-6">
-			<div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-				<div className="space-y-2">
-					<h1 className="text-foreground text-5xl leading-none font-semibold tracking-tight">
-						Propiedades
-					</h1>
-					<p className="max-w-3xl text-lg text-muted-foreground">
-						Inventario central del tenant. Source of truth para respuestas comerciales.
-					</p>
-				</div>
-				<Link href="/dashboard/properties/new">
-					<Button>Nueva propiedad</Button>
-				</Link>
-			</div>
+			<ProfileWelcome
+				title="Propiedades"
+				action={
+					<Link href="/dashboard/properties/new">
+						<Button>Nueva propiedad</Button>
+					</Link>
+				}
+			/>
 			<DashboardTopCards
 				items={[
 					{ key: "total", label: "Total propiedades", value: properties.length, tone: "primary" },

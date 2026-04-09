@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { CardBox } from "@/components/dashboard/card-box";
+import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
@@ -16,17 +17,14 @@ export default async function FaqsPage() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-				<div className="space-y-2">
-					<h1 className="text-foreground text-5xl leading-none font-semibold tracking-tight">FAQs</h1>
-					<p className="max-w-3xl text-lg text-muted-foreground">
-						Respuestas predefinidas del tenant para cubrir preguntas frecuentes antes de escalar.
-					</p>
-				</div>
-				<Link href="/dashboard/faqs/new">
-					<Button>Nueva FAQ</Button>
-				</Link>
-			</div>
+			<ProfileWelcome
+				title="FAQs"
+				action={
+					<Link href="/dashboard/faqs/new">
+						<Button>Nueva FAQ</Button>
+					</Link>
+				}
+			/>
 			<DashboardTopCards
 				items={[
 					{ key: "total", label: "FAQs", value: faqs.length, tone: "primary" },

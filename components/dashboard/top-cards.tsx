@@ -20,23 +20,23 @@ interface TopCardItem {
 
 const toneStyles: Record<TopCardTone, { card: string; text: string }> = {
   primary: {
-    card: "bg-lightprimary dark:bg-lightprimary",
+    card: "bg-primary dark:bg-primary",
     text: "text-primary",
   },
   secondary: {
-    card: "bg-lightsecondary dark:bg-lightsecondary",
+    card: "bg-secondary dark:bg-secondary",
     text: "text-secondary",
   },
   success: {
-    card: "bg-lightsuccess dark:bg-lightsuccess",
+    card: "bg-success dark:bg-success",
     text: "text-success",
   },
   warning: {
-    card: "bg-lightwarning dark:bg-lightwarning",
+    card: "bg-warning dark:bg-warning",
     text: "text-warning",
   },
-  info: { card: "bg-lightinfo dark:bg-lightinfo", text: "text-info" },
-  error: { card: "bg-lighterror dark:bg-lighterror", text: "text-error" },
+  info: { card: "bg-info dark:bg-info", text: "text-info" },
+  error: { card: "bg-error dark:bg-error", text: "text-error" },
 };
 
 interface DashboardTopCardsProps {

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { CardBox } from "@/components/dashboard/card-box";
+import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { AppointmentForm } from "@/features/appointments/appointment-form";
 import { updateAppointmentAction } from "@/features/appointments/actions";
@@ -30,12 +31,7 @@ export default async function AppointmentsPage({
 
 	return (
 		<div className="space-y-6">
-			<div className="space-y-2">
-				<h1 className="text-foreground text-5xl leading-none font-semibold tracking-tight">Agenda</h1>
-				<p className="max-w-3xl text-lg text-muted-foreground">
-					Visitas internas del tenant. La agenda propia sigue siendo la verdad de negocio.
-				</p>
-			</div>
+			<ProfileWelcome title="Agenda" />
 			<DashboardTopCards
 				items={[
 					{ key: "total", label: "Visitas", value: appointments.length, tone: "primary" },

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { CardBox } from "@/components/dashboard/card-box";
+import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
@@ -18,14 +19,7 @@ export default async function ConversationsPage() {
 
 	return (
 		<div className="space-y-6">
-			<div className="space-y-2">
-				<h1 className="text-foreground text-5xl leading-none font-semibold tracking-tight">
-					Conversaciones
-				</h1>
-				<p className="max-w-3xl text-lg text-muted-foreground">
-					Hub conversacional preparado para WhatsApp y expansión futura a otros canales.
-				</p>
-			</div>
+			<ProfileWelcome title="Conversaciones" />
 			<DashboardTopCards
 				items={[
 					{ key: "open", label: "Abiertas", value: openCount, tone: "primary" },

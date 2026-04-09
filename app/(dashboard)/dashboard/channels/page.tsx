@@ -1,4 +1,5 @@
 import { CardBox } from "@/components/dashboard/card-box";
+import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { Badge } from "@/components/ui/badge";
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,12 +14,7 @@ export default async function ChannelsPage() {
 
 	return (
 		<div className="space-y-6">
-			<div className="space-y-2">
-				<h1 className="text-foreground text-5xl leading-none font-semibold tracking-tight">Canales</h1>
-				<p className="max-w-3xl text-lg text-muted-foreground">
-					Capa SaaS preparada para canales conectados por cada inmobiliaria, empezando por WhatsApp.
-				</p>
-			</div>
+			<ProfileWelcome title="Canales" />
 			<DashboardTopCards
 				items={[
 					{ key: "total", label: "Canales", value: channels.length, tone: "primary" },
