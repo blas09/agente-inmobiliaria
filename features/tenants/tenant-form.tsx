@@ -5,11 +5,12 @@ import type { Tables } from "@/types/database";
 
 import { INITIAL_ACTION_STATE, type ActionState } from "@/types/actions";
 
+import { ActionFeedback } from "@/components/shared/action-feedback";
 import { FormField } from "@/components/shared/form-field";
 import { SubmitButton } from "@/components/shared/submit-button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { NativeSelect } from "@/components/ui/native-select";
 
 interface TenantFormProps {
 	action: (state: ActionState, formData: FormData) => Promise<ActionState>;
@@ -29,7 +30,11 @@ export function TenantForm({
 	return (
 		<form action={formAction} className="space-y-6">
 			<Card>
-				<CardContent className="grid gap-4 pt-6 md:grid-cols-2">
+				<CardHeader>
+					<CardTitle>Datos del tenant</CardTitle>
+					<CardDescription>Parámetros operativos y base de la inmobiliaria dentro de la plataforma.</CardDescription>
+				</CardHeader>
+				<CardContent className="grid gap-5 md:grid-cols-2">
 					<FormField htmlFor="name" label="Nombre comercial" error={state.fieldErrors?.name?.[0]}>
 						<Input defaultValue={initialValues?.name ?? ""} id="name" name="name" required />
 					</FormField>
@@ -38,12 +43,12 @@ export function TenantForm({
 					</FormField>
 					{showStatus ? (
 						<FormField htmlFor="status" label="Estado">
-							<Select defaultValue={initialValues?.status ?? "trial"} id="status" name="status">
+							<NativeSelect defaultValue={initialValues?.status ?? "trial"} id="status" name="status">
 								<option value="trial">Trial</option>
 								<option value="active">Activo</option>
 								<option value="suspended">Suspendido</option>
 								<option value="archived">Archivado</option>
-							</Select>
+							</NativeSelect>
 						</FormField>
 					) : (
 						<input name="status" type="hidden" value={initialValues?.status ?? "active"} />
@@ -80,19 +85,9 @@ export function TenantForm({
 					) : null}
 				</CardContent>
 			</Card>
-			{state.message ? (
-				<p
-					className={`rounded-md px-3 py-2 text-sm ${
-						state.status === "success"
-							? "border border-emerald-200 bg-emerald-50 text-emerald-800"
-							: "border border-destructive/20 bg-destructive/5 text-destructive"
-					}`}
-				>
-					{state.message}
-				</p>
-			) : null}
+			{state.message ? <ActionFeedback message={state.message} status={state.status} /> : null}
 			<div className="flex justify-end">
-				<SubmitButton label="Guardar tenant" pendingLabel="Guardando tenant..." />
+				<SubmitButton label="Guardar tenant" pendingLabel="Guardando tenant..." shape="pill" />
 			</div>
 		</form>
 	);

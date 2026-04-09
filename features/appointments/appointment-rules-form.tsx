@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { INITIAL_ACTION_STATE, type ActionState } from "@/types/actions";
 
 import type { AppointmentRules, WorkingDay } from "@/features/appointments/rules";
+import { ActionFeedback } from "@/components/shared/action-feedback";
 import { FormField } from "@/components/shared/form-field";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { Input } from "@/components/ui/input";
@@ -34,7 +35,7 @@ export function AppointmentRulesForm({
 
 	return (
 		<form action={formAction} className="space-y-4">
-			<p className="text-sm text-muted-foreground">
+			<p className="rounded-xl border border-border bg-lightprimary px-4 py-3 text-sm text-muted-foreground">
 				Estas reglas se interpretan en la timezone del tenant: {timezone}.
 			</p>
 			<div className="grid gap-4 md:grid-cols-3">
@@ -114,7 +115,7 @@ export function AppointmentRulesForm({
 					{workingDayOptions.map((option) => (
 						<label
 							key={option.value}
-							className="flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm"
+							className="flex items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-sm"
 						>
 							<input
 								defaultChecked={initialValues.working_days.includes(option.value)}
@@ -127,19 +128,9 @@ export function AppointmentRulesForm({
 					))}
 				</div>
 			</FormField>
-			{state.message ? (
-				<p
-					className={`rounded-md px-3 py-2 text-sm ${
-						state.status === "success"
-							? "border border-emerald-200 bg-emerald-50 text-emerald-800"
-							: "border border-destructive/20 bg-destructive/5 text-destructive"
-					}`}
-				>
-					{state.message}
-				</p>
-			) : null}
+			{state.message ? <ActionFeedback message={state.message} status={state.status} /> : null}
 			<div className="flex justify-end">
-				<SubmitButton label="Guardar reglas de agenda" pendingLabel="Guardando reglas..." />
+				<SubmitButton label="Guardar reglas de agenda" pendingLabel="Guardando reglas..." shape="pill" />
 			</div>
 		</form>
 	);

@@ -22,7 +22,7 @@ export default async function EditFaqPage({
 				description="Mantené las respuestas automáticas alineadas con las reglas del tenant."
 			>
 				<form action={deleteAction}>
-					<Button type="submit" variant="destructive">
+					<Button type="submit" variant="destructive" shape="pill">
 						Eliminar
 					</Button>
 				</form>

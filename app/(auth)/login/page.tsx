@@ -2,37 +2,41 @@ import { LoginForm } from "@/features/auth/login-form";
 
 export default function LoginPage() {
 	return (
-		<div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(15,118,110,0.18),_transparent_32%),linear-gradient(180deg,_#020617_0%,_#0f172a_100%)] px-6 py-16 text-white">
-			<div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1.25fr_0.9fr]">
-				<div className="max-w-2xl space-y-8">
-					<p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-300">
-						Arquitectura SaaS inmobiliaria
+		<div className="min-h-screen bg-background px-6 py-10 md:px-10">
+			<div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-7xl items-center gap-8 lg:grid-cols-[1.12fr_0.88fr]">
+				<div className="rounded-3xl border border-border bg-card p-8 shadow-sm md:p-10">
+					<p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+						Plataforma comercial inmobiliaria
 					</p>
-					<div className="space-y-4">
-						<h1 className="text-4xl font-semibold tracking-tight md:text-6xl">
-							Atención comercial multicanal con verdad de negocio estructurada.
+					<div className="mt-5 max-w-2xl space-y-4">
+						<h1 className="text-4xl font-semibold tracking-tight text-foreground md:text-6xl">
+							Operación conversacional con foco en propiedades, leads y contexto real.
 						</h1>
-						<p className="max-w-xl text-base text-slate-300 md:text-lg">
-							Foundation orientada a WhatsApp, RLS obligatoria, tenants aislados y un CRM
-							comercial simple pero extensible.
+						<p className="max-w-xl text-base leading-7 text-muted-foreground md:text-lg">
+							Un dashboard SaaS para inmobiliarias que necesitan responder mejor, derivar a
+							tiempo y ordenar su operación comercial sin perder aislamiento por tenant.
 						</p>
 					</div>
-					<div className="grid gap-4 md:grid-cols-3">
-						<div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-							<p className="text-sm font-medium text-white">Multi-tenancy correcto</p>
-							<p className="mt-2 text-sm text-slate-300">
+					<div className="mt-8 rounded-2xl bg-lightprimary px-5 py-4 text-sm text-primary">
+						Una inmobiliaria por tenant. Datos aislados, operación trazable y canales
+						conectados por cuenta propia del cliente.
+					</div>
+					<div className="mt-8 grid gap-4 md:grid-cols-3">
+						<div className="rounded-2xl border border-border bg-card p-5">
+							<p className="text-sm font-medium text-foreground">Multi-tenancy correcto</p>
+							<p className="mt-2 text-sm leading-6 text-muted-foreground">
 								`tenant_id` obligatorio, membresías activas y RLS como enforcement real.
 							</p>
 						</div>
-						<div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-							<p className="text-sm font-medium text-white">Canales desacoplados</p>
-							<p className="mt-2 text-sm text-slate-300">
+						<div className="rounded-2xl border border-border bg-card p-5">
+							<p className="text-sm font-medium text-foreground">Canales desacoplados</p>
+							<p className="mt-2 text-sm leading-6 text-muted-foreground">
 								WhatsApp modelado por tenant sin asumir propiedad de las cuentas del cliente.
 							</p>
 						</div>
-						<div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-							<p className="text-sm font-medium text-white">IA con límites claros</p>
-							<p className="mt-2 text-sm text-slate-300">
+						<div className="rounded-2xl border border-border bg-card p-5">
+							<p className="text-sm font-medium text-foreground">IA con límites claros</p>
+							<p className="mt-2 text-sm leading-6 text-muted-foreground">
 								La IA redacta e interpreta. La base define precio, estado y reglas.
 							</p>
 						</div>
@@ -45,4 +49,3 @@ export default function LoginPage() {
 		</div>
 	);
 }
-

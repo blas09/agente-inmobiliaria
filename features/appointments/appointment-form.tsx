@@ -4,11 +4,12 @@ import { useActionState } from "react";
 
 import { INITIAL_ACTION_STATE, type ActionState } from "@/types/actions";
 
+import { ActionFeedback } from "@/components/shared/action-feedback";
 import { FormField } from "@/components/shared/form-field";
 import { SubmitButton } from "@/components/shared/submit-button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDateTimeLocalInput } from "@/lib/utils";
 
@@ -47,11 +48,12 @@ export function AppointmentForm({
 		<Card>
 			<CardHeader>
 				<CardTitle>{title}</CardTitle>
+				<CardDescription>Fecha, responsable, propiedad y notas internas de la visita.</CardDescription>
 			</CardHeader>
 			<CardContent>
 				<form action={formAction} className="space-y-4">
 					{rulesSummary ? (
-						<p className="rounded-md border border-border bg-slate-50 px-3 py-2 text-sm text-muted-foreground">
+						<p className="rounded-xl border border-border bg-lightprimary px-4 py-3 text-sm text-muted-foreground">
 							Reglas activas: {rulesSummary}
 						</p>
 					) : null}
@@ -69,52 +71,39 @@ export function AppointmentForm({
 						/>
 					</FormField>
 					<FormField htmlFor="status" label="Estado" error={state.fieldErrors?.status?.[0]}>
-						<Select defaultValue={initialValues?.status ?? "scheduled"} id="status" name="status">
+						<NativeSelect defaultValue={initialValues?.status ?? "scheduled"} id="status" name="status">
 							<option value="scheduled">Agendada</option>
 							<option value="confirmed">Confirmada</option>
 							<option value="completed">Completada</option>
 							<option value="canceled">Cancelada</option>
 							<option value="no_show">No asistió</option>
-						</Select>
+						</NativeSelect>
 					</FormField>
 					<FormField htmlFor="property_id" label="Propiedad" error={state.fieldErrors?.property_id?.[0]}>
-						<Select defaultValue={initialValues?.property_id ?? ""} id="property_id" name="property_id">
+						<NativeSelect defaultValue={initialValues?.property_id ?? ""} id="property_id" name="property_id">
 							<option value="">Sin propiedad puntual</option>
 							{propertyOptions.map((property) => (
 								<option key={property.id} value={property.id}>
 									{property.label}
 								</option>
 							))}
-						</Select>
+						</NativeSelect>
 					</FormField>
 					<FormField htmlFor="advisor_id" label="Asesor" error={state.fieldErrors?.advisor_id?.[0]}>
-						<Select defaultValue={initialValues?.advisor_id ?? ""} id="advisor_id" name="advisor_id">
+						<NativeSelect defaultValue={initialValues?.advisor_id ?? ""} id="advisor_id" name="advisor_id">
 							<option value="">Sin asignar</option>
 							{advisorOptions.map((advisor) => (
 								<option key={advisor.id} value={advisor.id}>
 									{advisor.label} · {advisor.role}
 								</option>
 							))}
-						</Select>
+						</NativeSelect>
 					</FormField>
 					<FormField htmlFor="notes" label="Notas">
 						<Textarea defaultValue={initialValues?.notes ?? ""} id="notes" name="notes" />
 					</FormField>
-					{state.message ? (
-						<p
-							className={`rounded-md px-3 py-2 text-sm ${
-								state.status === "success"
-									? "border border-emerald-200 bg-emerald-50 text-emerald-800"
-									: "border border-destructive/20 bg-destructive/5 text-destructive"
-							}`}
-						>
-							{state.message}
-						</p>
-					) : null}
-					<SubmitButton
-						label={submitLabel}
-						pendingLabel={pendingLabel ?? "Guardando visita..."}
-					/>
+					{state.message ? <ActionFeedback message={state.message} status={state.status} /> : null}
+					<SubmitButton label={submitLabel} pendingLabel={pendingLabel ?? "Guardando visita..."} shape="pill" />
 				</form>
 			</CardContent>
 		</Card>

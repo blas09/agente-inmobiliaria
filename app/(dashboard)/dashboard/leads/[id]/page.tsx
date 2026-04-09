@@ -5,10 +5,11 @@ import { createAppointmentAction } from "@/features/appointments/actions";
 import { getAppointmentRules, summarizeAppointmentRules } from "@/features/appointments/rules";
 import { deleteLeadAction, updateLeadRoutingAction } from "@/features/leads/actions";
 import { LeadRoutingForm } from "@/features/leads/lead-routing-form";
+import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import {
 	getLeadById,
@@ -49,38 +50,68 @@ export default async function LeadDetailPage({
 	return (
 		<>
 			<PageHeader title={lead.full_name} description={lead.email ?? lead.phone ?? "Sin contacto principal"}>
-				<div className="flex gap-3">
-					<Link className="text-sm font-medium text-teal-700" href={`/dashboard/leads/${lead.id}/edit`}>
+				<div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+					<Link className="inline-flex items-center text-sm font-medium text-primary hover:underline" href={`/dashboard/leads/${lead.id}/edit`}>
 						Editar
 					</Link>
 					<form action={deleteAction}>
-						<Button type="submit" variant="destructive">
+						<Button type="submit" variant="destructive" shape="pill">
 							Eliminar
 						</Button>
 					</form>
 				</div>
 			</PageHeader>
+			<section className="grid gap-4 md:grid-cols-4">
+				<Card>
+					<CardContent>
+						<p className="text-sm text-muted-foreground">Estado comercial</p>
+						<div className="mt-3 flex items-center gap-3">
+							<Badge variant={lead.qualification_status === "qualified" ? "lightSuccess" : "lightPrimary"}>
+								{lead.qualification_status}
+							</Badge>
+							<span className="text-sm text-muted-foreground">Score {lead.score ?? "-"}</span>
+						</div>
+					</CardContent>
+				</Card>
+				<Card>
+					<CardContent>
+						<p className="text-sm text-muted-foreground">Etapa</p>
+						<p className="mt-3 text-lg font-semibold">{stage?.name ?? "Sin etapa"}</p>
+					</CardContent>
+				</Card>
+				<Card>
+					<CardContent>
+						<p className="text-sm text-muted-foreground">Asesor</p>
+						<p className="mt-3 text-lg font-semibold">
+							{assignedAdvisor?.user_profiles?.full_name ??
+								assignedAdvisor?.user_profiles?.email ??
+								"Sin asignar"}
+						</p>
+					</CardContent>
+				</Card>
+				<Card>
+					<CardContent>
+						<p className="text-sm text-muted-foreground">Creado</p>
+						<p className="mt-3 text-lg font-semibold">{formatDateTime(lead.created_at)}</p>
+					</CardContent>
+				</Card>
+			</section>
 			<div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
 				<Card>
 					<CardHeader>
 						<CardTitle>Perfil comercial</CardTitle>
+						<CardDescription>Contexto de negocio y datos principales del lead.</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-4 text-sm">
-						<div className="flex items-center justify-between">
-							<span className="text-muted-foreground">Estado</span>
-							<Badge variant={lead.qualification_status === "qualified" ? "success" : "outline"}>
-								{lead.qualification_status}
-							</Badge>
-						</div>
-						<div className="flex items-center justify-between">
+						<div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
 							<span className="text-muted-foreground">Interés</span>
 							<span>{lead.interest_type ?? "Sin definir"}</span>
 						</div>
-						<div className="flex items-center justify-between">
+						<div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
 							<span className="text-muted-foreground">Score</span>
 							<span>{lead.score ?? "-"}</span>
 						</div>
-						<div className="flex items-center justify-between">
+						<div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
 							<span className="text-muted-foreground">Asesor</span>
 							<span>
 								{assignedAdvisor?.user_profiles?.full_name ??
@@ -88,23 +119,48 @@ export default async function LeadDetailPage({
 									"Sin asignar"}
 							</span>
 						</div>
-						<div className="flex items-center justify-between">
+						<div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
 							<span className="text-muted-foreground">Etapa</span>
 							<span>{stage?.name ?? "Sin etapa"}</span>
 						</div>
-						<div className="flex items-center justify-between">
+						<div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
 							<span className="text-muted-foreground">Creado</span>
 							<span>{formatDateTime(lead.created_at)}</span>
+						</div>
+						<div className="grid gap-3 rounded-xl border border-border bg-muted p-4 sm:grid-cols-2">
+							<div>
+								<p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Fuente</p>
+								<p className="mt-1 font-medium">{lead.source ?? "Sin fuente"}</p>
+							</div>
+							<div>
+								<p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Contacto</p>
+								<p className="mt-1 font-medium">{lead.phone ?? lead.email ?? "Sin contacto"}</p>
+							</div>
+							<div>
+								<p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Presupuesto</p>
+								<p className="mt-1 font-medium">
+									{lead.budget_min || lead.budget_max
+										? `${lead.budget_min ?? "-"} / ${lead.budget_max ?? "-"}`
+										: "Sin definir"}
+								</p>
+							</div>
+							<div>
+								<p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Zona objetivo</p>
+								<p className="mt-1 font-medium">
+									{lead.desired_neighborhood ?? lead.desired_city ?? "Sin preferencia cargada"}
+								</p>
+							</div>
 						</div>
 					</CardContent>
 				</Card>
 				<Card>
 					<CardHeader>
 						<CardTitle>Contexto y notas</CardTitle>
+						<CardDescription>Observaciones internas y necesidad de handoff.</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-4 text-sm">
-						<p>{lead.notes ?? "Sin notas cargadas."}</p>
-						<div className="rounded-lg border border-border bg-slate-50 p-4">
+						<p className="leading-7 text-foreground/80">{lead.notes ?? "Sin notas cargadas."}</p>
+						<div className="rounded-xl border border-border bg-lightprimary p-4">
 							<p className="font-medium">Derivación humana</p>
 							<p className="mt-1 text-muted-foreground">
 								{lead.is_human_handoff_required ? "Sí" : "No"}
@@ -135,15 +191,21 @@ export default async function LeadDetailPage({
 				<Card>
 					<CardHeader>
 						<CardTitle>Conversaciones asociadas</CardTitle>
+						<CardDescription>Historial de contacto conectado a este lead.</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-3 text-sm">
 						{conversations.length === 0 ? (
-							<p className="text-muted-foreground">Todavía no hay conversaciones vinculadas a este lead.</p>
+							<EmptyState
+								title="Sin conversaciones vinculadas"
+								description="Cuando el lead entre por WhatsApp o se lo vincule manualmente, va a aparecer acá."
+								actionHref="/dashboard/conversations"
+								actionLabel="Ver conversaciones"
+							/>
 						) : (
 							conversations.map((conversation) => (
 								<Link
 									key={conversation.id}
-									className="block rounded-lg border border-border px-4 py-3 transition hover:border-teal-300"
+									className="block rounded-xl border border-border bg-card px-4 py-3 transition hover:border-primary/25 hover:shadow-sm"
 									href={`/dashboard/conversations/${conversation.id}`}
 								>
 									<p className="font-medium">
@@ -181,14 +243,18 @@ export default async function LeadDetailPage({
 				<Card>
 					<CardHeader>
 						<CardTitle>Visitas del lead</CardTitle>
+						<CardDescription>Agenda interna vinculada a este lead.</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-3 text-sm">
 						{appointments.length === 0 ? (
-							<p className="text-muted-foreground">Todavía no hay visitas cargadas para este lead.</p>
+							<EmptyState
+								title="Sin visitas todavía"
+								description="Podés agendar una visita interna desde este lead usando las reglas activas del tenant."
+							/>
 						) : (
 							appointments.map((appointment) => (
-								<div key={appointment.id} className="rounded-lg border border-border px-4 py-3">
-									<div className="flex items-center justify-between gap-3">
+								<div key={appointment.id} className="rounded-xl border border-border bg-card px-4 py-3">
+									<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 										<p className="font-medium">{formatDateTime(appointment.scheduled_at)}</p>
 										<Badge
 											variant={
@@ -209,7 +275,7 @@ export default async function LeadDetailPage({
 								</div>
 							))
 						)}
-						<Link className="text-teal-700 hover:underline" href="/dashboard/appointments">
+						<Link className="text-primary hover:underline" href="/dashboard/appointments">
 							Ir a la agenda completa
 						</Link>
 					</CardContent>
@@ -218,16 +284,22 @@ export default async function LeadDetailPage({
 			<Card>
 				<CardHeader>
 					<CardTitle>Historial de pipeline</CardTitle>
+					<CardDescription>Registro de cambios de etapa comerciales.</CardDescription>
 				</CardHeader>
-				<CardContent className="space-y-3 text-sm">
+				<CardContent className="grid gap-3 text-sm md:grid-cols-2 xl:grid-cols-3">
 					{stageHistory.length === 0 ? (
-						<p className="text-muted-foreground">Todavía no hay cambios de etapa registrados.</p>
+						<div className="md:col-span-2 xl:col-span-3">
+							<EmptyState
+								title="Sin cambios de etapa"
+								description="El historial va a aparecer cuando el lead avance o retroceda dentro del pipeline comercial."
+							/>
+						</div>
 					) : (
 						stageHistory.map((entry) => {
 							const historyStage = stages.find((stageOption) => stageOption.id === entry.stage_id);
 
 							return (
-								<div key={entry.id} className="rounded-lg border border-border px-4 py-3">
+								<div key={entry.id} className="rounded-xl border border-border bg-card px-4 py-3">
 									<p className="font-medium">{historyStage?.name ?? "Etapa desconocida"}</p>
 									<p className="text-muted-foreground">{formatDateTime(entry.changed_at)}</p>
 									{entry.notes ? <p className="mt-1">{entry.notes}</p> : null}

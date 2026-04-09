@@ -5,11 +5,12 @@ import type { Tables } from "@/types/database";
 
 import { INITIAL_ACTION_STATE, type ActionState } from "@/types/actions";
 
+import { ActionFeedback } from "@/components/shared/action-feedback";
 import { FormField } from "@/components/shared/form-field";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 
 interface LeadFormProps {
@@ -43,14 +44,14 @@ export function LeadForm({ action, initialValues, stageOptions, advisorOptions }
 						<Input defaultValue={initialValues?.source ?? ""} id="source" name="source" />
 					</FormField>
 					<FormField htmlFor="interest_type" label="Interés">
-						<Select defaultValue={initialValues?.interest_type ?? ""} id="interest_type" name="interest_type">
+						<NativeSelect defaultValue={initialValues?.interest_type ?? ""} id="interest_type" name="interest_type">
 							<option value="">Sin definir</option>
 							<option value="sale">Compra</option>
 							<option value="rent">Alquiler</option>
-						</Select>
+						</NativeSelect>
 					</FormField>
 					<FormField htmlFor="qualification_status" label="Estado comercial">
-						<Select
+						<NativeSelect
 							defaultValue={initialValues?.qualification_status ?? "new"}
 							id="qualification_status"
 							name="qualification_status"
@@ -62,7 +63,7 @@ export function LeadForm({ action, initialValues, stageOptions, advisorOptions }
 							<option value="nurturing">Seguimiento</option>
 							<option value="won">Ganado</option>
 							<option value="lost">Perdido</option>
-						</Select>
+						</NativeSelect>
 					</FormField>
 					<FormField htmlFor="budget_min" label="Presupuesto mínimo">
 						<Input
@@ -106,17 +107,17 @@ export function LeadForm({ action, initialValues, stageOptions, advisorOptions }
 						<Input defaultValue={initialValues?.score ?? ""} id="score" name="score" type="number" />
 					</FormField>
 					<FormField htmlFor="assigned_to" label="Asesor asignado">
-						<Select defaultValue={initialValues?.assigned_to ?? ""} id="assigned_to" name="assigned_to">
+						<NativeSelect defaultValue={initialValues?.assigned_to ?? ""} id="assigned_to" name="assigned_to">
 							<option value="">Sin asignar</option>
 							{advisorOptions.map((advisor) => (
 								<option key={advisor.id} value={advisor.id}>
 									{advisor.label} · {advisor.role}
 								</option>
 							))}
-						</Select>
+						</NativeSelect>
 					</FormField>
 					<FormField htmlFor="pipeline_stage_id" label="Etapa pipeline">
-						<Select
+						<NativeSelect
 							defaultValue={initialValues?.pipeline_stage_id ?? ""}
 							id="pipeline_stage_id"
 							name="pipeline_stage_id"
@@ -127,7 +128,7 @@ export function LeadForm({ action, initialValues, stageOptions, advisorOptions }
 									{stage.name}
 								</option>
 							))}
-						</Select>
+						</NativeSelect>
 					</FormField>
 					<FormField htmlFor="notes" label="Notas" className="md:col-span-2">
 						<Textarea defaultValue={initialValues?.notes ?? ""} id="notes" name="notes" />
@@ -156,11 +157,7 @@ export function LeadForm({ action, initialValues, stageOptions, advisorOptions }
 					</div>
 				</CardContent>
 			</Card>
-			{state.message ? (
-				<p className="rounded-md border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-					{state.message}
-				</p>
-			) : null}
+			{state.message ? <ActionFeedback message={state.message} status={state.status} /> : null}
 			<div className="flex justify-end">
 				<SubmitButton label="Guardar lead" pendingLabel="Guardando lead..." />
 			</div>

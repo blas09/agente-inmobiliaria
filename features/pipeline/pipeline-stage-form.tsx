@@ -4,11 +4,12 @@ import { useActionState } from "react";
 
 import { INITIAL_ACTION_STATE, type ActionState } from "@/types/actions";
 
+import { ActionFeedback } from "@/components/shared/action-feedback";
 import { FormField } from "@/components/shared/form-field";
 import { SubmitButton } from "@/components/shared/submit-button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { NativeSelect } from "@/components/ui/native-select";
 
 export function PipelineStageForm({
 	action,
@@ -29,7 +30,8 @@ export function PipelineStageForm({
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle className="text-base">{title}</CardTitle>
+				<CardTitle>{title}</CardTitle>
+				<CardDescription>Nombre, posición y categoría operativa dentro del pipeline.</CardDescription>
 			</CardHeader>
 			<CardContent>
 				<form action={formAction} className="grid gap-4 md:grid-cols-[1.3fr_0.7fr_1fr_auto]">
@@ -46,33 +48,25 @@ export function PipelineStageForm({
 						/>
 					</FormField>
 					<FormField htmlFor={`category-${title}`} label="Categoría">
-						<Select defaultValue={initialValues?.category ?? "inbox"} id={`category-${title}`} name="category">
+						<NativeSelect defaultValue={initialValues?.category ?? "inbox"} id={`category-${title}`} name="category">
 							<option value="inbox">Inbox</option>
 							<option value="qualified">Qualified</option>
 							<option value="visit">Visit</option>
 							<option value="negotiation">Negotiation</option>
 							<option value="won">Won</option>
 							<option value="lost">Lost</option>
-						</Select>
+						</NativeSelect>
 					</FormField>
 					<div className="flex items-end gap-3">
-						<label className="flex items-center gap-2 text-sm">
+						<label className="flex items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-sm">
 							<input defaultChecked={initialValues?.is_default ?? false} name="is_default" type="checkbox" />
 							Default
 						</label>
-						<SubmitButton label="Guardar" pendingLabel="Guardando..." />
+						<SubmitButton label="Guardar" pendingLabel="Guardando..." shape="pill" />
 					</div>
 				</form>
 				{state.message ? (
-					<p
-						className={`mt-4 rounded-md px-3 py-2 text-sm ${
-							state.status === "success"
-								? "border border-emerald-200 bg-emerald-50 text-emerald-800"
-								: "border border-destructive/20 bg-destructive/5 text-destructive"
-						}`}
-					>
-						{state.message}
-					</p>
+					<ActionFeedback className="mt-4" message={state.message} status={state.status} />
 				) : null}
 			</CardContent>
 		</Card>

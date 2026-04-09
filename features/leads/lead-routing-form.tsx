@@ -4,10 +4,11 @@ import { useActionState } from "react";
 
 import { INITIAL_ACTION_STATE, type ActionState } from "@/types/actions";
 
+import { ActionFeedback } from "@/components/shared/action-feedback";
 import { FormField } from "@/components/shared/form-field";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select } from "@/components/ui/select";
+import { NativeSelect } from "@/components/ui/native-select";
 
 interface LeadRoutingFormProps {
 	action: (state: ActionState, formData: FormData) => Promise<ActionState>;
@@ -37,17 +38,17 @@ export function LeadRoutingForm({
 			<CardContent>
 				<form action={formAction} className="space-y-4">
 					<FormField htmlFor="assigned_to" label="Asesor asignado">
-						<Select defaultValue={initialValues.assigned_to ?? ""} id="assigned_to" name="assigned_to">
+						<NativeSelect defaultValue={initialValues.assigned_to ?? ""} id="assigned_to" name="assigned_to">
 							<option value="">Sin asignar</option>
 							{advisorOptions.map((advisor) => (
 								<option key={advisor.id} value={advisor.id}>
 									{advisor.label} · {advisor.role}
 								</option>
 							))}
-						</Select>
+						</NativeSelect>
 					</FormField>
 					<FormField htmlFor="qualification_status" label="Estado comercial">
-						<Select
+						<NativeSelect
 							defaultValue={initialValues.qualification_status}
 							id="qualification_status"
 							name="qualification_status"
@@ -59,10 +60,10 @@ export function LeadRoutingForm({
 							<option value="nurturing">Seguimiento</option>
 							<option value="won">Ganado</option>
 							<option value="lost">Perdido</option>
-						</Select>
+						</NativeSelect>
 					</FormField>
 					<FormField htmlFor="pipeline_stage_id" label="Etapa del pipeline">
-						<Select
+						<NativeSelect
 							defaultValue={initialValues.pipeline_stage_id ?? ""}
 							id="pipeline_stage_id"
 							name="pipeline_stage_id"
@@ -73,7 +74,7 @@ export function LeadRoutingForm({
 									{stage.name}
 								</option>
 							))}
-						</Select>
+						</NativeSelect>
 					</FormField>
 					<label className="flex items-center gap-2 text-sm">
 						<input
@@ -83,21 +84,10 @@ export function LeadRoutingForm({
 						/>
 						Requiere derivación humana
 					</label>
-					{state.message ? (
-						<p
-							className={`rounded-md px-3 py-2 text-sm ${
-								state.status === "success"
-									? "border border-emerald-200 bg-emerald-50 text-emerald-800"
-									: "border border-destructive/20 bg-destructive/5 text-destructive"
-							}`}
-						>
-							{state.message}
-						</p>
-					) : null}
+					{state.message ? <ActionFeedback message={state.message} status={state.status} /> : null}
 					<SubmitButton label="Actualizar operación" pendingLabel="Guardando..." />
 				</form>
 			</CardContent>
 		</Card>
 	);
 }
-

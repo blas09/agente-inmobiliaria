@@ -29,19 +29,28 @@ const items = [
 
 const platformItems = [{ href: "/dashboard/platform/tenants", label: "Tenants", icon: Shield }];
 
-export function Sidebar({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
+function SidebarContent({
+	isPlatformAdmin,
+	onNavigate,
+}: {
+	isPlatformAdmin: boolean;
+	onNavigate?: () => void;
+}) {
 	const pathname = usePathname();
 	const navigationItems = isPlatformAdmin ? [...items, ...platformItems] : items;
 
 	return (
-		<aside className="hidden w-72 shrink-0 border-r border-white/10 bg-slate-950 text-slate-100 md:flex md:flex-col">
-			<div className="border-b border-white/10 px-6 py-6">
-				<p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-300">
-					Agente Inmobiliaria
+		<div className="flex h-full flex-col bg-sidebar">
+			<div className="border-b border-sidebar-border px-6 py-6">
+				<p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Agente Inmobiliaria</p>
+				<h2 className="mt-3 text-xl font-bold tracking-tight text-sidebar-foreground">
+					Operación comercial
+				</h2>
+				<p className="mt-1.5 text-sm leading-6 text-muted-foreground">
+					CRM conversacional para inmobiliarias multitenant.
 				</p>
-				<h2 className="mt-2 text-xl font-semibold tracking-tight">SaaS comercial multitenant</h2>
 			</div>
-			<nav className="flex-1 space-y-1 px-4 py-6">
+			<nav className="flex-1 space-y-1 px-4 py-5">
 				{navigationItems.map((item) => {
 					const Icon = item.icon;
 					const isActive =
@@ -52,17 +61,43 @@ export function Sidebar({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
 						<Link
 							key={item.href}
 							href={item.href}
+							onClick={onNavigate}
 							className={cn(
-								"flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white",
-								isActive && "bg-teal-500/10 text-white ring-1 ring-inset ring-teal-500/30",
+								"group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+								isActive && "bg-sidebar-accent text-sidebar-accent-foreground",
 							)}
 						>
-							<Icon className="h-4 w-4" />
-							{item.label}
+							<span
+								className={cn(
+									"flex h-9 w-9 items-center justify-center rounded-lg border border-sidebar-border bg-card text-muted-foreground transition group-hover:border-primary/20 group-hover:text-primary",
+									isActive && "border-primary/15 bg-lightprimary text-primary",
+								)}
+							>
+								<Icon className="h-4 w-4" />
+							</span>
+							<span className="truncate">{item.label}</span>
 						</Link>
 					);
 				})}
 			</nav>
+		</div>
+	);
+}
+
+export function Sidebar({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
+	return (
+		<aside className="hidden w-[18rem] shrink-0 border-r border-sidebar-border xl:flex xl:flex-col">
+			<SidebarContent isPlatformAdmin={isPlatformAdmin} />
 		</aside>
 	);
+}
+
+export function MobileSidebarContent({
+	isPlatformAdmin,
+	onNavigate,
+}: {
+	isPlatformAdmin: boolean;
+	onNavigate?: () => void;
+}) {
+	return <SidebarContent isPlatformAdmin={isPlatformAdmin} onNavigate={onNavigate} />;
 }

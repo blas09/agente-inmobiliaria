@@ -5,11 +5,12 @@ import type { Tables } from "@/types/database";
 
 import { INITIAL_ACTION_STATE, type ActionState } from "@/types/actions";
 
+import { ActionFeedback } from "@/components/shared/action-feedback";
 import { FormField } from "@/components/shared/form-field";
 import { SubmitButton } from "@/components/shared/submit-button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 
 interface FaqFormProps {
@@ -23,11 +24,16 @@ export function FaqForm({ action, initialValues }: FaqFormProps) {
 	return (
 		<form action={formAction} className="space-y-6">
 			<Card>
-				<CardContent className="grid gap-4 pt-6">
+				<CardHeader>
+					<CardTitle>Contenido de la respuesta</CardTitle>
+					<CardDescription>Pregunta, categoría y estado editorial de la FAQ.</CardDescription>
+				</CardHeader>
+				<CardContent className="grid gap-4 md:grid-cols-2">
 					<FormField
 						htmlFor="question"
 						label="Pregunta"
 						error={state.fieldErrors?.question?.[0]}
+						className="md:col-span-2"
 					>
 						<Input
 							defaultValue={initialValues?.question ?? ""}
@@ -40,23 +46,19 @@ export function FaqForm({ action, initialValues }: FaqFormProps) {
 						<Input defaultValue={initialValues?.category ?? ""} id="category" name="category" />
 					</FormField>
 					<FormField htmlFor="status" label="Estado">
-						<Select defaultValue={initialValues?.status ?? "active"} id="status" name="status">
+						<NativeSelect defaultValue={initialValues?.status ?? "active"} id="status" name="status">
 							<option value="active">Activa</option>
 							<option value="inactive">Inactiva</option>
-						</Select>
+						</NativeSelect>
 					</FormField>
-					<FormField htmlFor="answer" label="Respuesta" error={state.fieldErrors?.answer?.[0]}>
+					<FormField htmlFor="answer" label="Respuesta" error={state.fieldErrors?.answer?.[0]} className="md:col-span-2">
 						<Textarea defaultValue={initialValues?.answer ?? ""} id="answer" name="answer" required />
 					</FormField>
 				</CardContent>
 			</Card>
-			{state.message ? (
-				<p className="rounded-md border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-					{state.message}
-				</p>
-			) : null}
+			{state.message ? <ActionFeedback message={state.message} status={state.status} /> : null}
 			<div className="flex justify-end">
-				<SubmitButton label="Guardar FAQ" pendingLabel="Guardando FAQ..." />
+				<SubmitButton label="Guardar FAQ" pendingLabel="Guardando FAQ..." shape="pill" />
 			</div>
 		</form>
 	);

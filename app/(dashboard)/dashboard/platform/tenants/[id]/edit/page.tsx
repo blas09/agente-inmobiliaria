@@ -19,6 +19,20 @@ export default async function EditPlatformTenantPage({
 				title={`Editar ${tenant.name}`}
 				description="Administración de parámetros centrales del tenant desde plataforma."
 			/>
+			<section className="mb-6 grid gap-4 md:grid-cols-3">
+				<div className="rounded-xl border border-border bg-card p-5">
+					<p className="text-sm font-medium text-foreground">Slug</p>
+					<p className="mt-2 text-sm text-muted-foreground">{tenant.slug}</p>
+				</div>
+				<div className="rounded-xl border border-border bg-card p-5">
+					<p className="text-sm font-medium text-foreground">Estado</p>
+					<p className="mt-2 text-sm text-muted-foreground">{tenant.status}</p>
+				</div>
+				<div className="rounded-xl border border-border bg-card p-5">
+					<p className="text-sm font-medium text-foreground">Timezone</p>
+					<p className="mt-2 text-sm text-muted-foreground">{tenant.timezone}</p>
+				</div>
+			</section>
 			<TenantForm action={updatePlatformTenantAction.bind(null, tenant.id)} initialValues={tenant} />
 		</>
 	);

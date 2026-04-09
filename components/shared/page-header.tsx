@@ -20,14 +20,18 @@ export function PageHeader({
 }: PageHeaderProps) {
 	return (
 		<div className="flex flex-col gap-4 border-b border-border pb-5 md:flex-row md:items-end md:justify-between">
-			<div className="space-y-1">
-				<h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-				{description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
+			<div className="max-w-3xl space-y-1.5">
+				<h1 className="text-dark text-[28px] leading-none font-semibold tracking-tight md:text-[30px]">{title}</h1>
+				{description ? (
+					<p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+						{description}
+					</p>
+				) : null}
 			</div>
-			<div className="flex items-center gap-3">
-				{children}
+			<div className="flex w-full flex-col gap-2.5 md:w-auto md:items-end">
+				{children ? <div className="w-full md:w-auto">{children}</div> : null}
 				{actionHref && actionLabel ? (
-					<Link className={buttonVariants()} href={actionHref}>
+					<Link className={buttonVariants({ shape: "pill" })} href={actionHref}>
 						{actionLabel}
 					</Link>
 				) : null}

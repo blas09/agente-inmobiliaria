@@ -1,8 +1,9 @@
 import { AppointmentRulesForm } from "@/features/appointments/appointment-rules-form";
 import { updateAppointmentRulesAction } from "@/features/appointments/actions";
 import { getAppointmentRules } from "@/features/appointments/rules";
+import { MetricCard } from "@/components/shared/metric-card";
 import { PageHeader } from "@/components/shared/page-header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	getActiveTenantContext,
 	requireTenantAdminContext,
@@ -40,7 +41,12 @@ export default async function SettingsPage() {
 				title="Configuración"
 				description="Configuración operativa del tenant activo, con gestión inicial de miembros y roles."
 			/>
-			<div className="grid gap-6">
+			<section className="grid gap-4 md:grid-cols-3">
+				<MetricCard label="Workspace" tone="primary" value={activeTenant.name} valueClassName="text-xl" />
+				<MetricCard label="Usuarios activos" tone="success" value={users.length} />
+				<MetricCard label="Etapas pipeline" tone="warning" value={stages.length} />
+			</section>
+			<div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
 				{canManage ? (
 					<TenantForm
 						action={updateCurrentTenantSettingsAction}
@@ -51,6 +57,7 @@ export default async function SettingsPage() {
 					<Card>
 						<CardHeader>
 							<CardTitle>Tenant</CardTitle>
+							<CardDescription>Datos base del workspace activo.</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-3 text-sm">
 							<div className="flex justify-between">
@@ -75,6 +82,7 @@ export default async function SettingsPage() {
 				<Card>
 					<CardHeader>
 						<CardTitle>Agenda interna</CardTitle>
+						<CardDescription>Reglas operativas de disponibilidad y validación.</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-4">
 						{canManage ? (
@@ -110,6 +118,7 @@ export default async function SettingsPage() {
 				<Card>
 					<CardHeader>
 						<CardTitle>Usuarios del tenant</CardTitle>
+						<CardDescription>Accesos, roles y operación del equipo comercial.</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-4">
 						{canManage ? <AddTenantUserForm action={addTenantUserAction} /> : null}
@@ -122,7 +131,7 @@ export default async function SettingsPage() {
 							users.map((user) => (
 								<div
 									key={user.id}
-									className="flex items-center justify-between rounded-lg border border-border px-4 py-3 text-sm"
+									className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3 text-sm"
 								>
 									<div>
 										<p className="font-medium">{user.user_profiles?.full_name ?? "Perfil sin sincronizar"}</p>
@@ -137,6 +146,7 @@ export default async function SettingsPage() {
 				<Card>
 					<CardHeader>
 						<CardTitle>Pipeline comercial</CardTitle>
+						<CardDescription>Etapas editables para seguimiento del lead.</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-4">
 						{canManage ? (
@@ -160,7 +170,7 @@ export default async function SettingsPage() {
 							stages.map((stage) => (
 								<div
 									key={stage.id}
-									className="flex items-center justify-between rounded-lg border border-border px-4 py-3 text-sm"
+									className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3 text-sm"
 								>
 									<div>
 										<p className="font-medium">{stage.name}</p>

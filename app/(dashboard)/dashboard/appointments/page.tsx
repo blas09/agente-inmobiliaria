@@ -4,11 +4,13 @@ import { AppointmentForm } from "@/features/appointments/appointment-form";
 import { updateAppointmentAction } from "@/features/appointments/actions";
 import { getAppointmentRules, summarizeAppointmentRules } from "@/features/appointments/rules";
 import { EmptyState } from "@/components/shared/empty-state";
+import { FilterCard } from "@/components/shared/filter-card";
+import { MetricCard } from "@/components/shared/metric-card";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select } from "@/components/ui/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { NativeSelect } from "@/components/ui/native-select";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { listAppointments } from "@/server/queries/appointments";
 import { listAvailablePropertiesForSelection } from "@/server/queries/properties";
@@ -35,31 +37,49 @@ export default async function AppointmentsPage({
 				title="Agenda"
 				description="Visitas internas del tenant. La agenda propia sigue siendo la verdad de negocio."
 			>
-				<form className="flex flex-col gap-2 md:flex-row">
-					<Select defaultValue={params.status ?? "all"} name="status">
-						<option value="all">Todos los estados</option>
-						<option value="scheduled">Agendadas</option>
-						<option value="confirmed">Confirmadas</option>
-						<option value="completed">Completadas</option>
-						<option value="canceled">Canceladas</option>
-						<option value="no_show">No asistió</option>
-					</Select>
-					<Select defaultValue={params.advisor ?? "all"} name="advisor">
-						<option value="all">Todos los asesores</option>
-						{advisors.map((advisor) => (
-							<option key={advisor.user_id} value={advisor.user_id}>
-								{advisor.user_profiles?.full_name ?? advisor.user_profiles?.email ?? advisor.user_id}
-							</option>
-						))}
-					</Select>
-					<Button type="submit" variant="outline">
-						Filtrar
-					</Button>
+				<form className="w-full" method="get">
+					<FilterCard>
+						<div className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
+						<NativeSelect defaultValue={params.status ?? "all"} name="status">
+							<option value="all">Todos los estados</option>
+							<option value="scheduled">Agendadas</option>
+							<option value="confirmed">Confirmadas</option>
+							<option value="completed">Completadas</option>
+							<option value="canceled">Canceladas</option>
+							<option value="no_show">No asistió</option>
+						</NativeSelect>
+						<NativeSelect defaultValue={params.advisor ?? "all"} name="advisor">
+							<option value="all">Todos los asesores</option>
+							{advisors.map((advisor) => (
+								<option key={advisor.user_id} value={advisor.user_id}>
+									{advisor.user_profiles?.full_name ?? advisor.user_profiles?.email ?? advisor.user_id}
+								</option>
+							))}
+						</NativeSelect>
+						<Button type="submit" variant="outline">
+							Filtrar
+						</Button>
+						</div>
+					</FilterCard>
 				</form>
 			</PageHeader>
+			<section className="grid gap-4 md:grid-cols-3">
+				<MetricCard label="Visitas" tone="primary" value={appointments.length} />
+				<MetricCard
+					label="Confirmadas"
+					tone="success"
+					value={appointments.filter((appointment) => appointment.status === "confirmed").length}
+				/>
+				<MetricCard
+					label="Pendientes"
+					tone="warning"
+					value={appointments.filter((appointment) => appointment.status === "scheduled").length}
+				/>
+			</section>
 			<Card>
 				<CardHeader>
 					<CardTitle>Reglas activas de agenda</CardTitle>
+					<CardDescription>Validaciones del tenant aplicadas al crear o editar visitas.</CardDescription>
 				</CardHeader>
 				<CardContent className="text-sm text-muted-foreground">
 					{summarizeAppointmentRules(appointmentRules)} · aviso mínimo{" "}
@@ -70,6 +90,8 @@ export default async function AppointmentsPage({
 				<EmptyState
 					title="No hay visitas cargadas"
 					description="Podés agendarlas desde un lead o una conversación con lead vinculado."
+					actionHref="/dashboard/leads"
+					actionLabel="Ir a leads"
 				/>
 			) : (
 				<div className="grid gap-6">
@@ -77,7 +99,7 @@ export default async function AppointmentsPage({
 						<div key={appointment.id} className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
 							<Card>
 								<CardHeader>
-									<CardTitle className="flex items-center justify-between gap-3">
+									<CardTitle className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 										<span>
 											{appointment.lead?.full_name ?? "Lead no disponible"}
 										</span>
@@ -93,6 +115,11 @@ export default async function AppointmentsPage({
 											{appointment.status}
 										</Badge>
 									</CardTitle>
+									<CardDescription>
+										{appointment.lead?.phone ?? appointment.lead?.email ?? "Sin contacto"} ·{" "}
+										{appointment.property?.title ??
+											(appointment.property_id ? "Propiedad no disponible" : "Sin propiedad")}
+									</CardDescription>
 								</CardHeader>
 								<CardContent className="space-y-3 text-sm">
 									<div className="flex justify-between gap-3">
@@ -117,18 +144,18 @@ export default async function AppointmentsPage({
 										<span>{appointment.lead?.phone ?? appointment.lead?.email ?? "Sin contacto"}</span>
 									</div>
 									{appointment.notes ? (
-										<div>
+										<div className="rounded-xl border border-border bg-lightprimary p-4">
 											<p className="text-muted-foreground">Notas</p>
 											<p className="mt-1">{appointment.notes}</p>
 										</div>
 									) : null}
 									<div className="flex gap-3 text-sm">
-										<Link className="text-teal-700 hover:underline" href={`/dashboard/leads/${appointment.lead_id}`}>
+										<Link className="text-primary hover:underline" href={`/dashboard/leads/${appointment.lead_id}`}>
 											Ver lead
 										</Link>
 										{appointment.property_id ? (
 											<Link
-												className="text-teal-700 hover:underline"
+												className="text-primary hover:underline"
 												href={`/dashboard/properties/${appointment.property_id}`}
 											>
 												Ver propiedad

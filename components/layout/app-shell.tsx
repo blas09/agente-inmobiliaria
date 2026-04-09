@@ -22,10 +22,10 @@ export function AppShell({
 	children,
 }: AppShellProps) {
 	return (
-		<div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(20,184,166,0.14),_transparent_36%),linear-gradient(180deg,_#f8fafc_0%,_#eef2ff_100%)]">
-			<div className="flex min-h-screen">
+		<div className="min-h-screen bg-background">
+			<div className="flex min-h-screen w-full">
 				<Sidebar isPlatformAdmin={isPlatformAdmin} />
-				<div className="flex min-h-screen min-w-0 flex-1 flex-col">
+				<div className="flex min-h-screen min-w-0 flex-1 flex-col bg-background">
 					<AppHeader
 						activeTenantId={activeTenantId}
 						activeTenantName={activeTenantName}
@@ -33,8 +33,8 @@ export function AppShell({
 						isPlatformAdmin={isPlatformAdmin}
 						userName={userName}
 					/>
-					<main className="flex-1 px-6 py-8">
-						<div className="mx-auto flex w-full max-w-7xl flex-col gap-6">{children}</div>
+					<main className="flex-1 px-4 py-5 md:px-5 xl:px-6 xl:py-6">
+						<div className="mx-auto flex w-full max-w-[88rem] flex-col gap-5">{children}</div>
 					</main>
 				</div>
 			</div>

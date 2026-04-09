@@ -5,11 +5,12 @@ import type { Tables } from "@/types/database";
 
 import { INITIAL_ACTION_STATE, type ActionState } from "@/types/actions";
 
+import { ActionFeedback } from "@/components/shared/action-feedback";
 import { FormField } from "@/components/shared/form-field";
 import { SubmitButton } from "@/components/shared/submit-button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 
 interface PropertyFormProps {
@@ -23,7 +24,11 @@ export function PropertyForm({ action, initialValues }: PropertyFormProps) {
 	return (
 		<form action={formAction} className="space-y-6">
 			<Card>
-				<CardContent className="grid gap-4 pt-6 md:grid-cols-2">
+				<CardHeader>
+					<CardTitle>Ficha de la propiedad</CardTitle>
+					<CardDescription>Información estructurada usada como base comercial y source of truth.</CardDescription>
+				</CardHeader>
+				<CardContent className="grid gap-5 md:grid-cols-2">
 					<FormField
 						htmlFor="title"
 						label="Título"
@@ -40,27 +45,27 @@ export function PropertyForm({ action, initialValues }: PropertyFormProps) {
 						/>
 					</FormField>
 					<FormField htmlFor="status" label="Estado">
-						<Select defaultValue={initialValues?.status ?? "draft"} id="status" name="status">
+						<NativeSelect defaultValue={initialValues?.status ?? "draft"} id="status" name="status">
 							<option value="draft">Borrador</option>
 							<option value="available">Disponible</option>
 							<option value="reserved">Reservada</option>
 							<option value="rented">Alquilada</option>
 							<option value="sold">Vendida</option>
 							<option value="inactive">Inactiva</option>
-						</Select>
+						</NativeSelect>
 					</FormField>
 					<FormField htmlFor="operation_type" label="Operación">
-						<Select
+						<NativeSelect
 							defaultValue={initialValues?.operation_type ?? "sale"}
 							id="operation_type"
 							name="operation_type"
 						>
 							<option value="sale">Venta</option>
 							<option value="rent">Alquiler</option>
-						</Select>
+						</NativeSelect>
 					</FormField>
 					<FormField htmlFor="property_type" label="Tipo">
-						<Select
+						<NativeSelect
 							defaultValue={initialValues?.property_type ?? "apartment"}
 							id="property_type"
 							name="property_type"
@@ -74,7 +79,7 @@ export function PropertyForm({ action, initialValues }: PropertyFormProps) {
 							<option value="duplex">Dúplex</option>
 							<option value="condo">Condominio</option>
 							<option value="other">Otro</option>
-						</Select>
+						</NativeSelect>
 					</FormField>
 					<FormField htmlFor="price" label="Precio">
 						<Input defaultValue={initialValues?.price ?? ""} id="price" name="price" type="number" />
@@ -157,8 +162,12 @@ export function PropertyForm({ action, initialValues }: PropertyFormProps) {
 							name="description"
 						/>
 					</FormField>
-					<div className="grid gap-3 rounded-lg border border-border bg-slate-50 p-4 md:col-span-2 md:grid-cols-5">
-						<label className="flex items-center gap-2 text-sm">
+					<div className="space-y-3 rounded-xl border border-border bg-lightprimary p-5 md:col-span-2">
+						<p className="text-sm font-medium text-foreground">
+							Atributos destacados
+						</p>
+						<div className="grid gap-3 md:grid-cols-5">
+						<label className="flex items-center gap-2 text-sm text-foreground">
 							<input
 								defaultChecked={initialValues?.pets_allowed ?? false}
 								name="pets_allowed"
@@ -166,32 +175,29 @@ export function PropertyForm({ action, initialValues }: PropertyFormProps) {
 							/>
 							Acepta mascotas
 						</label>
-						<label className="flex items-center gap-2 text-sm">
+						<label className="flex items-center gap-2 text-sm text-foreground">
 							<input defaultChecked={initialValues?.furnished ?? false} name="furnished" type="checkbox" />
 							Amoblada
 						</label>
-						<label className="flex items-center gap-2 text-sm">
+						<label className="flex items-center gap-2 text-sm text-foreground">
 							<input defaultChecked={initialValues?.has_pool ?? false} name="has_pool" type="checkbox" />
 							Piscina
 						</label>
-						<label className="flex items-center gap-2 text-sm">
+						<label className="flex items-center gap-2 text-sm text-foreground">
 							<input defaultChecked={initialValues?.has_garden ?? false} name="has_garden" type="checkbox" />
 							Jardín
 						</label>
-						<label className="flex items-center gap-2 text-sm">
+						<label className="flex items-center gap-2 text-sm text-foreground">
 							<input defaultChecked={initialValues?.has_balcony ?? false} name="has_balcony" type="checkbox" />
 							Balcón
 						</label>
+						</div>
 					</div>
 				</CardContent>
 			</Card>
-			{state.message ? (
-				<p className="rounded-md border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-					{state.message}
-				</p>
-			) : null}
+			{state.message ? <ActionFeedback message={state.message} status={state.status} /> : null}
 			<div className="flex justify-end">
-				<SubmitButton label="Guardar propiedad" pendingLabel="Guardando propiedad..." />
+				<SubmitButton label="Guardar propiedad" pendingLabel="Guardando propiedad..." shape="pill" />
 			</div>
 		</form>
 	);

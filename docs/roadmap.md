@@ -102,10 +102,13 @@ Estado general:
 - `[x]` Crear componentes UI reutilizables base.
 - `[x]` Resolver diseño desktop-first responsive básico.
 - `[x]` Soportar dashboard para `platform_admin` sin tenant activo.
-- `[ ]` Mejorar estados vacíos, errores y feedback transaccional de forma más consistente.
-- `[ ]` Elevar la calidad visual general del producto: tipografía, color, espaciado, jerarquía y consistencia.
-- `[ ]` Definir una dirección visual más intencional para el dashboard SaaS.
-- `[ ]` Revisar fuentes, tokens de color y estados de componentes base.
+- `[~]` Mejorar estados vacíos, errores y feedback transaccional de forma más consistente.
+  Ya existe un patrón compartido para feedback de formularios y vacíos más accionables en dashboard, leads, propiedades, conversaciones, agenda y tenants.
+- `[~]` Elevar la calidad visual general del producto: tipografía, color, espaciado, jerarquía y consistencia.
+  Shell, login, dashboard, propiedades, leads, conversaciones, settings, appointments y platform/tenants ya fueron refrescados; falta cerrar consistencia total y feedback transaccional.
+- `[x]` Definir una dirección visual más intencional para el dashboard SaaS.
+- `[~]` Revisar fuentes, tokens de color y estados de componentes base.
+  La base visual nueva ya está aplicada y ya se alinearon `Button`, `Card`, `Input`, `Textarea`, `Badge`, `Table`, `Sheet` y `Select` del template; además el shell ya soporta `light/dark mode` con `next-themes`, `light` por defecto y persistencia en `localStorage`. Resta extender mejor el dark mode a más detalles finos y a alerts, vacíos, estados de carga y detalles complejos.
 
 ### Documentación
 
@@ -121,10 +124,24 @@ Estado general:
 
 ### UX / UI comercial
 
-- `[ ]` Refinar look & feel del dashboard para una estética más profesional y distintiva.
-- `[ ]` Mejorar tablas, formularios y cards con mejor jerarquía visual.
-- `[ ]` Revisar navegación, densidad de información y legibilidad en desktop.
-- `[ ]` Resolver mejor responsive en vistas clave del CRM.
+- `[~]` Rehacer la dirección visual tomando TailwindAdmin Next.js como referencia de shell y componentes.
+  La adopción será parcial: tokens, layout, navegación, tablas y formularios; no se migra la arquitectura ni se injerta el template completo.
+  Ya se migró la base a Tailwind 4, se adoptó el shell responsive del template y se resolvió el menú lateral mobile con `Sheet`; además ya se copiaron al proyecto las primitives centrales del template (`Button`, `Card`, `Input`, `Textarea`, `Badge`, `Table`, `Select`) y se separó `NativeSelect` para formularios que todavía dependen de `<select>` nativo. `dashboard`, `properties`, `leads`, `conversations`, `appointments`, `settings`, `login`, `faqs`, `channels`, `platform/tenants` y los detalles principales ya fueron remaquetados sobre esa base. Falta terminar de propagar ese lenguaje a pantallas secundarias residuales y wrappers/formularios que todavía conserven composición vieja.
+- `[~]` Refinar look & feel del dashboard para una estética más profesional y distintiva.
+- `[~]` Mejorar tablas, formularios y cards con mejor jerarquía visual.
+- `[~]` Migrar formularios internos y pantallas secundarias al mismo sistema visual.
+  FAQs, canales, tenants de plataforma, reglas de agenda, tenant forms, tenant users y pipeline stage forms ya fueron alineados; falta revisar residuales menores y después limpiar componentes/estilos viejos.
+- `[~]` Terminar la sustitución de wrappers visuales propios por componentes copiados del template.
+  La base ya fue copiada al proyecto y la carpeta temporal del template ya se eliminó; resta solo seguir refinando wrappers menores si hace falta.
+- `[~]` Consolidar y limpiar residuales del sistema visual anterior.
+  Ya se limpiaron la mayoría de colores/clases legacy y se remigraron pantallas secundarias; también se eliminaron las referencias de tooling y se borró la carpeta temporal del template. Falta una pasada final de refinamiento visual menor y cleanup de componentes/estilos residuales si aparecieran.
+- `[~]` Alinear tipografía, cards, badges y headings con más fidelidad al template.
+  Ya se activó `DM Sans` real vía paquete local, se quitó la sombra visible de `Card`, se bajó el protagonismo visual de `Badge` y se ajustaron `PageHeader` y el dashboard para reducir diferencias perceptibles con el original. Además se hizo un pass global de densidad: `Card`, `PageHeader`, `FilterCard`, `AppShell`, `Table`, `Input`, `Button` y `NativeSelect` quedaron más compactos, y se creó `MetricCard` como patrón reusable para las top cards de dashboard, propiedades, leads, conversaciones, agenda, settings, channels, FAQs y platform/tenants. Ese patrón ya fue realineado a una variante más fiel al template: fondo tonal, composición centrada con ícono opcional y visual más cercana al bloque de métricas ilustrado del original. Después se afinó el contraste del contenido usando tonos más enfáticos sin blanquear el fondo, se redujo su padding para bajar tamaño visual y el radio base de `Card` se alineó a `7px` para acercarse más al template.
+- `[~]` Revisar navegación, densidad de información y legibilidad en desktop.
+- `[~]` Resolver mejor responsive en vistas clave del CRM.
+  Ya se trabajó específicamente sobre leads, conversaciones, propiedades, agenda, settings, login y tenants; todavía falta ajustar pantallas secundarias y algunos detalles finos en tablet/mobile.
+- `[~]` Hacer que filtros, vacíos y acciones principales sean más claros y utilizables.
+  Leads, propiedades y agenda ya usan formularios GET reales y estados vacíos accionables; falta extender el patrón a más pantallas secundarias.
 
 ### Tenant management
 
