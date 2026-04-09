@@ -1,0 +1,30 @@
+import { z } from "zod";
+
+export const leadSchema = z.object({
+	full_name: z.string().min(3, "Ingresá un nombre"),
+	email: z.string().email("Email inválido").optional().or(z.literal("")),
+	phone: z.string().optional(),
+	source: z.string().optional(),
+	interest_type: z.enum(["sale", "rent"]).nullable(),
+	budget_min: z.number().nullable(),
+	budget_max: z.number().nullable(),
+	desired_city: z.string().optional(),
+	desired_neighborhood: z.string().optional(),
+	bedrooms_needed: z.number().int().nullable(),
+	financing_needed: z.boolean().nullable(),
+	pets: z.boolean().nullable(),
+	notes: z.string().optional(),
+	qualification_status: z.enum([
+		"new",
+		"contacted",
+		"qualified",
+		"unqualified",
+		"nurturing",
+		"won",
+		"lost",
+	]),
+	score: z.number().min(0).max(100).nullable(),
+	pipeline_stage_id: z.string().uuid().nullable(),
+	assigned_to: z.string().uuid().nullable(),
+	is_human_handoff_required: z.boolean(),
+});

@@ -1,0 +1,10 @@
+export interface ActionState {
+	status: "idle" | "error" | "success";
+	message?: string;
+	fieldErrors?: Record<string, string[] | undefined>;
+}
+
+export const INITIAL_ACTION_STATE: ActionState = {
+	status: "idle",
+};
+

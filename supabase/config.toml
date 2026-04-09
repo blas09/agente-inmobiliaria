@@ -1,0 +1,34 @@
+project_id = "agente-inmobiliaria"
+
+[api]
+port = 55421
+
+[db]
+port = 55422
+major_version = 17
+shadow_port = 55420
+
+[studio]
+port = 55423
+
+[inbucket]
+port = 55424
+smtp_port = 55425
+pop3_port = 55426
+admin_email = "dev@agente-inmobiliaria.local"
+sender_name = "Agente Inmobiliaria Local"
+
+[analytics]
+port = 55427
+vector_port = 55428
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[auth]
+site_url = "http://127.0.0.1:3003"
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false

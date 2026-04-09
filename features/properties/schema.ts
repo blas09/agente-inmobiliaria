@@ -1,0 +1,38 @@
+import { z } from "zod";
+
+export const propertySchema = z.object({
+	title: z.string().min(3, "Ingresá un título"),
+	external_ref: z.string().optional(),
+	description: z.string().optional(),
+	operation_type: z.enum(["sale", "rent"]),
+	property_type: z.enum([
+		"apartment",
+		"house",
+		"land",
+		"office",
+		"commercial",
+		"warehouse",
+		"duplex",
+		"condo",
+		"other",
+	]),
+	price: z.number().nullable(),
+	currency: z.string().min(3),
+	expenses_amount: z.number().nullable(),
+	location_text: z.string().optional(),
+	city: z.string().optional(),
+	neighborhood: z.string().optional(),
+	address: z.string().optional(),
+	bedrooms: z.number().int().nullable(),
+	bathrooms: z.number().int().nullable(),
+	garages: z.number().int().nullable(),
+	area_m2: z.number().nullable(),
+	lot_area_m2: z.number().nullable(),
+	status: z.enum(["draft", "available", "reserved", "rented", "sold", "inactive"]),
+	pets_allowed: z.boolean(),
+	furnished: z.boolean(),
+	has_pool: z.boolean(),
+	has_garden: z.boolean(),
+	has_balcony: z.boolean(),
+});
+

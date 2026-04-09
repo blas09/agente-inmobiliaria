@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:root {
+		--background: 210 33% 98%;
+		--foreground: 222 47% 11%;
+		--card: 0 0% 100%;
+		--card-foreground: 222 47% 11%;
+		--primary: 174 72% 35%;
+		--primary-foreground: 180 100% 98%;
+		--secondary: 210 40% 96%;
+		--secondary-foreground: 222 47% 11%;
+		--muted: 210 40% 96%;
+		--muted-foreground: 215 16% 47%;
+		--accent: 173 80% 96%;
+		--accent-foreground: 174 72% 25%;
+		--destructive: 0 72% 51%;
+		--destructive-foreground: 210 40% 98%;
+		--border: 214 32% 91%;
+		--input: 214 32% 91%;
+		--ring: 174 72% 35%;
+		--radius: 0.9rem;
+		--font-sans: "Manrope", "Avenir Next", "Segoe UI", sans-serif;
+		--font-mono: "IBM Plex Mono", "SFMono-Regular", "Menlo", monospace;
+	}
+
+	* {
+		@apply border-border;
+	}
+
+	body {
+		@apply bg-background text-foreground;
+	}
+}
