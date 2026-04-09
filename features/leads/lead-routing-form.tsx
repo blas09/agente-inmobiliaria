@@ -11,83 +11,92 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NativeSelect } from "@/components/ui/native-select";
 
 interface LeadRoutingFormProps {
-	action: (state: ActionState, formData: FormData) => Promise<ActionState>;
-	initialValues: {
-		assigned_to: string | null;
-		pipeline_stage_id: string | null;
-		qualification_status: string;
-		is_human_handoff_required: boolean;
-	};
-	stageOptions: Array<{ id: string; name: string }>;
-	advisorOptions: Array<{ id: string; label: string; role: string }>;
+  action: (state: ActionState, formData: FormData) => Promise<ActionState>;
+  initialValues: {
+    assigned_to: string | null;
+    pipeline_stage_id: string | null;
+    qualification_status: string;
+    is_human_handoff_required: boolean;
+  };
+  stageOptions: Array<{ id: string; name: string }>;
+  advisorOptions: Array<{ id: string; label: string; role: string }>;
 }
 
 export function LeadRoutingForm({
-	action,
-	initialValues,
-	stageOptions,
-	advisorOptions,
+  action,
+  initialValues,
+  stageOptions,
+  advisorOptions,
 }: LeadRoutingFormProps) {
-	const [state, formAction] = useActionState(action, INITIAL_ACTION_STATE);
+  const [state, formAction] = useActionState(action, INITIAL_ACTION_STATE);
 
-	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>Operación comercial</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<form action={formAction} className="space-y-4">
-					<FormField htmlFor="assigned_to" label="Asesor asignado">
-						<NativeSelect defaultValue={initialValues.assigned_to ?? ""} id="assigned_to" name="assigned_to">
-							<option value="">Sin asignar</option>
-							{advisorOptions.map((advisor) => (
-								<option key={advisor.id} value={advisor.id}>
-									{advisor.label} · {advisor.role}
-								</option>
-							))}
-						</NativeSelect>
-					</FormField>
-					<FormField htmlFor="qualification_status" label="Estado comercial">
-						<NativeSelect
-							defaultValue={initialValues.qualification_status}
-							id="qualification_status"
-							name="qualification_status"
-						>
-							<option value="new">Nuevo</option>
-							<option value="contacted">Contactado</option>
-							<option value="qualified">Calificado</option>
-							<option value="unqualified">No calificado</option>
-							<option value="nurturing">Seguimiento</option>
-							<option value="won">Ganado</option>
-							<option value="lost">Perdido</option>
-						</NativeSelect>
-					</FormField>
-					<FormField htmlFor="pipeline_stage_id" label="Etapa del pipeline">
-						<NativeSelect
-							defaultValue={initialValues.pipeline_stage_id ?? ""}
-							id="pipeline_stage_id"
-							name="pipeline_stage_id"
-						>
-							<option value="">Sin etapa</option>
-							{stageOptions.map((stage) => (
-								<option key={stage.id} value={stage.id}>
-									{stage.name}
-								</option>
-							))}
-						</NativeSelect>
-					</FormField>
-					<label className="flex items-center gap-2 text-sm">
-						<input
-							defaultChecked={initialValues.is_human_handoff_required}
-							name="is_human_handoff_required"
-							type="checkbox"
-						/>
-						Requiere derivación humana
-					</label>
-					{state.message ? <ActionFeedback message={state.message} status={state.status} /> : null}
-					<SubmitButton label="Actualizar operación" pendingLabel="Guardando..." />
-				</form>
-			</CardContent>
-		</Card>
-	);
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Operación comercial</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form action={formAction} className="space-y-4">
+          <FormField htmlFor="assigned_to" label="Asesor asignado">
+            <NativeSelect
+              defaultValue={initialValues.assigned_to ?? ""}
+              id="assigned_to"
+              name="assigned_to"
+            >
+              <option value="">Sin asignar</option>
+              {advisorOptions.map((advisor) => (
+                <option key={advisor.id} value={advisor.id}>
+                  {advisor.label} · {advisor.role}
+                </option>
+              ))}
+            </NativeSelect>
+          </FormField>
+          <FormField htmlFor="qualification_status" label="Estado comercial">
+            <NativeSelect
+              defaultValue={initialValues.qualification_status}
+              id="qualification_status"
+              name="qualification_status"
+            >
+              <option value="new">Nuevo</option>
+              <option value="contacted">Contactado</option>
+              <option value="qualified">Calificado</option>
+              <option value="unqualified">No calificado</option>
+              <option value="nurturing">Seguimiento</option>
+              <option value="won">Ganado</option>
+              <option value="lost">Perdido</option>
+            </NativeSelect>
+          </FormField>
+          <FormField htmlFor="pipeline_stage_id" label="Etapa del pipeline">
+            <NativeSelect
+              defaultValue={initialValues.pipeline_stage_id ?? ""}
+              id="pipeline_stage_id"
+              name="pipeline_stage_id"
+            >
+              <option value="">Sin etapa</option>
+              {stageOptions.map((stage) => (
+                <option key={stage.id} value={stage.id}>
+                  {stage.name}
+                </option>
+              ))}
+            </NativeSelect>
+          </FormField>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              defaultChecked={initialValues.is_human_handoff_required}
+              name="is_human_handoff_required"
+              type="checkbox"
+            />
+            Requiere derivación humana
+          </label>
+          {state.message ? (
+            <ActionFeedback message={state.message} status={state.status} />
+          ) : null}
+          <SubmitButton
+            label="Actualizar operación"
+            pendingLabel="Guardando..."
+          />
+        </form>
+      </CardContent>
+    </Card>
+  );
 }

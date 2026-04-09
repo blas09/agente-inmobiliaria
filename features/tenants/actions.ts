@@ -7,334 +7,353 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ACTIVE_TENANT_COOKIE } from "@/server/auth/constants";
 import {
-	getTenantMemberships,
-	requirePlatformAdmin,
-	requireTenantAdminContext,
+  getTenantMemberships,
+  requirePlatformAdmin,
+  requireTenantAdminContext,
 } from "@/server/auth/tenant-context";
 import { getUserProfileByEmail } from "@/server/queries/tenants";
 import type { ActionState } from "@/types/actions";
-import { tenantMembershipSchema, tenantSchema } from "@/features/tenants/schema";
+import {
+  tenantMembershipSchema,
+  tenantSchema,
+} from "@/features/tenants/schema";
 
 export async function switchActiveTenantAction(formData: FormData) {
-	const tenantId = formData.get("tenantId")?.toString();
-	const memberships = await getTenantMemberships();
+  const tenantId = formData.get("tenantId")?.toString();
+  const memberships = await getTenantMemberships();
 
-	if (!tenantId || !memberships.some((membership) => membership.tenant.id === tenantId)) {
-		return;
-	}
+  if (
+    !tenantId ||
+    !memberships.some((membership) => membership.tenant.id === tenantId)
+  ) {
+    return;
+  }
 
-	const cookieStore = await cookies();
-	cookieStore.set(ACTIVE_TENANT_COOKIE, tenantId, {
-		httpOnly: true,
-		sameSite: "lax",
-		path: "/",
-	});
+  const cookieStore = await cookies();
+  cookieStore.set(ACTIVE_TENANT_COOKIE, tenantId, {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+  });
 
-	revalidatePath("/dashboard", "layout");
+  revalidatePath("/dashboard", "layout");
 }
 
 function parseTenantFormData(formData: FormData) {
-	return tenantSchema.safeParse({
-		name: formData.get("name")?.toString().trim() ?? "",
-		slug: formData.get("slug")?.toString().trim() ?? "",
-		status: formData.get("status"),
-		primary_currency: formData.get("primary_currency")?.toString().trim() ?? "PYG",
-		timezone: formData.get("timezone")?.toString().trim() ?? "",
-		locale: formData.get("locale")?.toString().trim() ?? "",
-		owner_email: formData.get("owner_email")?.toString().trim().toLowerCase() ?? "",
-	});
+  return tenantSchema.safeParse({
+    name: formData.get("name")?.toString().trim() ?? "",
+    slug: formData.get("slug")?.toString().trim() ?? "",
+    status: formData.get("status"),
+    primary_currency:
+      formData.get("primary_currency")?.toString().trim() ?? "PYG",
+    timezone: formData.get("timezone")?.toString().trim() ?? "",
+    locale: formData.get("locale")?.toString().trim() ?? "",
+    owner_email:
+      formData.get("owner_email")?.toString().trim().toLowerCase() ?? "",
+  });
 }
 
 export async function createTenantAction(
-	_prevState: ActionState,
-	formData: FormData,
+  _prevState: ActionState,
+  formData: FormData,
 ): Promise<ActionState> {
-	await requirePlatformAdmin();
-	const supabase = await createSupabaseServerClient();
-	const result = parseTenantFormData(formData);
+  await requirePlatformAdmin();
+  const supabase = await createSupabaseServerClient();
+  const result = parseTenantFormData(formData);
 
-	if (!result.success) {
-		return {
-			status: "error",
-			message: "Hay campos inválidos en el tenant.",
-			fieldErrors: result.error.flatten().fieldErrors,
-		};
-	}
+  if (!result.success) {
+    return {
+      status: "error",
+      message: "Hay campos inválidos en el tenant.",
+      fieldErrors: result.error.flatten().fieldErrors,
+    };
+  }
 
-	const ownerEmail = result.data.owner_email || "";
-	if (!ownerEmail) {
-		return {
-			status: "error",
-			message: "Definí un owner inicial con un usuario ya existente.",
-		};
-	}
+  const ownerEmail = result.data.owner_email || "";
+  if (!ownerEmail) {
+    return {
+      status: "error",
+      message: "Definí un owner inicial con un usuario ya existente.",
+    };
+  }
 
-	const ownerProfile = await getUserProfileByEmail(ownerEmail);
-	if (!ownerProfile) {
-		return {
-			status: "error",
-			message: "No existe un usuario registrado con ese email.",
-		};
-	}
+  const ownerProfile = await getUserProfileByEmail(ownerEmail);
+  if (!ownerProfile) {
+    return {
+      status: "error",
+      message: "No existe un usuario registrado con ese email.",
+    };
+  }
 
-	const { data: tenant, error: tenantError } = await supabase
-		.from("tenants")
-		.insert({
-			name: result.data.name,
-			slug: result.data.slug,
-			status: result.data.status,
-			primary_currency: result.data.primary_currency,
-			timezone: result.data.timezone,
-			locale: result.data.locale,
-		})
-		.select("*")
-		.single();
+  const { data: tenant, error: tenantError } = await supabase
+    .from("tenants")
+    .insert({
+      name: result.data.name,
+      slug: result.data.slug,
+      status: result.data.status,
+      primary_currency: result.data.primary_currency,
+      timezone: result.data.timezone,
+      locale: result.data.locale,
+    })
+    .select("*")
+    .single();
 
-	if (tenantError || !tenant) {
-		return {
-			status: "error",
-			message: tenantError?.message ?? "No se pudo crear el tenant.",
-		};
-	}
+  if (tenantError || !tenant) {
+    return {
+      status: "error",
+      message: tenantError?.message ?? "No se pudo crear el tenant.",
+    };
+  }
 
-	const { error: membershipError } = await supabase.from("tenant_users").insert({
-		tenant_id: tenant.id,
-		user_id: ownerProfile.id,
-		role: "tenant_owner",
-		status: "active",
-	});
+  const { error: membershipError } = await supabase
+    .from("tenant_users")
+    .insert({
+      tenant_id: tenant.id,
+      user_id: ownerProfile.id,
+      role: "tenant_owner",
+      status: "active",
+    });
 
-	if (membershipError) {
-		return {
-			status: "error",
-			message: `Tenant creado, pero falló la asignación del owner: ${membershipError.message}`,
-		};
-	}
+  if (membershipError) {
+    return {
+      status: "error",
+      message: `Tenant creado, pero falló la asignación del owner: ${membershipError.message}`,
+    };
+  }
 
-	revalidatePath("/dashboard");
-	revalidatePath("/dashboard/platform/tenants");
-	redirect(`/dashboard/platform/tenants/${tenant.id}/edit`);
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/platform/tenants");
+  redirect(`/dashboard/platform/tenants/${tenant.id}/edit`);
 }
 
 export async function updatePlatformTenantAction(
-	tenantId: string,
-	_prevState: ActionState,
-	formData: FormData,
+  tenantId: string,
+  _prevState: ActionState,
+  formData: FormData,
 ): Promise<ActionState> {
-	await requirePlatformAdmin();
-	const supabase = await createSupabaseServerClient();
-	const result = parseTenantFormData(formData);
+  await requirePlatformAdmin();
+  const supabase = await createSupabaseServerClient();
+  const result = parseTenantFormData(formData);
 
-	if (!result.success) {
-		return {
-			status: "error",
-			message: "Hay campos inválidos en el tenant.",
-			fieldErrors: result.error.flatten().fieldErrors,
-		};
-	}
+  if (!result.success) {
+    return {
+      status: "error",
+      message: "Hay campos inválidos en el tenant.",
+      fieldErrors: result.error.flatten().fieldErrors,
+    };
+  }
 
-	const { error } = await supabase
-		.from("tenants")
-		.update({
-			name: result.data.name,
-			slug: result.data.slug,
-			status: result.data.status,
-			primary_currency: result.data.primary_currency,
-			timezone: result.data.timezone,
-			locale: result.data.locale,
-		})
-		.eq("id", tenantId);
+  const { error } = await supabase
+    .from("tenants")
+    .update({
+      name: result.data.name,
+      slug: result.data.slug,
+      status: result.data.status,
+      primary_currency: result.data.primary_currency,
+      timezone: result.data.timezone,
+      locale: result.data.locale,
+    })
+    .eq("id", tenantId);
 
-	if (error) {
-		return {
-			status: "error",
-			message: error.message,
-		};
-	}
+  if (error) {
+    return {
+      status: "error",
+      message: error.message,
+    };
+  }
 
-	revalidatePath("/dashboard/platform/tenants");
-	revalidatePath(`/dashboard/platform/tenants/${tenantId}/edit`);
-	return { status: "success", message: "Tenant actualizado." };
+  revalidatePath("/dashboard/platform/tenants");
+  revalidatePath(`/dashboard/platform/tenants/${tenantId}/edit`);
+  return { status: "success", message: "Tenant actualizado." };
 }
 
 export async function updateCurrentTenantSettingsAction(
-	_prevState: ActionState,
-	formData: FormData,
+  _prevState: ActionState,
+  formData: FormData,
 ): Promise<ActionState> {
-	const { activeTenant } = await requireTenantAdminContext();
-	const supabase = await createSupabaseServerClient();
-	const result = parseTenantFormData(formData);
+  const { activeTenant } = await requireTenantAdminContext();
+  const supabase = await createSupabaseServerClient();
+  const result = parseTenantFormData(formData);
 
-	if (!result.success) {
-		return {
-			status: "error",
-			message: "Hay campos inválidos en la configuración del tenant.",
-			fieldErrors: result.error.flatten().fieldErrors,
-		};
-	}
+  if (!result.success) {
+    return {
+      status: "error",
+      message: "Hay campos inválidos en la configuración del tenant.",
+      fieldErrors: result.error.flatten().fieldErrors,
+    };
+  }
 
-	const { error } = await supabase
-		.from("tenants")
-		.update({
-			name: result.data.name,
-			slug: result.data.slug,
-			status: result.data.status,
-			primary_currency: result.data.primary_currency,
-			timezone: result.data.timezone,
-			locale: result.data.locale,
-		})
-		.eq("id", activeTenant.id);
+  const { error } = await supabase
+    .from("tenants")
+    .update({
+      name: result.data.name,
+      slug: result.data.slug,
+      status: result.data.status,
+      primary_currency: result.data.primary_currency,
+      timezone: result.data.timezone,
+      locale: result.data.locale,
+    })
+    .eq("id", activeTenant.id);
 
-	if (error) {
-		return {
-			status: "error",
-			message: error.message,
-		};
-	}
+  if (error) {
+    return {
+      status: "error",
+      message: error.message,
+    };
+  }
 
-	revalidatePath("/dashboard");
-	revalidatePath("/dashboard/settings");
-	return { status: "success", message: "Configuración del tenant actualizada." };
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/settings");
+  return {
+    status: "success",
+    message: "Configuración del tenant actualizada.",
+  };
 }
 
 function parseMembershipFormData(formData: FormData) {
-	return tenantMembershipSchema.safeParse({
-		email: formData.get("email")?.toString().trim().toLowerCase() ?? "",
-		role: formData.get("role"),
-		status: formData.get("status") ?? "active",
-	});
+  return tenantMembershipSchema.safeParse({
+    email: formData.get("email")?.toString().trim().toLowerCase() ?? "",
+    role: formData.get("role"),
+    status: formData.get("status") ?? "active",
+  });
 }
 
 export async function addTenantUserAction(
-	_prevState: ActionState,
-	formData: FormData,
+  _prevState: ActionState,
+  formData: FormData,
 ): Promise<ActionState> {
-	const { activeTenant } = await requireTenantAdminContext();
-	const supabase = await createSupabaseServerClient();
-	const result = parseMembershipFormData(formData);
+  const { activeTenant } = await requireTenantAdminContext();
+  const supabase = await createSupabaseServerClient();
+  const result = parseMembershipFormData(formData);
 
-	if (!result.success) {
-		return {
-			status: "error",
-			message: "Hay campos inválidos en la membresía.",
-			fieldErrors: result.error.flatten().fieldErrors,
-		};
-	}
+  if (!result.success) {
+    return {
+      status: "error",
+      message: "Hay campos inválidos en la membresía.",
+      fieldErrors: result.error.flatten().fieldErrors,
+    };
+  }
 
-	const userProfile = await getUserProfileByEmail(result.data.email);
-	if (!userProfile) {
-		return {
-			status: "error",
-			message: "No existe un usuario registrado con ese email.",
-		};
-	}
+  const userProfile = await getUserProfileByEmail(result.data.email);
+  if (!userProfile) {
+    return {
+      status: "error",
+      message: "No existe un usuario registrado con ese email.",
+    };
+  }
 
-	const { data: existingMembership, error: existingMembershipError } = await supabase
-		.from("tenant_users")
-		.select("id, status")
-		.eq("tenant_id", activeTenant.id)
-		.eq("user_id", userProfile.id)
-		.maybeSingle();
+  const { data: existingMembership, error: existingMembershipError } =
+    await supabase
+      .from("tenant_users")
+      .select("id, status")
+      .eq("tenant_id", activeTenant.id)
+      .eq("user_id", userProfile.id)
+      .maybeSingle();
 
-	if (existingMembershipError) {
-		return { status: "error", message: existingMembershipError.message };
-	}
+  if (existingMembershipError) {
+    return { status: "error", message: existingMembershipError.message };
+  }
 
-	if (existingMembership) {
-		const { error } = await supabase
-			.from("tenant_users")
-			.update({
-				role: result.data.role,
-				status: result.data.status,
-			})
-			.eq("id", existingMembership.id);
+  if (existingMembership) {
+    const { error } = await supabase
+      .from("tenant_users")
+      .update({
+        role: result.data.role,
+        status: result.data.status,
+      })
+      .eq("id", existingMembership.id);
 
-		if (error) {
-			return { status: "error", message: error.message };
-		}
-	} else {
-		const { error } = await supabase.from("tenant_users").insert({
-			tenant_id: activeTenant.id,
-			user_id: userProfile.id,
-			role: result.data.role,
-			status: result.data.status,
-		});
+    if (error) {
+      return { status: "error", message: error.message };
+    }
+  } else {
+    const { error } = await supabase.from("tenant_users").insert({
+      tenant_id: activeTenant.id,
+      user_id: userProfile.id,
+      role: result.data.role,
+      status: result.data.status,
+    });
 
-		if (error) {
-			return { status: "error", message: error.message };
-		}
-	}
+    if (error) {
+      return { status: "error", message: error.message };
+    }
+  }
 
-	revalidatePath("/dashboard/settings");
-	return { status: "success", message: "Membresía actualizada." };
+  revalidatePath("/dashboard/settings");
+  return { status: "success", message: "Membresía actualizada." };
 }
 
 export async function updateTenantUserAction(
-	memberId: string,
-	_prevState: ActionState,
-	formData: FormData,
+  memberId: string,
+  _prevState: ActionState,
+  formData: FormData,
 ): Promise<ActionState> {
-	const { activeTenant } = await requireTenantAdminContext();
-	const supabase = await createSupabaseServerClient();
-	const result = tenantMembershipSchema.safeParse({
-		email: formData.get("email")?.toString().trim().toLowerCase() ?? "placeholder@example.com",
-		role: formData.get("role"),
-		status: formData.get("status"),
-	});
+  const { activeTenant } = await requireTenantAdminContext();
+  const supabase = await createSupabaseServerClient();
+  const result = tenantMembershipSchema.safeParse({
+    email:
+      formData.get("email")?.toString().trim().toLowerCase() ??
+      "placeholder@example.com",
+    role: formData.get("role"),
+    status: formData.get("status"),
+  });
 
-	if (!result.success) {
-		return {
-			status: "error",
-			message: "No se pudo actualizar la membresía.",
-		};
-	}
+  if (!result.success) {
+    return {
+      status: "error",
+      message: "No se pudo actualizar la membresía.",
+    };
+  }
 
-	const { data: membership, error: membershipError } = await supabase
-		.from("tenant_users")
-		.select("id, role, status, user_id")
-		.eq("tenant_id", activeTenant.id)
-		.eq("id", memberId)
-		.single();
+  const { data: membership, error: membershipError } = await supabase
+    .from("tenant_users")
+    .select("id, role, status, user_id")
+    .eq("tenant_id", activeTenant.id)
+    .eq("id", memberId)
+    .single();
 
-	if (membershipError || !membership) {
-		return {
-			status: "error",
-			message: membershipError?.message ?? "La membresía no existe.",
-		};
-	}
+  if (membershipError || !membership) {
+    return {
+      status: "error",
+      message: membershipError?.message ?? "La membresía no existe.",
+    };
+  }
 
-	if (membership.role === "tenant_owner" && (result.data.role !== "tenant_owner" || result.data.status !== "active")) {
-		const { count, error: ownerCountError } = await supabase
-			.from("tenant_users")
-			.select("*", { head: true, count: "exact" })
-			.eq("tenant_id", activeTenant.id)
-			.eq("role", "tenant_owner")
-			.eq("status", "active");
+  if (
+    membership.role === "tenant_owner" &&
+    (result.data.role !== "tenant_owner" || result.data.status !== "active")
+  ) {
+    const { count, error: ownerCountError } = await supabase
+      .from("tenant_users")
+      .select("*", { head: true, count: "exact" })
+      .eq("tenant_id", activeTenant.id)
+      .eq("role", "tenant_owner")
+      .eq("status", "active");
 
-		if (ownerCountError) {
-			return { status: "error", message: ownerCountError.message };
-		}
+    if (ownerCountError) {
+      return { status: "error", message: ownerCountError.message };
+    }
 
-		if ((count ?? 0) <= 1) {
-			return {
-				status: "error",
-				message: "No podés dejar al tenant sin owner activo.",
-			};
-		}
-	}
+    if ((count ?? 0) <= 1) {
+      return {
+        status: "error",
+        message: "No podés dejar al tenant sin owner activo.",
+      };
+    }
+  }
 
-	const { error } = await supabase
-		.from("tenant_users")
-		.update({
-			role: result.data.role,
-			status: result.data.status,
-		})
-		.eq("id", memberId);
+  const { error } = await supabase
+    .from("tenant_users")
+    .update({
+      role: result.data.role,
+      status: result.data.status,
+    })
+    .eq("id", memberId);
 
-	if (error) {
-		return { status: "error", message: error.message };
-	}
+  if (error) {
+    return { status: "error", message: error.message };
+  }
 
-	revalidatePath("/dashboard/settings");
-	return { status: "success", message: "Membresía actualizada." };
+  revalidatePath("/dashboard/settings");
+  return { status: "success", message: "Membresía actualizada." };
 }

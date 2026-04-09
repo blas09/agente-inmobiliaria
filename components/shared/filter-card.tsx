@@ -4,15 +4,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 export function FilterCard({
-	children,
-	className,
+  children,
+  className,
 }: {
-	children: ReactNode;
-	className?: string;
+  children: ReactNode;
+  className?: string;
 }) {
-	return (
-		<Card className={cn("w-full max-w-3xl border-border/80 p-4", className)}>
-			<CardContent>{children}</CardContent>
-		</Card>
-	);
+  return (
+    <Card className={cn("border-border/80 w-full max-w-3xl p-4", className)}>
+      <CardContent>{children}</CardContent>
+    </Card>
+  );
 }

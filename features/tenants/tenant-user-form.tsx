@@ -10,137 +10,197 @@ import { ActionFeedback } from "@/components/shared/action-feedback";
 import { FormField } from "@/components/shared/form-field";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 
 const roleOptions: Array<{ value: TenantRole; label: string }> = [
-	{ value: "tenant_owner", label: "Owner" },
-	{ value: "tenant_admin", label: "Admin" },
-	{ value: "advisor", label: "Advisor" },
-	{ value: "operator", label: "Operator" },
-	{ value: "viewer", label: "Viewer" },
+  { value: "tenant_owner", label: "Owner" },
+  { value: "tenant_admin", label: "Admin" },
+  { value: "advisor", label: "Advisor" },
+  { value: "operator", label: "Operator" },
+  { value: "viewer", label: "Viewer" },
 ];
 
 const statusOptions = [
-	{ value: "active", label: "Activo" },
-	{ value: "suspended", label: "Suspendido" },
-	{ value: "removed", label: "Removido" },
+  { value: "active", label: "Activo" },
+  { value: "suspended", label: "Suspendido" },
+  { value: "removed", label: "Removido" },
 ];
 
 export function AddTenantUserForm({
-	action,
+  action,
 }: {
-	action: (state: ActionState, formData: FormData) => Promise<ActionState>;
+  action: (state: ActionState, formData: FormData) => Promise<ActionState>;
 }) {
-	const [state, formAction] = useActionState(action, INITIAL_ACTION_STATE);
+  const [state, formAction] = useActionState(action, INITIAL_ACTION_STATE);
 
-	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>Agregar miembro</CardTitle>
-				<CardDescription>Alta rápida de usuarios ya registrados en la plataforma.</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<form action={formAction} className="grid gap-4 md:grid-cols-[1.6fr_1fr_1fr_auto]">
-					<FormField htmlFor="email" label="Email" error={state.fieldErrors?.email?.[0]}>
-						<Input id="email" name="email" placeholder="asesor@empresa.com" required type="email" />
-					</FormField>
-					<FormField htmlFor="role" label="Rol">
-						<NativeSelect defaultValue="advisor" id="role" name="role">
-							{roleOptions.map((option) => (
-								<option key={option.value} value={option.value}>
-									{option.label}
-								</option>
-							))}
-						</NativeSelect>
-					</FormField>
-					<FormField htmlFor="status" label="Estado">
-						<NativeSelect defaultValue="active" id="status" name="status">
-							{statusOptions.map((option) => (
-								<option key={option.value} value={option.value}>
-									{option.label}
-								</option>
-							))}
-						</NativeSelect>
-					</FormField>
-					<div className="flex items-end">
-						<SubmitButton label="Agregar" pendingLabel="Guardando..." shape="pill" />
-					</div>
-				</form>
-				{state.message ? (
-					<ActionFeedback className="mt-4" message={state.message} status={state.status} />
-				) : null}
-			</CardContent>
-		</Card>
-	);
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Agregar miembro</CardTitle>
+        <CardDescription>
+          Alta rápida de usuarios ya registrados en la plataforma.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form
+          action={formAction}
+          className="grid gap-4 md:grid-cols-[1.6fr_1fr_1fr_auto]"
+        >
+          <FormField
+            htmlFor="email"
+            label="Email"
+            error={state.fieldErrors?.email?.[0]}
+          >
+            <Input
+              id="email"
+              name="email"
+              placeholder="asesor@empresa.com"
+              required
+              type="email"
+            />
+          </FormField>
+          <FormField htmlFor="role" label="Rol">
+            <NativeSelect defaultValue="advisor" id="role" name="role">
+              {roleOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </NativeSelect>
+          </FormField>
+          <FormField htmlFor="status" label="Estado">
+            <NativeSelect defaultValue="active" id="status" name="status">
+              {statusOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </NativeSelect>
+          </FormField>
+          <div className="flex items-end">
+            <SubmitButton
+              label="Agregar"
+              pendingLabel="Guardando..."
+              shape="pill"
+            />
+          </div>
+        </form>
+        {state.message ? (
+          <ActionFeedback
+            className="mt-4"
+            message={state.message}
+            status={state.status}
+          />
+        ) : null}
+      </CardContent>
+    </Card>
+  );
 }
 
 export function TenantUsersList({
-	users,
-	actionFactory,
+  users,
+  actionFactory,
 }: {
-	users: TenantUserSummary[];
-	actionFactory: (memberId: string) => (state: ActionState, formData: FormData) => Promise<ActionState>;
+  users: TenantUserSummary[];
+  actionFactory: (
+    memberId: string,
+  ) => (state: ActionState, formData: FormData) => Promise<ActionState>;
 }) {
-	return (
-		<div className="space-y-4">
-			{users.map((user) => (
-				<TenantUserRow key={user.id} action={actionFactory(user.id)} user={user} />
-			))}
-		</div>
-	);
+  return (
+    <div className="space-y-4">
+      {users.map((user) => (
+        <TenantUserRow
+          key={user.id}
+          action={actionFactory(user.id)}
+          user={user}
+        />
+      ))}
+    </div>
+  );
 }
 
 function TenantUserRow({
-	user,
-	action,
+  user,
+  action,
 }: {
-	user: TenantUserSummary;
-	action: (state: ActionState, formData: FormData) => Promise<ActionState>;
+  user: TenantUserSummary;
+  action: (state: ActionState, formData: FormData) => Promise<ActionState>;
 }) {
-	const [state, formAction] = useActionState(action, INITIAL_ACTION_STATE);
+  const [state, formAction] = useActionState(action, INITIAL_ACTION_STATE);
 
-	return (
-		<Card>
-			<CardContent>
-				<form action={formAction} className="grid gap-4 md:grid-cols-[1.5fr_1fr_1fr_auto]">
-					<div className="space-y-2 rounded-xl border border-border bg-muted p-4">
-						<p className="font-medium">{user.user_profiles?.full_name ?? "Perfil sin sincronizar"}</p>
-						<p className="text-sm text-muted-foreground">
-							{user.user_profiles?.email ?? user.user_id}
-						</p>
-						<Badge className="w-fit" variant="lightPrimary">
-							{user.status}
-						</Badge>
-					</div>
-					<input name="email" type="hidden" value={user.user_profiles?.email ?? "placeholder@example.com"} />
-					<FormField htmlFor={`role-${user.id}`} label="Rol">
-						<NativeSelect defaultValue={user.role} id={`role-${user.id}`} name="role">
-							{roleOptions.map((option) => (
-								<option key={option.value} value={option.value}>
-									{option.label}
-								</option>
-							))}
-						</NativeSelect>
-					</FormField>
-					<FormField htmlFor={`status-${user.id}`} label="Estado">
-						<NativeSelect defaultValue={user.status} id={`status-${user.id}`} name="status">
-							{statusOptions.map((option) => (
-								<option key={option.value} value={option.value}>
-									{option.label}
-								</option>
-							))}
-						</NativeSelect>
-					</FormField>
-					<div className="flex items-end">
-						<SubmitButton label="Actualizar" pendingLabel="Guardando..." shape="pill" />
-					</div>
-				</form>
-				{state.message ? (
-					<ActionFeedback className="mt-4" message={state.message} status={state.status} />
-				) : null}
-			</CardContent>
-		</Card>
-	);
+  return (
+    <Card>
+      <CardContent>
+        <form
+          action={formAction}
+          className="grid gap-4 md:grid-cols-[1.5fr_1fr_1fr_auto]"
+        >
+          <div className="border-border bg-muted space-y-2 rounded-xl border p-4">
+            <p className="font-medium">
+              {user.user_profiles?.full_name ?? "Perfil sin sincronizar"}
+            </p>
+            <p className="text-muted-foreground text-sm">
+              {user.user_profiles?.email ?? user.user_id}
+            </p>
+            <Badge className="w-fit" variant="lightPrimary">
+              {user.status}
+            </Badge>
+          </div>
+          <input
+            name="email"
+            type="hidden"
+            value={user.user_profiles?.email ?? "placeholder@example.com"}
+          />
+          <FormField htmlFor={`role-${user.id}`} label="Rol">
+            <NativeSelect
+              defaultValue={user.role}
+              id={`role-${user.id}`}
+              name="role"
+            >
+              {roleOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </NativeSelect>
+          </FormField>
+          <FormField htmlFor={`status-${user.id}`} label="Estado">
+            <NativeSelect
+              defaultValue={user.status}
+              id={`status-${user.id}`}
+              name="status"
+            >
+              {statusOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </NativeSelect>
+          </FormField>
+          <div className="flex items-end">
+            <SubmitButton
+              label="Actualizar"
+              pendingLabel="Guardando..."
+              shape="pill"
+            />
+          </div>
+        </form>
+        {state.message ? (
+          <ActionFeedback
+            className="mt-4"
+            message={state.message}
+            status={state.status}
+          />
+        ) : null}
+      </CardContent>
+    </Card>
+  );
 }

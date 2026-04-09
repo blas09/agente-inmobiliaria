@@ -6,18 +6,18 @@ import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 
 export function ThemeToggle() {
-	const { resolvedTheme, setTheme } = useTheme();
-	const isDark = resolvedTheme === "dark";
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
-	return (
-		<Button
-			aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-			onClick={() => setTheme(isDark ? "light" : "dark")}
-			size="icon"
-			type="button"
-			variant="outline"
-		>
-			{isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-		</Button>
-	);
+  return (
+    <Button
+      aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      size="icon"
+      type="button"
+      variant="outline"
+    >
+      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+    </Button>
+  );
 }

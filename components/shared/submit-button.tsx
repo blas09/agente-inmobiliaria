@@ -5,21 +5,20 @@ import { useFormStatus } from "react-dom";
 import { Button, type ButtonProps } from "@/components/ui/button";
 
 interface SubmitButtonProps extends ButtonProps {
-	label: string;
-	pendingLabel?: string;
+  label: string;
+  pendingLabel?: string;
 }
 
 export function SubmitButton({
-	label,
-	pendingLabel = "Guardando...",
-	...props
+  label,
+  pendingLabel = "Guardando...",
+  ...props
 }: SubmitButtonProps) {
-	const { pending } = useFormStatus();
+  const { pending } = useFormStatus();
 
-	return (
-		<Button type="submit" disabled={pending || props.disabled} {...props}>
-			{pending ? pendingLabel : label}
-		</Button>
-	);
+  return (
+    <Button type="submit" disabled={pending || props.disabled} {...props}>
+      {pending ? pendingLabel : label}
+    </Button>
+  );
 }
-

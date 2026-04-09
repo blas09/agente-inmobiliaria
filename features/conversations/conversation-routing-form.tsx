@@ -12,63 +12,80 @@ import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 
 interface ConversationRoutingFormProps {
-	action: (state: ActionState, formData: FormData) => Promise<ActionState>;
-	initialValues: {
-		assigned_to: string | null;
-		status: string;
-		handoff_reason: string | null;
-		ai_enabled: boolean;
-	};
-	advisorOptions: Array<{ id: string; label: string; role: string }>;
+  action: (state: ActionState, formData: FormData) => Promise<ActionState>;
+  initialValues: {
+    assigned_to: string | null;
+    status: string;
+    handoff_reason: string | null;
+    ai_enabled: boolean;
+  };
+  advisorOptions: Array<{ id: string; label: string; role: string }>;
 }
 
 export function ConversationRoutingForm({
-	action,
-	initialValues,
-	advisorOptions,
+  action,
+  initialValues,
+  advisorOptions,
 }: ConversationRoutingFormProps) {
-	const [state, formAction] = useActionState(action, INITIAL_ACTION_STATE);
+  const [state, formAction] = useActionState(action, INITIAL_ACTION_STATE);
 
-	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>Routing y handoff</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<form action={formAction} className="space-y-4">
-					<FormField htmlFor="assigned_to" label="Asesor asignado">
-						<NativeSelect defaultValue={initialValues.assigned_to ?? ""} id="assigned_to" name="assigned_to">
-							<option value="">Sin asignar</option>
-							{advisorOptions.map((advisor) => (
-								<option key={advisor.id} value={advisor.id}>
-									{advisor.label} · {advisor.role}
-								</option>
-							))}
-						</NativeSelect>
-					</FormField>
-					<FormField htmlFor="status" label="Estado">
-						<NativeSelect defaultValue={initialValues.status} id="status" name="status">
-							<option value="open">Abierta</option>
-							<option value="pending_human">Pendiente humano</option>
-							<option value="automated">Automatizada</option>
-							<option value="closed">Cerrada</option>
-						</NativeSelect>
-					</FormField>
-					<FormField htmlFor="handoff_reason" label="Motivo de handoff">
-						<Textarea
-							defaultValue={initialValues.handoff_reason ?? ""}
-							id="handoff_reason"
-							name="handoff_reason"
-						/>
-					</FormField>
-					<label className="flex items-center gap-2 text-sm">
-						<input defaultChecked={initialValues.ai_enabled} name="ai_enabled" type="checkbox" />
-						IA habilitada en esta conversación
-					</label>
-					{state.message ? <ActionFeedback message={state.message} status={state.status} /> : null}
-					<SubmitButton label="Actualizar conversación" pendingLabel="Guardando..." />
-				</form>
-			</CardContent>
-		</Card>
-	);
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Routing y handoff</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form action={formAction} className="space-y-4">
+          <FormField htmlFor="assigned_to" label="Asesor asignado">
+            <NativeSelect
+              defaultValue={initialValues.assigned_to ?? ""}
+              id="assigned_to"
+              name="assigned_to"
+            >
+              <option value="">Sin asignar</option>
+              {advisorOptions.map((advisor) => (
+                <option key={advisor.id} value={advisor.id}>
+                  {advisor.label} · {advisor.role}
+                </option>
+              ))}
+            </NativeSelect>
+          </FormField>
+          <FormField htmlFor="status" label="Estado">
+            <NativeSelect
+              defaultValue={initialValues.status}
+              id="status"
+              name="status"
+            >
+              <option value="open">Abierta</option>
+              <option value="pending_human">Pendiente humano</option>
+              <option value="automated">Automatizada</option>
+              <option value="closed">Cerrada</option>
+            </NativeSelect>
+          </FormField>
+          <FormField htmlFor="handoff_reason" label="Motivo de handoff">
+            <Textarea
+              defaultValue={initialValues.handoff_reason ?? ""}
+              id="handoff_reason"
+              name="handoff_reason"
+            />
+          </FormField>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              defaultChecked={initialValues.ai_enabled}
+              name="ai_enabled"
+              type="checkbox"
+            />
+            IA habilitada en esta conversación
+          </label>
+          {state.message ? (
+            <ActionFeedback message={state.message} status={state.status} />
+          ) : null}
+          <SubmitButton
+            label="Actualizar conversación"
+            pendingLabel="Guardando..."
+          />
+        </form>
+      </CardContent>
+    </Card>
+  );
 }
