@@ -1,10 +1,10 @@
 import Link from "next/link";
 
+import { CardBox } from "@/components/dashboard/card-box";
+import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { EmptyState } from "@/components/shared/empty-state";
-import { MetricCard } from "@/components/shared/metric-card";
-import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { listConversations } from "@/server/queries/conversations";
 import { formatDateTime } from "@/lib/utils";
@@ -17,16 +17,22 @@ export default async function ConversationsPage() {
 	const aiEnabledCount = conversations.filter((conversation) => conversation.ai_enabled).length;
 
 	return (
-		<>
-			<PageHeader
-				title="Conversaciones"
-				description="Hub conversacional preparado para WhatsApp y expansión futura a otros canales."
+		<div className="space-y-6">
+			<div className="space-y-2">
+				<h1 className="text-foreground text-5xl leading-none font-semibold tracking-tight">
+					Conversaciones
+				</h1>
+				<p className="max-w-3xl text-lg text-muted-foreground">
+					Hub conversacional preparado para WhatsApp y expansión futura a otros canales.
+				</p>
+			</div>
+			<DashboardTopCards
+				items={[
+					{ key: "open", label: "Abiertas", value: openCount, tone: "primary" },
+					{ key: "handoff", label: "Pendiente humano", value: handoffCount, tone: "warning" },
+					{ key: "ai", label: "IA habilitada", value: aiEnabledCount, tone: "success" },
+				]}
 			/>
-			<section className="grid gap-4 md:grid-cols-3">
-				<MetricCard label="Abiertas" tone="primary" value={openCount} />
-				<MetricCard label="Pendiente humano" tone="warning" value={handoffCount} />
-				<MetricCard label="IA habilitada" tone="success" value={aiEnabledCount} />
-			</section>
 			{conversations.length === 0 ? (
 				<EmptyState
 					title="No hay conversaciones"
@@ -35,23 +41,27 @@ export default async function ConversationsPage() {
 					actionLabel="Revisar canales"
 				/>
 			) : (
-				<div className="grid gap-4">
+				<div className="grid gap-6">
 					{conversations.map((conversation) => (
 						<Link href={`/dashboard/conversations/${conversation.id}`} key={conversation.id}>
-							<Card className="transition hover:border-primary/20 hover:bg-lightprimary/15">
+							<CardBox className="transition hover:border-primary/20 hover:bg-lightprimary/15">
+								<CardHeader>
+									<div className="flex flex-wrap items-center justify-between gap-3">
+										<div className="space-y-1">
+											<CardTitle className="truncate">
+												{conversation.contact_display_name ?? "Contacto sin nombre"}
+											</CardTitle>
+											<CardDescription>
+												{conversation.contact_identifier ?? "Sin identificador"}
+											</CardDescription>
+										</div>
+										<Badge variant={conversation.status === "pending_human" ? "lightWarning" : "outline"}>
+											{conversation.status}
+										</Badge>
+									</div>
+								</CardHeader>
 								<CardContent className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
 									<div className="min-w-0 space-y-2">
-										<div className="flex flex-wrap items-center gap-2">
-											<p className="truncate font-semibold text-foreground">
-												{conversation.contact_display_name ?? "Contacto sin nombre"}
-											</p>
-											<Badge variant={conversation.status === "pending_human" ? "lightWarning" : "outline"}>
-												{conversation.status}
-											</Badge>
-										</div>
-										<p className="text-sm text-muted-foreground">
-											{conversation.contact_identifier ?? "Sin identificador"}
-										</p>
 										<div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
 											<span>Último mensaje {formatDateTime(conversation.last_message_at)}</span>
 											{conversation.channels?.display_name ? (
@@ -68,11 +78,11 @@ export default async function ConversationsPage() {
 										</Badge>
 									</div>
 								</CardContent>
-							</Card>
+							</CardBox>
 						</Link>
 					))}
 				</div>
 			)}
-		</>
+		</div>
 	);
 }

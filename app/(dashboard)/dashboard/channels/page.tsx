@@ -1,7 +1,7 @@
-import { MetricCard } from "@/components/shared/metric-card";
-import { PageHeader } from "@/components/shared/page-header";
+import { CardBox } from "@/components/dashboard/card-box";
+import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { listChannels } from "@/server/queries/channels";
 import { formatDateTime } from "@/lib/utils";
@@ -12,16 +12,20 @@ export default async function ChannelsPage() {
 	const connectedCount = channels.filter((channel) => channel.status === "connected").length;
 
 	return (
-		<>
-			<PageHeader
-				title="Canales"
-				description="Capa SaaS preparada para canales conectados por cada inmobiliaria, empezando por WhatsApp."
+		<div className="space-y-6">
+			<div className="space-y-2">
+				<h1 className="text-foreground text-5xl leading-none font-semibold tracking-tight">Canales</h1>
+				<p className="max-w-3xl text-lg text-muted-foreground">
+					Capa SaaS preparada para canales conectados por cada inmobiliaria, empezando por WhatsApp.
+				</p>
+			</div>
+			<DashboardTopCards
+				items={[
+					{ key: "total", label: "Canales", value: channels.length, tone: "primary" },
+					{ key: "connected", label: "Conectados", value: connectedCount, tone: "success" },
+					{ key: "pending", label: "Pendientes", value: channels.length - connectedCount, tone: "warning" },
+				]}
 			/>
-			<section className="grid gap-4 md:grid-cols-3">
-				<MetricCard label="Canales" tone="primary" value={channels.length} />
-				<MetricCard label="Conectados" tone="success" value={connectedCount} />
-				<MetricCard label="Pendientes" tone="warning" value={channels.length - connectedCount} />
-			</section>
 			<div className="grid gap-4 lg:grid-cols-2">
 				{channels.map((channel) => {
 					const whatsappAccount = Array.isArray(channel.channel_whatsapp_accounts)
@@ -29,7 +33,7 @@ export default async function ChannelsPage() {
 						: channel.channel_whatsapp_accounts;
 
 					return (
-						<Card key={channel.id}>
+						<CardBox key={channel.id}>
 							<CardHeader>
 								<div className="flex items-center justify-between">
 									<div>
@@ -60,10 +64,10 @@ export default async function ChannelsPage() {
 									</div>
 								) : null}
 							</CardContent>
-						</Card>
+						</CardBox>
 					);
 				})}
 			</div>
-		</>
+		</div>
 	);
 }

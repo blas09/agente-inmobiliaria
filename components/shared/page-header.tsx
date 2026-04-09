@@ -19,9 +19,11 @@ export function PageHeader({
 	children,
 }: PageHeaderProps) {
 	return (
-		<div className="flex flex-col gap-4 border-b border-border pb-5 md:flex-row md:items-end md:justify-between">
-			<div className="max-w-3xl space-y-1.5">
-				<h1 className="text-dark text-[28px] leading-none font-semibold tracking-tight md:text-[30px]">{title}</h1>
+		<div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+			<div className="max-w-3xl space-y-1">
+				<h1 className="text-foreground text-[1.75rem] leading-tight font-semibold tracking-tight md:text-[2rem]">
+					{title}
+				</h1>
 				{description ? (
 					<p className="max-w-2xl text-sm leading-6 text-muted-foreground">
 						{description}

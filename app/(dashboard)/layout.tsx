@@ -9,14 +9,6 @@ export default async function DashboardLayout({
 	const context = await getAppContext();
 
 	return (
-		<AppShell
-			activeTenantId={context.activeTenant?.id ?? null}
-			activeTenantName={context.activeTenant?.name ?? null}
-			memberships={context.memberships}
-			isPlatformAdmin={context.isPlatformAdmin}
-			userName={context.user.user_metadata.full_name ?? context.user.email ?? "Usuario"}
-		>
-			{children}
-		</AppShell>
+		<AppShell isPlatformAdmin={context.isPlatformAdmin}>{children}</AppShell>
 	);
 }

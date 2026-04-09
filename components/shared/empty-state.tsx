@@ -1,8 +1,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { CardBox } from "@/components/dashboard/card-box";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface EmptyStateProps {
 	title: string;
@@ -20,9 +21,9 @@ export function EmptyState({
 	actionLabel,
 }: EmptyStateProps) {
 	return (
-		<Card className="border-dashed">
-			<CardHeader className="space-y-4">
-				<div className="flex h-12 w-12 items-center justify-center rounded-xl bg-lightprimary text-sm font-semibold text-primary">
+		<CardBox className="border-dashed">
+			<CardHeader className="space-y-3">
+				<div className="flex h-11 w-11 items-center justify-center rounded-lg bg-lightprimary text-sm font-semibold text-primary">
 					AG
 				</div>
 				<CardTitle>{title}</CardTitle>
@@ -38,6 +39,6 @@ export function EmptyState({
 					) : null}
 				</CardContent>
 			) : null}
-		</Card>
+		</CardBox>
 	);
 }

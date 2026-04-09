@@ -2,32 +2,79 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-	Home,
-	Building2,
-	Users,
-	MessagesSquare,
-	CalendarDays,
-	CircleHelp,
-	PlugZap,
-	Settings,
-	Shield,
-} from "lucide-react";
+import { useTheme } from "next-themes";
+import SimpleBar from "simplebar-react";
+import { Icon } from "@iconify/react";
+import { AMLogo, AMMenu, AMMenuItem, AMSidebar } from "tailwind-sidebar";
 
 import { cn } from "@/lib/utils";
+import { FullLogo } from "@/components/layout/full-logo";
+import { getSidebarItems, type SidebarItem } from "@/components/layout/sidebar-items";
 
-const items = [
-	{ href: "/dashboard", label: "Resumen", icon: Home },
-	{ href: "/dashboard/properties", label: "Propiedades", icon: Building2 },
-	{ href: "/dashboard/leads", label: "Leads", icon: Users },
-	{ href: "/dashboard/conversations", label: "Conversaciones", icon: MessagesSquare },
-	{ href: "/dashboard/appointments", label: "Agenda", icon: CalendarDays },
-	{ href: "/dashboard/faqs", label: "FAQs", icon: CircleHelp },
-	{ href: "/dashboard/channels", label: "Canales", icon: PlugZap },
-	{ href: "/dashboard/settings", label: "Configuración", icon: Settings },
-];
+function renderSidebarItems(items: SidebarItem[], currentPath: string, onNavigate?: () => void) {
+	return items.map((item) => {
+		const isSelected =
+			item.url === "/dashboard"
+				? currentPath === item.url
+				: item.url
+					? currentPath.startsWith(item.url)
+					: false;
 
-const platformItems = [{ href: "/dashboard/platform/tenants", label: "Tenants", icon: Shield }];
+		if (item.heading) {
+			return (
+				<div className="mb-1" key={item.id}>
+					<AMMenu
+						ClassName="hide-menu leading-21 text-sidebar-foreground font-bold uppercase text-xs"
+						subHeading={item.heading}
+					/>
+				</div>
+			);
+		}
+
+		if (item.children?.length) {
+			return (
+				<div key={item.id}>
+					{item.children.map((child) => {
+						const selected =
+							child.url === "/dashboard"
+								? currentPath === child.url
+								: child.url
+									? currentPath.startsWith(child.url)
+									: false;
+
+						return (
+							<div key={child.id} onClick={onNavigate}>
+								<AMMenuItem
+									className="mt-0.5 text-sidebar-foreground dark:text-sidebar-foreground"
+									component={Link}
+									icon={<Icon height={21} icon={child.icon ?? "solar:widget-2-linear"} width={21} />}
+									isSelected={selected}
+									link={child.url}
+								>
+									<span className="truncate flex-1">{child.title || child.name}</span>
+								</AMMenuItem>
+							</div>
+						);
+					})}
+				</div>
+			);
+		}
+
+		return (
+			<div key={item.id} onClick={onNavigate}>
+				<AMMenuItem
+					className={cn("mt-0.5 text-sidebar-foreground dark:text-sidebar-foreground")}
+					component={Link}
+					icon={<Icon height={21} icon={item.icon ?? "solar:widget-2-linear"} width={21} />}
+					isSelected={isSelected}
+					link={item.url}
+				>
+					<span className="truncate flex-1">{item.title || item.name}</span>
+				</AMMenuItem>
+			</div>
+		);
+	});
+}
 
 function SidebarContent({
 	isPlatformAdmin,
@@ -37,56 +84,48 @@ function SidebarContent({
 	onNavigate?: () => void;
 }) {
 	const pathname = usePathname();
-	const navigationItems = isPlatformAdmin ? [...items, ...platformItems] : items;
+	const { theme } = useTheme();
+	const sidebarMode = theme === "light" || theme === "dark" ? theme : undefined;
+	const sections = getSidebarItems(isPlatformAdmin);
 
 	return (
-		<div className="flex h-full flex-col bg-sidebar">
-			<div className="border-b border-sidebar-border px-6 py-6">
-				<p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Agente Inmobiliaria</p>
-				<h2 className="mt-3 text-xl font-bold tracking-tight text-sidebar-foreground">
-					Operación comercial
-				</h2>
-				<p className="mt-1.5 text-sm leading-6 text-muted-foreground">
-					CRM conversacional para inmobiliarias multitenant.
-				</p>
+		<AMSidebar
+			animation
+			collapsible="none"
+			className="fixed left-0 top-0 z-10 h-screen border border-border bg-sidebar dark:bg-sidebar"
+			mode={sidebarMode}
+			showProfile={false}
+			showTrigger={false}
+			width="270px"
+		>
+			<div className="brand-logo flex items-center overflow-hidden px-6">
+				<AMLogo component={Link} href="/dashboard" img="">
+					<FullLogo />
+				</AMLogo>
 			</div>
-			<nav className="flex-1 space-y-1 px-4 py-5">
-				{navigationItems.map((item) => {
-					const Icon = item.icon;
-					const isActive =
-						pathname === item.href ||
-						(item.href !== "/dashboard" && pathname.startsWith(item.href));
-
-					return (
-						<Link
-							key={item.href}
-							href={item.href}
-							onClick={onNavigate}
-							className={cn(
-								"group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-								isActive && "bg-sidebar-accent text-sidebar-accent-foreground",
+			<SimpleBar className="h-[calc(100vh-88px)]">
+				<div className="px-6">
+					{sections.map((section) => (
+						<div key={section.id}>
+							{renderSidebarItems(
+								[
+									...(section.heading ? [{ heading: section.heading, id: `${section.id}-heading` }] : []),
+									...(section.children ?? []),
+								],
+								pathname,
+								onNavigate,
 							)}
-						>
-							<span
-								className={cn(
-									"flex h-9 w-9 items-center justify-center rounded-lg border border-sidebar-border bg-card text-muted-foreground transition group-hover:border-primary/20 group-hover:text-primary",
-									isActive && "border-primary/15 bg-lightprimary text-primary",
-								)}
-							>
-								<Icon className="h-4 w-4" />
-							</span>
-							<span className="truncate">{item.label}</span>
-						</Link>
-					);
-				})}
-			</nav>
-		</div>
+						</div>
+					))}
+				</div>
+			</SimpleBar>
+		</AMSidebar>
 	);
 }
 
 export function Sidebar({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
 	return (
-		<aside className="hidden w-[18rem] shrink-0 border-r border-sidebar-border xl:flex xl:flex-col">
+		<aside className="hidden xl:block">
 			<SidebarContent isPlatformAdmin={isPlatformAdmin} />
 		</aside>
 	);

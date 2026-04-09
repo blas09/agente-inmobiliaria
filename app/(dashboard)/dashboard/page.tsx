@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { MessageCircleMore, Building2, Users, Shield } from "lucide-react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { CardBox } from "@/components/dashboard/card-box";
+import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
+import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { EmptyState } from "@/components/shared/empty-state";
-import { MetricCard } from "@/components/shared/metric-card";
-import { PageHeader } from "@/components/shared/page-header";
+import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getDashboardSummary } from "@/server/queries/dashboard";
 import { getAppContext } from "@/server/auth/tenant-context";
 import { getPlatformSummary } from "@/server/queries/tenants";
@@ -16,16 +17,19 @@ const metricCards = [
 		key: "activeProperties",
 		label: "Propiedades activas",
 		icon: Building2,
+		tone: "primary",
 	},
 	{
 		key: "leads",
 		label: "Leads",
 		icon: Users,
+		tone: "secondary",
 	},
 	{
 		key: "openConversations",
 		label: "Conversaciones abiertas",
 		icon: MessageCircleMore,
+		tone: "success",
 	},
 ] as const;
 
@@ -36,38 +40,43 @@ export default async function DashboardPage() {
 		const summary = await getPlatformSummary();
 
 		return (
-			<>
-				<PageHeader
+			<div className="space-y-6">
+				<ProfileWelcome
 					title="Panel de plataforma"
 					description="Vista global para administración de tenants y gobierno del SaaS."
 				/>
-				<section className="grid gap-4 md:grid-cols-3">
-					<MetricCard
-						icon={Building2}
-						label="Tenants"
-						tone="primary"
-						value={formatCompactNumber(summary.totalTenants)}
-					/>
-					<MetricCard
-						icon={Users}
-						label="Tenants activos"
-						tone="success"
-						value={formatCompactNumber(summary.activeTenants)}
-					/>
-					<MetricCard
-						icon={Shield}
-						label="Membresías activas"
-						tone="secondary"
-						value={formatCompactNumber(summary.activeMemberships)}
-					/>
-				</section>
+				<DashboardTopCards
+					items={[
+						{
+							key: "tenants",
+							label: "Tenants",
+							value: formatCompactNumber(summary.totalTenants),
+							icon: Building2,
+							tone: "primary",
+						},
+						{
+							key: "active-tenants",
+							label: "Tenants activos",
+							value: formatCompactNumber(summary.activeTenants),
+							icon: Users,
+							tone: "success",
+						},
+						{
+							key: "memberships",
+							label: "Membresías activas",
+							value: formatCompactNumber(summary.activeMemberships),
+							icon: Shield,
+							tone: "secondary",
+						},
+					]}
+				/>
 				<EmptyState
 					title="Sin tenant activo"
 					description="Como platform admin, podés crear tenants o sumarte a uno existente desde la sección de tenants."
 					actionHref="/dashboard/platform/tenants"
 					actionLabel="Ver tenants"
 				/>
-			</>
+			</div>
 		);
 	}
 
@@ -75,34 +84,23 @@ export default async function DashboardPage() {
 	const summary = await getDashboardSummary(activeTenant.id);
 
 	return (
-		<>
-			<PageHeader
-				title={`Panel de ${activeTenant.name}`}
+		<div className="space-y-6">
+			<ProfileWelcome
+				title={`Inmobiliaria ${activeTenant.name}`}
 				description="Base operativa del tenant activo: propiedades, leads, conversaciones y canales."
 			/>
-			<section className="grid gap-4 md:grid-cols-3">
-				{metricCards.map((metric) => {
-					const Icon = metric.icon;
-					const value = summary.metrics[metric.key];
-					const tone =
-						metric.key === "activeProperties"
-							? "primary"
-							: metric.key === "leads"
-								? "secondary"
-								: "success";
-					return (
-						<MetricCard
-							key={metric.key}
-							icon={Icon}
-							label={metric.label}
-							tone={tone}
-							value={formatCompactNumber(value)}
-						/>
-					);
-				})}
-			</section>
-			<section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-				<Card>
+			<DashboardTopCards
+				items={metricCards.map((metric) => ({
+					key: metric.key,
+					label: metric.label,
+					value: formatCompactNumber(summary.metrics[metric.key]),
+					icon: metric.icon,
+					tone: metric.tone,
+				}))}
+			/>
+			<div className="grid grid-cols-12 gap-6">
+				<div className="col-span-12 xl:col-span-7">
+					<CardBox className="h-full w-full">
 					<CardHeader>
 						<CardTitle>Leads por fuente</CardTitle>
 						<CardDescription>Lectura rápida del origen comercial del tenant.</CardDescription>
@@ -127,8 +125,10 @@ export default async function DashboardPage() {
 							))
 						)}
 					</CardContent>
-				</Card>
-				<Card>
+					</CardBox>
+				</div>
+				<div className="col-span-12 xl:col-span-5">
+					<CardBox className="h-full w-full">
 					<CardHeader>
 						<CardTitle>Contexto del tenant</CardTitle>
 						<CardDescription>
@@ -153,10 +153,10 @@ export default async function DashboardPage() {
 							<p className="mt-1 font-semibold">{activeTenant.locale}</p>
 						</div>
 					</CardContent>
-				</Card>
-			</section>
-			<section className="grid gap-6 xl:grid-cols-2">
-				<Card>
+					</CardBox>
+				</div>
+				<div className="col-span-12 xl:col-span-6">
+					<CardBox className="h-full w-full">
 					<CardHeader>
 						<CardTitle>Últimos leads</CardTitle>
 						<CardDescription>Actividad comercial reciente del tenant.</CardDescription>
@@ -178,8 +178,10 @@ export default async function DashboardPage() {
 							</Link>
 						))}
 					</CardContent>
-				</Card>
-				<Card>
+					</CardBox>
+				</div>
+				<div className="col-span-12 xl:col-span-6">
+					<CardBox className="h-full w-full">
 					<CardHeader>
 						<CardTitle>Conversaciones recientes</CardTitle>
 						<CardDescription>Últimos contactos entrando por canales conectados.</CardDescription>
@@ -205,8 +207,9 @@ export default async function DashboardPage() {
 							</Link>
 						))}
 					</CardContent>
-				</Card>
-			</section>
-		</>
+					</CardBox>
+				</div>
+			</div>
+		</div>
 	);
 }

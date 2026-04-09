@@ -1,15 +1,12 @@
 import Link from "next/link";
 
+import { CardBox } from "@/components/dashboard/card-box";
+import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { EmptyState } from "@/components/shared/empty-state";
-import { FilterCard } from "@/components/shared/filter-card";
-import { MetricCard } from "@/components/shared/metric-card";
-import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { NativeSelect } from "@/components/ui/native-select";
+import { CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { listProperties } from "@/server/queries/properties";
 import { formatCurrency } from "@/lib/utils";
@@ -26,36 +23,27 @@ export default async function PropertiesPage({
 	const draftCount = properties.filter((property) => property.status === "draft").length;
 
 	return (
-		<>
-			<PageHeader
-				title="Propiedades"
-				description="Inventario central del tenant. Source of truth para respuestas comerciales."
-				actionHref="/dashboard/properties/new"
-				actionLabel="Nueva propiedad"
-			>
-				<form className="w-full" method="get">
-					<FilterCard>
-						<div className="grid gap-3 md:grid-cols-[1.6fr_0.8fr_auto]">
-						<Input defaultValue={params.q} name="q" placeholder="Buscar por título o ubicación" />
-						<NativeSelect defaultValue={params.status ?? "all"} name="status">
-							<option value="all">Todos los estados</option>
-							<option value="available">Disponibles</option>
-							<option value="draft">Borrador</option>
-							<option value="reserved">Reservadas</option>
-							<option value="inactive">Inactivas</option>
-						</NativeSelect>
-						<Button type="submit" variant="outline">
-							Filtrar
-						</Button>
-						</div>
-					</FilterCard>
-				</form>
-			</PageHeader>
-			<section className="grid gap-4 md:grid-cols-3">
-				<MetricCard label="Total propiedades" tone="primary" value={properties.length} />
-				<MetricCard label="Disponibles" tone="success" value={availableCount} />
-				<MetricCard label="Borradores" tone="warning" value={draftCount} />
-			</section>
+		<div className="space-y-6">
+			<div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+				<div className="space-y-2">
+					<h1 className="text-foreground text-5xl leading-none font-semibold tracking-tight">
+						Propiedades
+					</h1>
+					<p className="max-w-3xl text-lg text-muted-foreground">
+						Inventario central del tenant. Source of truth para respuestas comerciales.
+					</p>
+				</div>
+				<Link href="/dashboard/properties/new">
+					<Button>Nueva propiedad</Button>
+				</Link>
+			</div>
+			<DashboardTopCards
+				items={[
+					{ key: "total", label: "Total propiedades", value: properties.length, tone: "primary" },
+					{ key: "available", label: "Disponibles", value: availableCount, tone: "success" },
+					{ key: "draft", label: "Borradores", value: draftCount, tone: "warning" },
+				]}
+			/>
 			{properties.length === 0 ? (
 				<EmptyState
 					title="No hay propiedades cargadas"
@@ -64,7 +52,7 @@ export default async function PropertiesPage({
 					actionLabel="Cargar propiedad"
 				/>
 			) : (
-				<Card className="overflow-hidden">
+				<CardBox className="overflow-hidden">
 					<CardContent className="overflow-x-auto p-0">
 						<Table>
 							<TableHeader>
@@ -105,8 +93,8 @@ export default async function PropertiesPage({
 							</TableBody>
 						</Table>
 					</CardContent>
-				</Card>
+				</CardBox>
 			)}
-		</>
+		</div>
 	);
 }

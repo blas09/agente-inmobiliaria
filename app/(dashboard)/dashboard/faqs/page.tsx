@@ -1,10 +1,11 @@
 import Link from "next/link";
 
+import { CardBox } from "@/components/dashboard/card-box";
+import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { EmptyState } from "@/components/shared/empty-state";
-import { MetricCard } from "@/components/shared/metric-card";
-import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { listFaqs } from "@/server/queries/faqs";
 
@@ -14,18 +15,25 @@ export default async function FaqsPage() {
 	const activeFaqs = faqs.filter((faq) => faq.status === "active").length;
 
 	return (
-		<>
-			<PageHeader
-				title="FAQs"
-				description="Respuestas predefinidas del tenant para cubrir preguntas frecuentes antes de escalar."
-				actionHref="/dashboard/faqs/new"
-				actionLabel="Nueva FAQ"
+		<div className="space-y-6">
+			<div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+				<div className="space-y-2">
+					<h1 className="text-foreground text-5xl leading-none font-semibold tracking-tight">FAQs</h1>
+					<p className="max-w-3xl text-lg text-muted-foreground">
+						Respuestas predefinidas del tenant para cubrir preguntas frecuentes antes de escalar.
+					</p>
+				</div>
+				<Link href="/dashboard/faqs/new">
+					<Button>Nueva FAQ</Button>
+				</Link>
+			</div>
+			<DashboardTopCards
+				items={[
+					{ key: "total", label: "FAQs", value: faqs.length, tone: "primary" },
+					{ key: "active", label: "Activas", value: activeFaqs, tone: "success" },
+					{ key: "inactive", label: "Inactivas", value: faqs.length - activeFaqs, tone: "warning" },
+				]}
 			/>
-			<section className="grid gap-4 md:grid-cols-3">
-				<MetricCard label="FAQs" tone="primary" value={faqs.length} />
-				<MetricCard label="Activas" tone="success" value={activeFaqs} />
-				<MetricCard label="Inactivas" tone="warning" value={faqs.length - activeFaqs} />
-			</section>
 			{faqs.length === 0 ? (
 				<EmptyState
 					title="Todavía no hay FAQs"
@@ -36,7 +44,7 @@ export default async function FaqsPage() {
 			) : (
 				<div className="grid gap-4">
 					{faqs.map((faq) => (
-						<Card key={faq.id}>
+						<CardBox key={faq.id}>
 							<CardHeader>
 								<div className="flex items-center justify-between gap-3">
 									<div className="space-y-1">
@@ -53,10 +61,10 @@ export default async function FaqsPage() {
 							<CardContent>
 								<p className="text-sm leading-6 text-muted-foreground">{faq.answer}</p>
 							</CardContent>
-						</Card>
+						</CardBox>
 					))}
 				</div>
 			)}
-		</>
+		</div>
 	);
 }

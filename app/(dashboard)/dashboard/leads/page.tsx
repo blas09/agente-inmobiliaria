@@ -1,14 +1,11 @@
 import Link from "next/link";
 
+import { CardBox } from "@/components/dashboard/card-box";
+import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { EmptyState } from "@/components/shared/empty-state";
-import { FilterCard } from "@/components/shared/filter-card";
-import { MetricCard } from "@/components/shared/metric-card";
-import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { NativeSelect } from "@/components/ui/native-select";
+import { CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { listLeads } from "@/server/queries/leads";
@@ -26,36 +23,25 @@ export default async function LeadsPage({
 	const newCount = leads.filter((lead) => lead.qualification_status === "new").length;
 
 	return (
-		<>
-			<PageHeader
-				title="Leads"
-				description="Consultas capturadas y calificadas para el equipo comercial."
-				actionHref="/dashboard/leads/new"
-				actionLabel="Nuevo lead"
-			>
-				<form className="w-full" method="get">
-					<FilterCard>
-						<div className="grid gap-3 md:grid-cols-[1.6fr_0.8fr_auto]">
-						<Input defaultValue={params.q} name="q" placeholder="Buscar por nombre, email o teléfono" />
-						<NativeSelect defaultValue={params.status ?? "all"} name="status">
-							<option value="all">Todos los estados</option>
-							<option value="new">Nuevo</option>
-							<option value="contacted">Contactado</option>
-							<option value="qualified">Calificado</option>
-							<option value="lost">Perdido</option>
-						</NativeSelect>
-						<Button type="submit" variant="outline">
-							Filtrar
-						</Button>
-						</div>
-					</FilterCard>
-				</form>
-			</PageHeader>
-			<section className="grid gap-4 md:grid-cols-3">
-				<MetricCard label="Total leads" tone="primary" value={leads.length} />
-				<MetricCard label="Nuevos" tone="warning" value={newCount} />
-				<MetricCard label="Calificados" tone="success" value={qualifiedCount} />
-			</section>
+		<div className="space-y-6">
+			<div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+				<div className="space-y-2">
+					<h1 className="text-foreground text-5xl leading-none font-semibold tracking-tight">Leads</h1>
+					<p className="max-w-3xl text-lg text-muted-foreground">
+						Consultas capturadas y calificadas para el equipo comercial.
+					</p>
+				</div>
+				<Link href="/dashboard/leads/new">
+					<Button>Nuevo lead</Button>
+				</Link>
+			</div>
+			<DashboardTopCards
+				items={[
+					{ key: "total", label: "Total leads", value: leads.length, tone: "primary" },
+					{ key: "new", label: "Nuevos", value: newCount, tone: "warning" },
+					{ key: "qualified", label: "Calificados", value: qualifiedCount, tone: "success" },
+				]}
+			/>
 			{leads.length === 0 ? (
 				<EmptyState
 					title="No hay leads todavía"
@@ -64,7 +50,7 @@ export default async function LeadsPage({
 					actionLabel="Crear lead"
 				/>
 			) : (
-				<Card className="overflow-hidden">
+				<CardBox className="overflow-hidden">
 					<CardContent className="overflow-x-auto p-0">
 						<Table>
 							<TableHeader>
@@ -107,8 +93,8 @@ export default async function LeadsPage({
 							</TableBody>
 						</Table>
 					</CardContent>
-				</Card>
+				</CardBox>
 			)}
-		</>
+		</div>
 	);
 }

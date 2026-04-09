@@ -1,16 +1,13 @@
 import Link from "next/link";
 
+import { CardBox } from "@/components/dashboard/card-box";
+import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { AppointmentForm } from "@/features/appointments/appointment-form";
 import { updateAppointmentAction } from "@/features/appointments/actions";
 import { getAppointmentRules, summarizeAppointmentRules } from "@/features/appointments/rules";
 import { EmptyState } from "@/components/shared/empty-state";
-import { FilterCard } from "@/components/shared/filter-card";
-import { MetricCard } from "@/components/shared/metric-card";
-import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { NativeSelect } from "@/components/ui/native-select";
+import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { listAppointments } from "@/server/queries/appointments";
 import { listAvailablePropertiesForSelection } from "@/server/queries/properties";
@@ -32,51 +29,31 @@ export default async function AppointmentsPage({
 	]);
 
 	return (
-		<>
-			<PageHeader
-				title="Agenda"
-				description="Visitas internas del tenant. La agenda propia sigue siendo la verdad de negocio."
-			>
-				<form className="w-full" method="get">
-					<FilterCard>
-						<div className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
-						<NativeSelect defaultValue={params.status ?? "all"} name="status">
-							<option value="all">Todos los estados</option>
-							<option value="scheduled">Agendadas</option>
-							<option value="confirmed">Confirmadas</option>
-							<option value="completed">Completadas</option>
-							<option value="canceled">Canceladas</option>
-							<option value="no_show">No asistió</option>
-						</NativeSelect>
-						<NativeSelect defaultValue={params.advisor ?? "all"} name="advisor">
-							<option value="all">Todos los asesores</option>
-							{advisors.map((advisor) => (
-								<option key={advisor.user_id} value={advisor.user_id}>
-									{advisor.user_profiles?.full_name ?? advisor.user_profiles?.email ?? advisor.user_id}
-								</option>
-							))}
-						</NativeSelect>
-						<Button type="submit" variant="outline">
-							Filtrar
-						</Button>
-						</div>
-					</FilterCard>
-				</form>
-			</PageHeader>
-			<section className="grid gap-4 md:grid-cols-3">
-				<MetricCard label="Visitas" tone="primary" value={appointments.length} />
-				<MetricCard
-					label="Confirmadas"
-					tone="success"
-					value={appointments.filter((appointment) => appointment.status === "confirmed").length}
-				/>
-				<MetricCard
-					label="Pendientes"
-					tone="warning"
-					value={appointments.filter((appointment) => appointment.status === "scheduled").length}
-				/>
-			</section>
-			<Card>
+		<div className="space-y-6">
+			<div className="space-y-2">
+				<h1 className="text-foreground text-5xl leading-none font-semibold tracking-tight">Agenda</h1>
+				<p className="max-w-3xl text-lg text-muted-foreground">
+					Visitas internas del tenant. La agenda propia sigue siendo la verdad de negocio.
+				</p>
+			</div>
+			<DashboardTopCards
+				items={[
+					{ key: "total", label: "Visitas", value: appointments.length, tone: "primary" },
+					{
+						key: "confirmed",
+						label: "Confirmadas",
+						value: appointments.filter((appointment) => appointment.status === "confirmed").length,
+						tone: "success",
+					},
+					{
+						key: "scheduled",
+						label: "Pendientes",
+						value: appointments.filter((appointment) => appointment.status === "scheduled").length,
+						tone: "warning",
+					},
+				]}
+			/>
+			<CardBox>
 				<CardHeader>
 					<CardTitle>Reglas activas de agenda</CardTitle>
 					<CardDescription>Validaciones del tenant aplicadas al crear o editar visitas.</CardDescription>
@@ -85,7 +62,7 @@ export default async function AppointmentsPage({
 					{summarizeAppointmentRules(appointmentRules)} · aviso mínimo{" "}
 					{appointmentRules.advance_notice_hours} h · timezone {activeTenant.timezone}
 				</CardContent>
-			</Card>
+			</CardBox>
 			{appointments.length === 0 ? (
 				<EmptyState
 					title="No hay visitas cargadas"
@@ -97,7 +74,7 @@ export default async function AppointmentsPage({
 				<div className="grid gap-6">
 					{appointments.map((appointment) => (
 						<div key={appointment.id} className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-							<Card>
+							<CardBox>
 								<CardHeader>
 									<CardTitle className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 										<span>
@@ -163,7 +140,7 @@ export default async function AppointmentsPage({
 										) : null}
 									</div>
 								</CardContent>
-							</Card>
+							</CardBox>
 							<AppointmentForm
 								action={updateAppointmentAction.bind(null, appointment.id, ["/dashboard/appointments"])}
 								advisorOptions={advisors.map((advisor) => ({
@@ -192,6 +169,6 @@ export default async function AppointmentsPage({
 					))}
 				</div>
 			)}
-		</>
+		</div>
 	);
 }

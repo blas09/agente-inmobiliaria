@@ -11,7 +11,7 @@ export function FilterCard({
 	className?: string;
 }) {
 	return (
-		<Card className={cn("w-full max-w-3xl p-4", className)}>
+		<Card className={cn("w-full max-w-3xl border-border/80 p-4", className)}>
 			<CardContent>{children}</CardContent>
 		</Card>
 	);
