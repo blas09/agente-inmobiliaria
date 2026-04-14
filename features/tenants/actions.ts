@@ -284,12 +284,19 @@ export async function addTenantUserAction(
 }
 
 export async function updateTenantUserAction(
-  memberId: string,
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
   const { activeTenant } = await requireTenantAdminContext();
   const supabase = await createSupabaseServerClient();
+  const memberId = formData.get("member_id")?.toString();
+
+  if (!memberId) {
+    return {
+      status: "error",
+      message: "Falta el identificador de membresía.",
+    };
+  }
   const result = tenantMembershipSchema.safeParse({
     email:
       formData.get("email")?.toString().trim().toLowerCase() ??

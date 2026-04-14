@@ -95,6 +95,10 @@ export async function sendManualConversationReply(input: {
   }
 
   const messageId = pendingInsert.data.id;
+  const metadataPayload: Json = {
+    origin: "dashboard.manual_reply",
+    user_id: input.userId,
+  };
 
   try {
     const provider = new WhatsAppCloudProvider();
@@ -114,6 +118,22 @@ export async function sendManualConversationReply(input: {
     });
 
     const sentAt = new Date().toISOString();
+    await supabase.from("channel_events").insert({
+      tenant_id: input.tenantId,
+      channel_id: resolvedConversation.channel_id,
+      provider: "meta_whatsapp_cloud",
+      event_type: "whatsapp.message.outbound",
+      direction: "outbound",
+      external_event_id: sendResult.externalMessageId ?? null,
+      payload: {
+        message_id: messageId,
+        conversation_id: input.conversationId,
+        response: toJson(sendResult.rawResponse),
+      } as Json,
+      processing_status: "processed",
+      processed_at: sentAt,
+    });
+
     const updateMessage = await supabase
       .from("messages")
       .update({
@@ -122,8 +142,7 @@ export async function sendManualConversationReply(input: {
         sent_at: sentAt,
         error_message: null,
         raw_payload: {
-          origin: "dashboard.manual_reply",
-          user_id: input.userId,
+          ...metadataPayload,
           provider_response: toJson(sendResult.rawResponse),
         } as Json,
       })
@@ -151,6 +170,23 @@ export async function sendManualConversationReply(input: {
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Outbound WhatsApp failed.";
+
+    await supabase.from("channel_events").insert({
+      tenant_id: input.tenantId,
+      channel_id: resolvedConversation.channel_id,
+      provider: "meta_whatsapp_cloud",
+      event_type: "whatsapp.message.outbound.failed",
+      direction: "outbound",
+      external_event_id: null,
+      payload: {
+        message_id: messageId,
+        conversation_id: input.conversationId,
+        error: errorMessage,
+      } as Json,
+      processing_status: "failed",
+      error_message: errorMessage,
+      processed_at: new Date().toISOString(),
+    });
 
     await supabase
       .from("messages")

@@ -107,21 +107,15 @@ export function AddTenantUserForm({
 
 export function TenantUsersList({
   users,
-  actionFactory,
+  action,
 }: {
   users: TenantUserSummary[];
-  actionFactory: (
-    memberId: string,
-  ) => (state: ActionState, formData: FormData) => Promise<ActionState>;
+  action: (state: ActionState, formData: FormData) => Promise<ActionState>;
 }) {
   return (
     <div className="space-y-4">
       {users.map((user) => (
-        <TenantUserRow
-          key={user.id}
-          action={actionFactory(user.id)}
-          user={user}
-        />
+        <TenantUserRow key={user.id} action={action} user={user} />
       ))}
     </div>
   );
@@ -143,6 +137,7 @@ function TenantUserRow({
           action={formAction}
           className="grid gap-4 md:grid-cols-[1.5fr_1fr_1fr_auto]"
         >
+          <input name="member_id" type="hidden" value={user.id} />
           <div className="border-border bg-muted space-y-2 rounded-xl border p-4">
             <p className="font-medium">
               {user.user_profiles?.full_name ?? "Perfil sin sincronizar"}

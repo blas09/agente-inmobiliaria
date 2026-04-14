@@ -2,6 +2,7 @@ import { CardBox } from "@/components/dashboard/card-box";
 import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   CardContent,
   CardDescription,
@@ -11,13 +12,37 @@ import {
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { listChannels } from "@/server/queries/channels";
 import { formatDateTime } from "@/lib/utils";
+import { listWhatsAppTemplates } from "@/server/queries/whatsapp-templates";
+import { WhatsAppTemplateForm } from "@/features/whatsapp-templates/template-form";
+import {
+  createWhatsAppTemplateAction,
+  updateWhatsAppTemplateStatusAction,
+} from "@/features/whatsapp-templates/actions";
 
 export default async function ChannelsPage() {
   const { activeTenant } = await getActiveTenantContext();
-  const channels = await listChannels(activeTenant.id);
+  const [channels, templates] = await Promise.all([
+    listChannels(activeTenant.id),
+    listWhatsAppTemplates(activeTenant.id),
+  ]);
   const connectedCount = channels.filter(
     (channel) => channel.status === "connected",
   ).length;
+
+  const templateStatusVariant = (status: string | null) => {
+    switch (status) {
+      case "approved":
+        return "lightSuccess";
+      case "pending":
+        return "lightWarning";
+      case "rejected":
+        return "lightError";
+      case "paused":
+        return "lightSecondary";
+      default:
+        return "outline";
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -96,6 +121,99 @@ export default async function ChannelsPage() {
             </CardBox>
           );
         })}
+      </div>
+      <div className="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
+        <WhatsAppTemplateForm action={createWhatsAppTemplateAction} />
+        <CardBox>
+          <CardHeader>
+            <CardTitle>Templates WhatsApp</CardTitle>
+            <CardDescription>
+              Templates disponibles para el tenant activo.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            {templates.length === 0 ? (
+              <p className="text-muted-foreground">
+                Todavía no hay templates cargados.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {templates.map((template) => (
+                  <div
+                    key={template.id}
+                    className="border-border bg-muted flex flex-col gap-3 rounded-xl border px-4 py-3 lg:flex-row lg:items-center lg:justify-between"
+                  >
+                    <div>
+                      <p className="font-medium">{template.name}</p>
+                      <p className="text-muted-foreground text-xs">
+                        {template.language}{" "}
+                        {template.category ? `· ${template.category}` : ""}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {!template.is_active ? (
+                        <Badge variant="outline">inactive</Badge>
+                      ) : null}
+                      <Badge variant={templateStatusVariant(template.status)}>
+                        {template.status ?? "unknown"}
+                      </Badge>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <form action={updateWhatsAppTemplateStatusAction}>
+                        <input
+                          name="template_id"
+                          type="hidden"
+                          value={template.id}
+                        />
+                        <input name="status" type="hidden" value="approved" />
+                        <Button size="sm" variant="secondary" type="submit">
+                          Aprobar
+                        </Button>
+                      </form>
+                      <form action={updateWhatsAppTemplateStatusAction}>
+                        <input
+                          name="template_id"
+                          type="hidden"
+                          value={template.id}
+                        />
+                        <input name="status" type="hidden" value="paused" />
+                        <Button size="sm" variant="outline" type="submit">
+                          Pausar
+                        </Button>
+                      </form>
+                      <form action={updateWhatsAppTemplateStatusAction}>
+                        <input
+                          name="template_id"
+                          type="hidden"
+                          value={template.id}
+                        />
+                        <input name="status" type="hidden" value="rejected" />
+                        <Button size="sm" variant="ghost" type="submit">
+                          Rechazar
+                        </Button>
+                      </form>
+                      <form action={updateWhatsAppTemplateStatusAction}>
+                        <input
+                          name="template_id"
+                          type="hidden"
+                          value={template.id}
+                        />
+                        <input
+                          name="is_active"
+                          type="hidden"
+                          value={template.is_active ? "false" : "true"}
+                        />
+                        <Button size="sm" variant="ghost" type="submit">
+                          {template.is_active ? "Desactivar" : "Activar"}
+                        </Button>
+                      </form>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </CardBox>
       </div>
     </div>
   );

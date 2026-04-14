@@ -158,9 +158,7 @@ export default async function SettingsPage() {
             ) : null}
             {canManage ? (
               <TenantUsersList
-                actionFactory={(memberId) =>
-                  updateTenantUserAction.bind(null, memberId)
-                }
+                action={updateTenantUserAction}
                 users={users}
               />
             ) : (

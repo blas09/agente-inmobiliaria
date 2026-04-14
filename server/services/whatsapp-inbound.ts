@@ -1,61 +1,93 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Database, Json } from "@/types/database";
+import { z } from "zod";
 
-type JsonRecord = Record<string, unknown>;
+const jsonRecordSchema = z.record(z.string(), z.unknown());
 
-interface WhatsAppMetadata {
-  phone_number_id?: string;
-  display_phone_number?: string;
-}
+const whatsAppMetadataSchema = z
+  .object({
+    phone_number_id: z.string().optional(),
+    display_phone_number: z.string().optional(),
+  })
+  .passthrough();
 
-interface WhatsAppContact {
-  profile?: {
-    name?: string;
-  };
-  wa_id?: string;
-}
+const whatsAppContactSchema = z
+  .object({
+    profile: z
+      .object({
+        name: z.string().optional(),
+      })
+      .passthrough()
+      .optional(),
+    wa_id: z.string().optional(),
+  })
+  .passthrough();
 
-interface WhatsAppMessage {
-  id?: string;
-  timestamp?: string;
-  type?: string;
-  text?: {
-    body?: string;
-  };
-  image?: JsonRecord;
-  audio?: JsonRecord;
-  video?: JsonRecord;
-  document?: JsonRecord;
-}
+const whatsAppMessageSchema = z
+  .object({
+    id: z.string().optional(),
+    timestamp: z.string().optional(),
+    type: z.string().optional(),
+    text: z
+      .object({
+        body: z.string().optional(),
+      })
+      .passthrough()
+      .optional(),
+    image: jsonRecordSchema.optional(),
+    audio: jsonRecordSchema.optional(),
+    video: jsonRecordSchema.optional(),
+    document: jsonRecordSchema.optional(),
+  })
+  .passthrough();
 
-interface WhatsAppStatus {
-  id?: string;
-  status?: string;
-  timestamp?: string;
-  recipient_id?: string;
-}
+const whatsAppStatusSchema = z
+  .object({
+    id: z.string().optional(),
+    status: z.string().optional(),
+    timestamp: z.string().optional(),
+    recipient_id: z.string().optional(),
+  })
+  .passthrough();
 
-interface WhatsAppValue {
-  metadata?: WhatsAppMetadata;
-  contacts?: WhatsAppContact[];
-  messages?: WhatsAppMessage[];
-  statuses?: WhatsAppStatus[];
-}
+const whatsAppValueSchema = z
+  .object({
+    metadata: whatsAppMetadataSchema.optional(),
+    contacts: z.array(whatsAppContactSchema).optional(),
+    messages: z.array(whatsAppMessageSchema).optional(),
+    statuses: z.array(whatsAppStatusSchema).optional(),
+  })
+  .passthrough();
 
-interface WhatsAppChange {
-  field?: string;
-  value?: WhatsAppValue;
-}
+const whatsAppChangeSchema = z
+  .object({
+    field: z.string().optional(),
+    value: whatsAppValueSchema.optional(),
+  })
+  .passthrough();
 
-interface WhatsAppEntry {
-  id?: string;
-  changes?: WhatsAppChange[];
-}
+const whatsAppEntrySchema = z
+  .object({
+    id: z.string().optional(),
+    changes: z.array(whatsAppChangeSchema).optional(),
+  })
+  .passthrough();
 
-interface WhatsAppWebhookPayload {
-  object?: string;
-  entry?: WhatsAppEntry[];
-}
+const whatsAppWebhookPayloadSchema = z
+  .object({
+    object: z.string().optional(),
+    entry: z.array(whatsAppEntrySchema).optional(),
+  })
+  .passthrough();
+
+export type WhatsAppMetadata = z.infer<typeof whatsAppMetadataSchema>;
+export type WhatsAppContact = z.infer<typeof whatsAppContactSchema>;
+export type WhatsAppMessage = z.infer<typeof whatsAppMessageSchema>;
+export type WhatsAppStatus = z.infer<typeof whatsAppStatusSchema>;
+export type WhatsAppValue = z.infer<typeof whatsAppValueSchema>;
+export type WhatsAppChange = z.infer<typeof whatsAppChangeSchema>;
+export type WhatsAppEntry = z.infer<typeof whatsAppEntrySchema>;
+export type WhatsAppWebhookPayload = z.infer<typeof whatsAppWebhookPayloadSchema>;
 
 type ProcessingResult =
   | {
@@ -68,6 +100,10 @@ type ProcessingResult =
       status: "processed" | "duplicate" | "ignored";
       detail: string;
     };
+
+export function validateWhatsAppWebhookPayload(payload: unknown) {
+  return whatsAppWebhookPayloadSchema.safeParse(payload);
+}
 
 function toJson(value: unknown): Json {
   return JSON.parse(JSON.stringify(value ?? {})) as Json;
@@ -113,6 +149,45 @@ function resolveMessageContent(message: WhatsAppMessage) {
         content: "[Mensaje recibido por WhatsApp]",
       };
   }
+}
+
+function mapWhatsAppMessageStatus(status: string | undefined) {
+  if (!status) return null;
+  switch (status) {
+    case "sent":
+    case "delivered":
+    case "read":
+    case "failed":
+      return status;
+    default:
+      return null;
+  }
+}
+
+function shouldApplyStatusTransition(
+  currentStatus: string | null,
+  incomingStatus: string,
+) {
+  if (!currentStatus) return true;
+
+  if (currentStatus === "failed") {
+    return false;
+  }
+
+  if (incomingStatus === "failed") {
+    return currentStatus !== "read" && currentStatus !== "delivered";
+  }
+
+  const rank: Record<string, number> = {
+    pending: 0,
+    sent: 1,
+    delivered: 2,
+    read: 3,
+  };
+
+  const currentRank = rank[currentStatus] ?? -1;
+  const incomingRank = rank[incomingStatus] ?? -1;
+  return incomingRank >= currentRank;
 }
 
 async function findChannelByPhoneNumberId(phoneNumberId: string) {
@@ -362,16 +437,48 @@ async function processStatusEvent(input: {
   }
 
   if (input.status.id && input.status.status) {
+    const mappedStatus = mapWhatsAppMessageStatus(input.status.status);
+    if (!mappedStatus) {
+      return {
+        kind: "status" as const,
+        status: "ignored" as const,
+        detail: `unsupported status ${input.status.status}`,
+      };
+    }
+
     const admin = createSupabaseAdminClient();
+    const { data: message } = await admin
+      .from("messages")
+      .select("id, message_status, delivered_at, read_at")
+      .eq("tenant_id", input.tenantId)
+      .eq("external_message_id", input.status.id)
+      .maybeSingle();
+
+    if (!message) {
+      return {
+        kind: "status" as const,
+        status: "ignored" as const,
+        detail: "status without tracked outbound message",
+      };
+    }
+
+    if (!shouldApplyStatusTransition(message.message_status, mappedStatus)) {
+      return {
+        kind: "status" as const,
+        status: "ignored" as const,
+        detail: `stale status transition ${message.message_status} -> ${mappedStatus}`,
+      };
+    }
+
     const patch: Database["public"]["Tables"]["messages"]["Update"] = {
-      message_status: input.status.status,
+      message_status: mappedStatus,
     };
-    if (input.status.status === "delivered" && input.status.timestamp) {
+    if (mappedStatus === "delivered" && input.status.timestamp && !message.delivered_at) {
       patch.delivered_at = new Date(
         Number(input.status.timestamp) * 1000,
       ).toISOString();
     }
-    if (input.status.status === "read" && input.status.timestamp) {
+    if (mappedStatus === "read" && input.status.timestamp && !message.read_at) {
       patch.read_at = new Date(
         Number(input.status.timestamp) * 1000,
       ).toISOString();
@@ -482,7 +589,23 @@ async function processInboundMessage(input: {
 }
 
 export async function processWhatsAppWebhook(payload: unknown) {
-  const webhookPayload = payload as WhatsAppWebhookPayload;
+  const parsedPayload = validateWhatsAppWebhookPayload(payload);
+  if (!parsedPayload.success) {
+    return {
+      processed: 0,
+      ignored: 1,
+      duplicates: 0,
+      results: [
+        {
+          kind: "message" as const,
+          status: "ignored" as const,
+          detail: "invalid payload schema",
+        },
+      ],
+    };
+  }
+
+  const webhookPayload = parsedPayload.data;
   const results: ProcessingResult[] = [];
 
   if (webhookPayload.object !== "whatsapp_business_account") {

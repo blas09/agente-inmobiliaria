@@ -538,6 +538,44 @@ export interface Database {
         >;
         Relationships: [];
       };
+      whatsapp_message_templates: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          name: string;
+          language: string;
+          category: string | null;
+          status: string;
+          components: Json;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          tenant_id: string;
+          name: string;
+          language?: string;
+          category?: string | null;
+          status?: string;
+          components?: Json;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["whatsapp_message_templates"]["Insert"]
+        >;
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_message_templates_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       channel_events: {
         Row: {
           id: string;
