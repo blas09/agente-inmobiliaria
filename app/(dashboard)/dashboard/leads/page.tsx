@@ -18,6 +18,7 @@ import {
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { listLeads } from "@/server/queries/leads";
 import { formatDateTime } from "@/lib/utils";
+import { canCreateBusinessRecords } from "@/lib/permissions";
 
 export default async function LeadsPage({
   searchParams,
@@ -25,7 +26,8 @@ export default async function LeadsPage({
   searchParams: Promise<{ q?: string; status?: string }>;
 }) {
   const params = await searchParams;
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant, activeMembership } = await getActiveTenantContext();
+  const canManageLeads = canCreateBusinessRecords(activeMembership.role);
   const leads = await listLeads(activeTenant.id, params);
   const qualifiedCount = leads.filter(
     (lead) => lead.qualification_status === "qualified",
@@ -39,9 +41,11 @@ export default async function LeadsPage({
       <ProfileWelcome
         title="Leads"
         action={
+          canManageLeads ? (
           <Link href="/dashboard/leads/new">
             <Button>Nuevo lead</Button>
           </Link>
+          ) : null
         }
       />
       <DashboardTopCards
@@ -65,8 +69,8 @@ export default async function LeadsPage({
         <EmptyState
           title="No hay leads todavía"
           description="Podés cargarlos manualmente o dejar lista la estructura para WhatsApp y otros canales."
-          actionHref="/dashboard/leads/new"
-          actionLabel="Crear lead"
+          actionHref={canManageLeads ? "/dashboard/leads/new" : undefined}
+          actionLabel={canManageLeads ? "Crear lead" : undefined}
         />
       ) : (
         <CardBox className="overflow-hidden">

@@ -10,6 +10,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
+import { requireTenantAdminContext } from "@/server/auth/tenant-context";
+import { canManageChannels } from "@/lib/permissions";
 import { listChannels } from "@/server/queries/channels";
 import { formatDateTime } from "@/lib/utils";
 import { getChannelHealthMetrics } from "@/server/queries/channel-events";
@@ -24,7 +26,10 @@ import {
 } from "@/features/whatsapp-templates/actions";
 
 export default async function ChannelsPage() {
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant, activeMembership } = await getActiveTenantContext();
+  if (!canManageChannels(activeMembership.role)) {
+    await requireTenantAdminContext();
+  }
   const [channels, templates, health] = await Promise.all([
     listChannels(activeTenant.id),
     listWhatsAppTemplates(activeTenant.id),

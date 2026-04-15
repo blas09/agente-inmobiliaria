@@ -34,6 +34,7 @@ import { listLeads } from "@/server/queries/leads";
 import { listAvailablePropertiesForSelection } from "@/server/queries/properties";
 import { listActiveWhatsAppTemplates } from "@/server/queries/whatsapp-templates";
 import { formatDateTime } from "@/lib/utils";
+import { canManageAppointments, canOperateConversations } from "@/lib/permissions";
 
 export default async function ConversationDetailPage({
   params,
@@ -41,7 +42,9 @@ export default async function ConversationDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant, activeMembership } = await getActiveTenantContext();
+  const canOperate = canOperateConversations(activeMembership.role);
+  const canSchedule = canManageAppointments(activeMembership.role);
   const appointmentRules = getAppointmentRules(activeTenant.settings);
   const [{ conversation, messages }, advisors, leads, properties, templates] =
     await Promise.all([
@@ -161,6 +164,7 @@ export default async function ConversationDetailPage({
               </div>
             </CardContent>
           </Card>
+          {canOperate ? (
           <ConversationRoutingForm
             action={updateConversationRoutingAction.bind(null, conversation.id)}
             advisorOptions={advisors.map((advisor) => ({
@@ -178,6 +182,8 @@ export default async function ConversationDetailPage({
               ai_enabled: conversation.ai_enabled,
             }}
           />
+          ) : null}
+          {canOperate ? (
           <ConversationLinkingForm
             action={updateConversationLinksAction.bind(null, conversation.id)}
             initialValues={{
@@ -193,7 +199,8 @@ export default async function ConversationDetailPage({
               label: `${property.title}${property.external_ref ? ` · ${property.external_ref}` : ""}`,
             }))}
           />
-          {conversation.lead_id ? (
+          ) : null}
+          {conversation.lead_id && canSchedule ? (
             <AppointmentForm
               action={createAppointmentAction.bind(null, conversation.lead_id, [
                 `/dashboard/conversations/${conversation.id}`,
@@ -231,8 +238,16 @@ export default async function ConversationDetailPage({
               </CardHeader>
               <CardContent>
                 <EmptyState
-                  title="Falta vincular un lead"
-                  description="Primero asociá esta conversación a un lead para poder agendar una visita."
+                  title={
+                    conversation.lead_id
+                      ? "Sin permisos para agenda"
+                      : "Falta vincular un lead"
+                  }
+                  description={
+                    conversation.lead_id
+                      ? "Necesitás un rol operativo para agendar o editar visitas desde la conversación."
+                      : "Primero asociá esta conversación a un lead para poder agendar una visita."
+                  }
                 />
               </CardContent>
             </Card>
@@ -291,6 +306,7 @@ export default async function ConversationDetailPage({
           </Card>
         </div>
         <div className="space-y-6">
+          {canOperate ? (
           <ManualReplyForm
             action={sendConversationReplyAction.bind(null, conversation.id)}
             templates={templates.map((template) => ({
@@ -300,6 +316,7 @@ export default async function ConversationDetailPage({
               category: template.category,
             }))}
           />
+          ) : null}
           <Card>
             <CardHeader>
               <CardTitle>Timeline de mensajes</CardTitle>
@@ -330,7 +347,8 @@ export default async function ConversationDetailPage({
                     {message.sender_type} · {formatDateTime(message.created_at)}{" "}
                     · {message.message_status}
                   </p>
-                  {message.direction === "outbound" &&
+                  {canOperate &&
+                  message.direction === "outbound" &&
                   message.message_status === "failed" ? (
                     <form
                       action={retryConversationMessageAction}

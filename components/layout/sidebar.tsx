@@ -9,6 +9,7 @@ import { AMLogo, AMMenu, AMMenuItem, AMSidebar } from "tailwind-sidebar";
 
 import { cn } from "@/lib/utils";
 import { FullLogo } from "@/components/layout/full-logo";
+import type { TenantRole } from "@/types/database";
 import {
   getSidebarItems,
   type SidebarItem,
@@ -101,15 +102,17 @@ function renderSidebarItems(
 
 function SidebarContent({
   isPlatformAdmin,
+  activeRole,
   onNavigate,
 }: {
   isPlatformAdmin: boolean;
+  activeRole: TenantRole | null | undefined;
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
   const { theme } = useTheme();
   const sidebarMode = theme === "light" || theme === "dark" ? theme : undefined;
-  const sections = getSidebarItems(isPlatformAdmin);
+  const sections = getSidebarItems(isPlatformAdmin, activeRole);
 
   return (
     <AMSidebar
@@ -153,22 +156,34 @@ function SidebarContent({
   );
 }
 
-export function Sidebar({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
+export function Sidebar({
+  isPlatformAdmin,
+  activeRole,
+}: {
+  isPlatformAdmin: boolean;
+  activeRole: TenantRole | null | undefined;
+}) {
   return (
     <aside className="hidden xl:block">
-      <SidebarContent isPlatformAdmin={isPlatformAdmin} />
+      <SidebarContent activeRole={activeRole} isPlatformAdmin={isPlatformAdmin} />
     </aside>
   );
 }
 
 export function MobileSidebarContent({
   isPlatformAdmin,
+  activeRole,
   onNavigate,
 }: {
   isPlatformAdmin: boolean;
+  activeRole: TenantRole | null | undefined;
   onNavigate?: () => void;
 }) {
   return (
-    <SidebarContent isPlatformAdmin={isPlatformAdmin} onNavigate={onNavigate} />
+    <SidebarContent
+      activeRole={activeRole}
+      isPlatformAdmin={isPlatformAdmin}
+      onNavigate={onNavigate}
+    />
   );
 }

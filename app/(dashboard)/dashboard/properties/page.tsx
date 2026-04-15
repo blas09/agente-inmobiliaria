@@ -18,6 +18,7 @@ import {
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { listProperties } from "@/server/queries/properties";
 import { formatCurrency } from "@/lib/utils";
+import { canCreateBusinessRecords } from "@/lib/permissions";
 
 export default async function PropertiesPage({
   searchParams,
@@ -25,7 +26,8 @@ export default async function PropertiesPage({
   searchParams: Promise<{ q?: string; status?: string }>;
 }) {
   const params = await searchParams;
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant, activeMembership } = await getActiveTenantContext();
+  const canManageProperties = canCreateBusinessRecords(activeMembership.role);
   const properties = await listProperties(activeTenant.id, params);
   const availableCount = properties.filter(
     (property) => property.status === "available",
@@ -39,9 +41,11 @@ export default async function PropertiesPage({
       <ProfileWelcome
         title="Propiedades"
         action={
+          canManageProperties ? (
           <Link href="/dashboard/properties/new">
             <Button>Nueva propiedad</Button>
           </Link>
+          ) : null
         }
       />
       <DashboardTopCards
@@ -70,8 +74,8 @@ export default async function PropertiesPage({
         <EmptyState
           title="No hay propiedades cargadas"
           description="El MVP necesita este catálogo para responder FAQs y asociar leads a oferta real."
-          actionHref="/dashboard/properties/new"
-          actionLabel="Cargar propiedad"
+          actionHref={canManageProperties ? "/dashboard/properties/new" : undefined}
+          actionLabel={canManageProperties ? "Cargar propiedad" : undefined}
         />
       ) : (
         <CardBox className="overflow-hidden">

@@ -36,13 +36,13 @@ Esto es lo mínimo razonable para empezar a usar el sistema en pruebas internas 
 
 Falta:
 
-- revisar guards de UI por rol
-- cerrar mejor la gestión multi-tenant
+- endurecer permisos en server actions y cerrar mejor la gestión multi-tenant
 
 Ya existe base usable:
 
 - desde `Settings` ya se puede sumar un usuario existente o invitar uno nuevo por email
 - si el email no existe, se envía invitación por Supabase y la membresía queda en `invited`
+- ya existe una primera capa de guards de UI por rol en sidebar, pantallas y rutas críticas
 
 Impacto:
 

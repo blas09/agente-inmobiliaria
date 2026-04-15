@@ -1,6 +1,9 @@
 -- Development credentials
 -- owner@demo.py / Password123!
+-- tenantadmin@demo.py / Password123!
 -- advisor@demo.py / Password123!
+-- operator@demo.py / Password123!
+-- viewer@demo.py / Password123!
 -- admin@platform.local / Password123!
 
 insert into auth.users (
@@ -110,6 +113,111 @@ values
     false
   ),
   (
+    '44444444-1111-1111-1111-111111111111',
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'tenantadmin@demo.py',
+    crypt('Password123!', gen_salt('bf')),
+    timezone('utc', now()),
+    null,
+    '',
+    null,
+    '',
+    null,
+    '',
+    '',
+    null,
+    timezone('utc', now()),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"full_name":"Carla Duarte","phone":"+595981000003"}'::jsonb,
+    false,
+    timezone('utc', now()),
+    timezone('utc', now()),
+    '+595981000003',
+    null,
+    '',
+    '',
+    null,
+    '',
+    0,
+    null,
+    '',
+    null,
+    false,
+    false
+  ),
+  (
+    '55555555-1111-1111-1111-111111111111',
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'operator@demo.py',
+    crypt('Password123!', gen_salt('bf')),
+    timezone('utc', now()),
+    null,
+    '',
+    null,
+    '',
+    null,
+    '',
+    '',
+    null,
+    timezone('utc', now()),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"full_name":"Lucia Ferreira","phone":"+595981000004"}'::jsonb,
+    false,
+    timezone('utc', now()),
+    timezone('utc', now()),
+    '+595981000004',
+    null,
+    '',
+    '',
+    null,
+    '',
+    0,
+    null,
+    '',
+    null,
+    false,
+    false
+  ),
+  (
+    '66666666-1111-1111-1111-111111111111',
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'viewer@demo.py',
+    crypt('Password123!', gen_salt('bf')),
+    timezone('utc', now()),
+    null,
+    '',
+    null,
+    '',
+    null,
+    '',
+    '',
+    null,
+    timezone('utc', now()),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"full_name":"Diego Mendez","phone":"+595981000005"}'::jsonb,
+    false,
+    timezone('utc', now()),
+    timezone('utc', now()),
+    '+595981000005',
+    null,
+    '',
+    '',
+    null,
+    '',
+    0,
+    null,
+    '',
+    null,
+    false,
+    false
+  ),
+  (
     '33333333-3333-3333-3333-333333333333',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
@@ -206,6 +314,36 @@ values
     timezone('utc', now())
   ),
   (
+    '44444444-4444-4444-4444-444444444444',
+    '44444444-1111-1111-1111-111111111111',
+    '44444444-1111-1111-1111-111111111111',
+    '{"sub":"44444444-1111-1111-1111-111111111111","email":"tenantadmin@demo.py","email_verified":true}'::jsonb,
+    'email',
+    timezone('utc', now()),
+    timezone('utc', now()),
+    timezone('utc', now())
+  ),
+  (
+    '44444444-4444-4444-4444-444444444445',
+    '55555555-1111-1111-1111-111111111111',
+    '55555555-1111-1111-1111-111111111111',
+    '{"sub":"55555555-1111-1111-1111-111111111111","email":"operator@demo.py","email_verified":true}'::jsonb,
+    'email',
+    timezone('utc', now()),
+    timezone('utc', now()),
+    timezone('utc', now())
+  ),
+  (
+    '44444444-4444-4444-4444-444444444446',
+    '66666666-1111-1111-1111-111111111111',
+    '66666666-1111-1111-1111-111111111111',
+    '{"sub":"66666666-1111-1111-1111-111111111111","email":"viewer@demo.py","email_verified":true}'::jsonb,
+    'email',
+    timezone('utc', now()),
+    timezone('utc', now()),
+    timezone('utc', now())
+  ),
+  (
     '44444444-4444-4444-4444-444444444443',
     '33333333-3333-3333-3333-333333333333',
     '33333333-3333-3333-3333-333333333333',
@@ -220,7 +358,10 @@ on conflict (id) do nothing;
 insert into public.tenant_users (tenant_id, user_id, role, status)
 values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '11111111-1111-1111-1111-111111111111', 'tenant_owner', 'active'),
-  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '22222222-2222-2222-2222-222222222222', 'advisor', 'active')
+  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '44444444-1111-1111-1111-111111111111', 'tenant_admin', 'active'),
+  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '22222222-2222-2222-2222-222222222222', 'advisor', 'active'),
+  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '55555555-1111-1111-1111-111111111111', 'operator', 'active'),
+  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '66666666-1111-1111-1111-111111111111', 'viewer', 'active')
 on conflict (tenant_id, user_id) do nothing;
 
 insert into public.pipeline_stages (id, tenant_id, name, position, category, is_default)

@@ -9,6 +9,11 @@ export default async function DashboardLayout({
   const context = await getAppContext();
 
   return (
-    <AppShell isPlatformAdmin={context.isPlatformAdmin}>{children}</AppShell>
+    <AppShell
+      activeRole={context.activeMembership?.role}
+      isPlatformAdmin={context.isPlatformAdmin}
+    >
+      {children}
+    </AppShell>
   );
 }

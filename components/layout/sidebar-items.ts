@@ -1,3 +1,5 @@
+import type { TenantRole } from "@/types/database";
+
 export interface SidebarItem {
   heading?: string;
   id: string;
@@ -8,7 +10,10 @@ export interface SidebarItem {
   children?: SidebarItem[];
 }
 
-export function getSidebarItems(isPlatformAdmin: boolean): SidebarItem[] {
+export function getSidebarItems(
+  isPlatformAdmin: boolean,
+  role: TenantRole | null | undefined,
+): SidebarItem[] {
   const items: SidebarItem[] = [
     {
       id: "core-heading",
@@ -64,6 +69,12 @@ export function getSidebarItems(isPlatformAdmin: boolean): SidebarItem[] {
       ],
     },
   ];
+
+  if (role !== "tenant_owner" && role !== "tenant_admin") {
+    items[0].children = (items[0].children ?? []).filter(
+      (item) => item.id !== "channels" && item.id !== "settings",
+    );
+  }
 
   if (isPlatformAdmin) {
     items.push({

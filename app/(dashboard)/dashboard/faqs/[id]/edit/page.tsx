@@ -4,6 +4,8 @@ import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { getFaqById } from "@/server/queries/faqs";
 import { deleteFaqAction, updateFaqAction } from "@/features/faqs/actions";
 import { FaqForm } from "@/features/faqs/faq-form";
+import { canManageTenant } from "@/lib/permissions";
+import { redirect } from "next/navigation";
 
 export default async function EditFaqPage({
 	params,
@@ -11,7 +13,10 @@ export default async function EditFaqPage({
 	params: Promise<{ id: string }>;
 }) {
 	const { id } = await params;
-	const { activeTenant } = await getActiveTenantContext();
+	const { activeTenant, activeMembership } = await getActiveTenantContext();
+	if (!canManageTenant(activeMembership.role)) {
+		redirect("/dashboard/faqs");
+	}
 	const faq = await getFaqById(activeTenant.id, id);
 	const deleteAction = deleteFaqAction.bind(null, faq.id);
 

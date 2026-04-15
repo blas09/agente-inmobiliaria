@@ -14,6 +14,7 @@ import { listAppointments } from "@/server/queries/appointments";
 import { listAvailablePropertiesForSelection } from "@/server/queries/properties";
 import { getAssignableTenantUsers } from "@/server/queries/tenants";
 import { formatDateTime } from "@/lib/utils";
+import { canManageAppointments } from "@/lib/permissions";
 
 export default async function AppointmentsPage({
 	searchParams,
@@ -21,7 +22,8 @@ export default async function AppointmentsPage({
 	searchParams: Promise<{ status?: string; advisor?: string }>;
 }) {
 	const params = await searchParams;
-	const { activeTenant } = await getActiveTenantContext();
+	const { activeTenant, activeMembership } = await getActiveTenantContext();
+	const canEditAppointments = canManageAppointments(activeMembership.role);
 	const appointmentRules = getAppointmentRules(activeTenant.settings);
 	const [appointments, advisors, properties] = await Promise.all([
 		listAppointments(activeTenant.id, { status: params.status, advisorId: params.advisor }),
@@ -63,8 +65,8 @@ export default async function AppointmentsPage({
 				<EmptyState
 					title="No hay visitas cargadas"
 					description="Podés agendarlas desde un lead o una conversación con lead vinculado."
-					actionHref="/dashboard/leads"
-					actionLabel="Ir a leads"
+					actionHref={canEditAppointments ? "/dashboard/leads" : undefined}
+					actionLabel={canEditAppointments ? "Ir a leads" : undefined}
 				/>
 			) : (
 				<div className="grid gap-6">
@@ -137,6 +139,7 @@ export default async function AppointmentsPage({
 									</div>
 								</CardContent>
 							</CardBox>
+							{canEditAppointments ? (
 							<AppointmentForm
 								action={updateAppointmentAction.bind(null, appointment.id, ["/dashboard/appointments"])}
 								advisorOptions={advisors.map((advisor) => ({
@@ -161,6 +164,7 @@ export default async function AppointmentsPage({
 								timezone={activeTenant.timezone}
 								title="Gestión de la visita"
 							/>
+							) : null}
 						</div>
 					))}
 				</div>

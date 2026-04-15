@@ -165,6 +165,7 @@ Estado general:
 - `[x]` Suspender o remover miembro.
 - `[x]` Pantalla de gestión de accesos.
 - `[~]` Guards de UI por rol.
+  Primera capa cerrada: sidebar filtrado por rol, acceso bloqueado a `settings` y `channels` para no-admins, y guards visibles en crear/editar/operar propiedades, leads, FAQs, agenda y conversaciones. Falta endurecer server actions y granularidad fina por feature.
 - `[~]` Policies aplicadas desde acciones/servicios de aplicación.
 
 ### Propiedades

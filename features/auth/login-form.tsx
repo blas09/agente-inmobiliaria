@@ -61,7 +61,11 @@ export function LoginForm() {
         <div className="border-border bg-muted text-muted-foreground mt-6 rounded-2xl border border-dashed p-4 text-sm">
           <p className="text-foreground font-medium">Credenciales seed</p>
           <p>`owner@demo.py` / `Password123!`</p>
+          <p>`tenantadmin@demo.py` / `Password123!`</p>
           <p>`advisor@demo.py` / `Password123!`</p>
+          <p>`operator@demo.py` / `Password123!`</p>
+          <p>`viewer@demo.py` / `Password123!`</p>
+          <p>`admin@platform.local` / `Password123!`</p>
           <p className="mt-2">
             La guía de setup y Supabase está documentada en el README del
             proyecto.

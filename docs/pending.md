@@ -6,7 +6,7 @@ Este archivo resume lo que **falta** para cerrar el MVP comercial y lo que **no 
 
 ### Tenants y usuarios
 - Pulir onboarding de invitaciones por email y aceptación real del flujo.
-- Roles/guards más finos en UI.
+- Endurecer permisos en server actions y cerrar granularidad fina por feature.
 - Selector multi‑tenant robusto.
 - Branding básico por tenant (logo, color, nombre comercial).
 

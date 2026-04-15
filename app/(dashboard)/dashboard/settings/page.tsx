@@ -14,6 +14,7 @@ import {
   getActiveTenantContext,
   requireTenantAdminContext,
 } from "@/server/auth/tenant-context";
+import { canManageTenant } from "@/lib/permissions";
 import { getTenantUsers } from "@/server/queries/tenants";
 import {
   addTenantUserAction,
@@ -35,6 +36,9 @@ import { PipelineStageForm } from "@/features/pipeline/pipeline-stage-form";
 
 export default async function SettingsPage() {
   const { activeTenant, activeMembership } = await getActiveTenantContext();
+  if (!canManageTenant(activeMembership.role)) {
+    await requireTenantAdminContext();
+  }
   const appointmentRules = getAppointmentRules(activeTenant.settings);
   const [users, stages] = await Promise.all([
     getTenantUsers(activeTenant.id),
@@ -43,10 +47,6 @@ export default async function SettingsPage() {
   const canManage =
     activeMembership.role === "tenant_owner" ||
     activeMembership.role === "tenant_admin";
-
-  if (canManage) {
-    await requireTenantAdminContext();
-  }
 
   return (
     <div className="space-y-6">

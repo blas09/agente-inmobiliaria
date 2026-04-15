@@ -12,13 +12,15 @@ import { MobileSidebarContent } from "@/components/layout/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import type { TenantRole } from "@/types/database";
 import { cn } from "@/lib/utils";
 
 interface AppHeaderProps {
   isPlatformAdmin: boolean;
+  activeRole: TenantRole | null | undefined;
 }
 
-export function AppHeader({ isPlatformAdmin }: AppHeaderProps) {
+export function AppHeader({ isPlatformAdmin, activeRole }: AppHeaderProps) {
   const { resolvedTheme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -140,6 +142,7 @@ export function AppHeader({ isPlatformAdmin }: AppHeaderProps) {
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent side="left" className="w-64 p-0">
           <MobileSidebarContent
+            activeRole={activeRole}
             isPlatformAdmin={isPlatformAdmin}
             onNavigate={() => setIsOpen(false)}
           />
