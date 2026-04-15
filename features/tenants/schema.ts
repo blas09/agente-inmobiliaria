@@ -26,5 +26,5 @@ export const tenantMembershipSchema = z.object({
     "operator",
     "viewer",
   ]),
-  status: z.enum(["active", "suspended", "removed"]),
+  status: z.enum(["invited", "active", "suspended", "removed"]),
 });

@@ -29,6 +29,7 @@ const roleOptions: Array<{ value: TenantRole; label: string }> = [
 ];
 
 const statusOptions = [
+  { value: "invited", label: "Invitado" },
   { value: "active", label: "Activo" },
   { value: "suspended", label: "Suspendido" },
   { value: "removed", label: "Removido" },
@@ -46,7 +47,7 @@ export function AddTenantUserForm({
       <CardHeader>
         <CardTitle>Agregar miembro</CardTitle>
         <CardDescription>
-          Alta rápida de usuarios ya registrados en la plataforma.
+          Si el email ya existe, se suma al tenant. Si no existe, se envía una invitación y queda como invitado.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -77,7 +78,7 @@ export function AddTenantUserForm({
             </NativeSelect>
           </FormField>
           <FormField htmlFor="status" label="Estado">
-            <NativeSelect defaultValue="active" id="status" name="status">
+            <NativeSelect defaultValue="invited" id="status" name="status">
               {statusOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}

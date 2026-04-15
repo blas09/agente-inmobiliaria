@@ -5,7 +5,7 @@ Este archivo resume lo que **falta** para cerrar el MVP comercial y lo que **no 
 ## Pendientes para cerrar MVP comercial
 
 ### Tenants y usuarios
-- Invitaciones por email.
+- Pulir onboarding de invitaciones por email y aceptación real del flujo.
 - Roles/guards más finos en UI.
 - Selector multi‑tenant robusto.
 - Branding básico por tenant (logo, color, nombre comercial).

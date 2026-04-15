@@ -9,6 +9,7 @@ import {
 import { ConversationRoutingForm } from "@/features/conversations/conversation-routing-form";
 import {
   sendConversationReplyAction,
+  retryConversationMessageAction,
   updateConversationLinksAction,
   updateConversationRoutingAction,
 } from "@/features/conversations/actions";
@@ -17,6 +18,7 @@ import { ManualReplyForm } from "@/features/conversations/manual-reply-form";
 import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -30,6 +32,7 @@ import { getConversationDetail } from "@/server/queries/conversations";
 import { getAssignableTenantUsers } from "@/server/queries/tenants";
 import { listLeads } from "@/server/queries/leads";
 import { listAvailablePropertiesForSelection } from "@/server/queries/properties";
+import { listActiveWhatsAppTemplates } from "@/server/queries/whatsapp-templates";
 import { formatDateTime } from "@/lib/utils";
 
 export default async function ConversationDetailPage({
@@ -40,12 +43,13 @@ export default async function ConversationDetailPage({
   const { id } = await params;
   const { activeTenant } = await getActiveTenantContext();
   const appointmentRules = getAppointmentRules(activeTenant.settings);
-  const [{ conversation, messages }, advisors, leads, properties] =
+  const [{ conversation, messages }, advisors, leads, properties, templates] =
     await Promise.all([
       getConversationDetail(activeTenant.id, id),
       getAssignableTenantUsers(activeTenant.id),
       listLeads(activeTenant.id),
       listAvailablePropertiesForSelection(activeTenant.id),
+      listActiveWhatsAppTemplates(activeTenant.id),
     ]);
   const appointments = conversation.lead_id
     ? await getLeadAppointments(activeTenant.id, conversation.lead_id)
@@ -289,6 +293,12 @@ export default async function ConversationDetailPage({
         <div className="space-y-6">
           <ManualReplyForm
             action={sendConversationReplyAction.bind(null, conversation.id)}
+            templates={templates.map((template) => ({
+              id: template.id,
+              name: template.name,
+              language: template.language,
+              category: template.category,
+            }))}
           />
           <Card>
             <CardHeader>
@@ -320,6 +330,22 @@ export default async function ConversationDetailPage({
                     {message.sender_type} · {formatDateTime(message.created_at)}{" "}
                     · {message.message_status}
                   </p>
+                  {message.direction === "outbound" &&
+                  message.message_status === "failed" ? (
+                    <form
+                      action={retryConversationMessageAction}
+                      className="mt-3 flex justify-end"
+                    >
+                      <input
+                        name="message_id"
+                        type="hidden"
+                        value={message.id}
+                      />
+                      <Button size="sm" variant="outline" type="submit">
+                        Reintentar
+                      </Button>
+                    </form>
+                  ) : null}
                 </div>
               ))}
             </CardContent>

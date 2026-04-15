@@ -6,7 +6,10 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireTenantAdminContext } from "@/server/auth/tenant-context";
 import type { ActionState } from "@/types/actions";
 import type { Database, Json } from "@/types/database";
-import { whatsappTemplateSchema } from "@/features/whatsapp-templates/schema";
+import {
+  parseWhatsAppTemplateComponents,
+  whatsappTemplateSchema,
+} from "@/features/whatsapp-templates/schema";
 
 function toJson(value: unknown): Json {
   return JSON.parse(JSON.stringify(value ?? {})) as Json;
@@ -14,19 +17,29 @@ function toJson(value: unknown): Json {
 
 function parseTemplateFormData(formData: FormData) {
   let components: unknown[] = [];
+  let componentErrors: string[] | undefined;
   const rawComponents = formData.get("components");
   if (typeof rawComponents === "string" && rawComponents.trim().length > 0) {
     try {
       const parsed = JSON.parse(rawComponents);
-      if (Array.isArray(parsed)) {
-        components = parsed;
+      const componentsResult = parseWhatsAppTemplateComponents(parsed);
+      if (componentsResult.success) {
+        components = componentsResult.data;
+      } else {
+        componentErrors = componentsResult.error.issues.map((issue) =>
+          issue.path.length > 0
+            ? `${issue.path.join(".")}: ${issue.message}`
+            : issue.message,
+        );
       }
     } catch {
-      // Leave components empty; schema validation will catch invalid content if needed.
+      componentErrors = [
+        "Los componentes deben ser un JSON válido con componentes de tipo body, header o button.",
+      ];
     }
   }
 
-  return whatsappTemplateSchema.safeParse({
+  const result = whatsappTemplateSchema.safeParse({
     name: formData.get("name")?.toString() ?? "",
     language: formData.get("language")?.toString() ?? "en_US",
     category: formData.get("category")?.toString() ?? undefined,
@@ -34,21 +47,44 @@ function parseTemplateFormData(formData: FormData) {
     is_active: formData.get("is_active") !== "false",
     components,
   });
+
+  if (componentErrors) {
+    return {
+      success: false as const,
+      errorMessage: "Hay campos inválidos en el template.",
+      fieldErrors: {
+        components: componentErrors,
+      },
+    };
+  }
+
+  if (!result.success) {
+    return {
+      success: false as const,
+      errorMessage: "Hay campos inválidos en el template.",
+      fieldErrors: result.error.flatten().fieldErrors,
+    };
+  }
+
+  return {
+    success: true as const,
+    data: result.data,
+  };
 }
 
 export async function createWhatsAppTemplateAction(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const { activeTenant } = await requireTenantAdminContext();
+  const { activeTenant, user } = await requireTenantAdminContext();
   const supabase = await createSupabaseServerClient();
   const result = parseTemplateFormData(formData);
 
   if (!result.success) {
     return {
       status: "error",
-      message: "Hay campos inválidos en el template.",
-      fieldErrors: result.error.flatten().fieldErrors,
+      message: result.errorMessage,
+      fieldErrors: result.fieldErrors,
     };
   }
 
@@ -56,6 +92,11 @@ export async function createWhatsAppTemplateAction(
     tenant_id: activeTenant.id,
     ...result.data,
     components: toJson(result.data.components),
+    status_updated_by: user.id,
+    status_updated_at: new Date().toISOString(),
+    approved_by: result.data.status === "approved" ? user.id : null,
+    approved_at:
+      result.data.status === "approved" ? new Date().toISOString() : null,
   });
 
   if (error) {
@@ -71,23 +112,30 @@ export async function updateWhatsAppTemplateAction(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const { activeTenant } = await requireTenantAdminContext();
+  const { activeTenant, user } = await requireTenantAdminContext();
   const supabase = await createSupabaseServerClient();
   const result = parseTemplateFormData(formData);
 
   if (!result.success) {
     return {
       status: "error",
-      message: "Hay campos inválidos en el template.",
-      fieldErrors: result.error.flatten().fieldErrors,
+      message: result.errorMessage,
+      fieldErrors: result.fieldErrors,
     };
   }
 
+  const auditNow = new Date().toISOString();
   const { error } = await supabase
     .from("whatsapp_message_templates")
     .update({
       ...result.data,
       components: toJson(result.data.components),
+      status_updated_by: user.id,
+      status_updated_at: auditNow,
+      approved_by:
+        result.data.status === "approved" ? user.id : undefined,
+      approved_at:
+        result.data.status === "approved" ? auditNow : undefined,
     })
     .eq("tenant_id", activeTenant.id)
     .eq("id", templateId);
@@ -114,7 +162,7 @@ export async function deleteWhatsAppTemplateAction(templateId: string) {
 }
 
 export async function updateWhatsAppTemplateStatusAction(formData: FormData) {
-  const { activeTenant } = await requireTenantAdminContext();
+  const { activeTenant, user } = await requireTenantAdminContext();
   const supabase = await createSupabaseServerClient();
   const templateId = formData.get("template_id")?.toString();
   const status = formData.get("status")?.toString();
@@ -124,10 +172,30 @@ export async function updateWhatsAppTemplateStatusAction(formData: FormData) {
     throw new Error("Falta el template.");
   }
 
+  const { data: currentTemplate, error: currentTemplateError } = await supabase
+    .from("whatsapp_message_templates")
+    .select("id, name, status, is_active")
+    .eq("tenant_id", activeTenant.id)
+    .eq("id", templateId)
+    .maybeSingle();
+
+  if (currentTemplateError || !currentTemplate) {
+    throw new Error(
+      currentTemplateError?.message ?? "No se encontró el template.",
+    );
+  }
+
   const patch: Database["public"]["Tables"]["whatsapp_message_templates"]["Update"] =
-    {};
+    {
+      status_updated_by: user.id,
+      status_updated_at: new Date().toISOString(),
+    };
   if (status) {
     patch.status = status;
+    if (status === "approved") {
+      patch.approved_by = user.id;
+      patch.approved_at = patch.status_updated_at;
+    }
   }
   if (isActive === "true") {
     patch.is_active = true;
@@ -149,6 +217,25 @@ export async function updateWhatsAppTemplateStatusAction(formData: FormData) {
   if (error) {
     throw new Error(error.message);
   }
+
+  await supabase.from("channel_events").insert({
+    tenant_id: activeTenant.id,
+    channel_id: null,
+    provider: "meta_whatsapp_cloud",
+    event_type: "whatsapp.template.status_changed",
+    direction: "outbound",
+    payload: toJson({
+      template_id: currentTemplate.id,
+      template_name: currentTemplate.name,
+      previous_status: currentTemplate.status,
+      next_status: patch.status ?? currentTemplate.status,
+      previous_active: currentTemplate.is_active,
+      next_active: patch.is_active ?? currentTemplate.is_active,
+      actor_user_id: user.id,
+    }),
+    processing_status: "processed",
+    processed_at: patch.status_updated_at,
+  });
 
   revalidatePath("/dashboard/channels");
 }

@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ACTIVE_TENANT_COOKIE } from "@/server/auth/constants";
 import {
@@ -236,9 +237,68 @@ export async function addTenantUserAction(
 
   const userProfile = await getUserProfileByEmail(result.data.email);
   if (!userProfile) {
+    const admin = createSupabaseAdminClient();
+    const { data: invitedUser, error: inviteError } =
+      await admin.auth.admin.inviteUserByEmail(result.data.email, {
+        data: {
+          tenant_id: activeTenant.id,
+          tenant_role: result.data.role,
+        },
+      });
+
+    if (inviteError || !invitedUser.user) {
+      return {
+        status: "error",
+        message:
+          inviteError?.message ??
+          "No se pudo enviar la invitación al usuario.",
+      };
+    }
+
+    const { data: existingMembership, error: membershipLookupError } =
+      await supabase
+        .from("tenant_users")
+        .select("id")
+        .eq("tenant_id", activeTenant.id)
+        .eq("user_id", invitedUser.user.id)
+        .maybeSingle();
+
+    if (membershipLookupError) {
+      return {
+        status: "error",
+        message: membershipLookupError.message,
+      };
+    }
+
+    if (existingMembership) {
+      const { error } = await supabase
+        .from("tenant_users")
+        .update({
+          role: result.data.role,
+          status: "invited",
+        })
+        .eq("id", existingMembership.id);
+
+      if (error) {
+        return { status: "error", message: error.message };
+      }
+    } else {
+      const { error } = await supabase.from("tenant_users").insert({
+        tenant_id: activeTenant.id,
+        user_id: invitedUser.user.id,
+        role: result.data.role,
+        status: "invited",
+      });
+
+      if (error) {
+        return { status: "error", message: error.message };
+      }
+    }
+
+    revalidatePath("/dashboard/settings");
     return {
-      status: "error",
-      message: "No existe un usuario registrado con ese email.",
+      status: "success",
+      message: "Invitación enviada. El usuario quedó como invitado.",
     };
   }
 

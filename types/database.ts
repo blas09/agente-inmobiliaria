@@ -548,6 +548,10 @@ export interface Database {
           status: string;
           components: Json;
           is_active: boolean;
+          status_updated_by: string | null;
+          status_updated_at: string | null;
+          approved_by: string | null;
+          approved_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -560,6 +564,10 @@ export interface Database {
           status?: string;
           components?: Json;
           is_active?: boolean;
+          status_updated_by?: string | null;
+          status_updated_at?: string | null;
+          approved_by?: string | null;
+          approved_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };

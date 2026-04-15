@@ -18,16 +18,25 @@ function toJson(value: unknown): Json {
   return JSON.parse(JSON.stringify(value ?? {})) as Json;
 }
 
+function asRecord(value: Json | undefined): Record<string, unknown> {
+  if (!value) return {};
+  if (typeof value !== "object" || Array.isArray(value)) return {};
+  return value as Record<string, unknown>;
+}
+
 export async function sendManualConversationReply(input: {
   tenantId: string;
   conversationId: string;
   userId: string;
   content: string;
+  contentType?: "text" | "template";
+  metadata?: Json;
 }) {
   const supabase = await createSupabaseServerClient();
   const normalizedContent = input.content.trim();
+  const contentType = input.contentType ?? "text";
 
-  if (!normalizedContent) {
+  if (!normalizedContent && contentType !== "template") {
     throw new Error("Message content cannot be empty.");
   }
 
@@ -69,6 +78,7 @@ export async function sendManualConversationReply(input: {
     );
   }
 
+  const metadataRecord = asRecord(input.metadata);
   const pendingInsert = await supabase
     .from("messages")
     .insert({
@@ -76,12 +86,13 @@ export async function sendManualConversationReply(input: {
       conversation_id: input.conversationId,
       sender_type: "advisor",
       direction: "outbound",
-      content: normalizedContent,
-      content_type: "text",
+      content: normalizedContent || "[Template enviado]",
+      content_type: contentType,
       message_status: "pending",
       raw_payload: {
         origin: "dashboard.manual_reply",
         user_id: input.userId,
+        ...metadataRecord,
       },
     })
     .select("id")
@@ -95,10 +106,11 @@ export async function sendManualConversationReply(input: {
   }
 
   const messageId = pendingInsert.data.id;
-  const metadataPayload: Json = {
+  const metadataPayload: Json = toJson({
     origin: "dashboard.manual_reply",
     user_id: input.userId,
-  };
+    ...metadataRecord,
+  });
 
   try {
     const provider = new WhatsAppCloudProvider();
@@ -114,6 +126,7 @@ export async function sendManualConversationReply(input: {
             ? resolvedConversation.channels.credentials_ref
             : null,
         phoneNumberId: whatsappAccount?.phone_number_id ?? null,
+        ...metadataRecord,
       },
     });
 
@@ -141,10 +154,10 @@ export async function sendManualConversationReply(input: {
         message_status: "sent",
         sent_at: sentAt,
         error_message: null,
-        raw_payload: {
-          ...metadataPayload,
+        raw_payload: toJson({
+          ...asRecord(metadataPayload),
           provider_response: toJson(sendResult.rawResponse),
-        } as Json,
+        }),
       })
       .eq("tenant_id", input.tenantId)
       .eq("id", messageId);

@@ -158,7 +158,8 @@ Estado general:
 
 - `[~]` Tablas y roles implementados.
 - `[~]` CRUD de usuarios internos del tenant.
-- `[ ]` Invitar usuario por email.
+- `[~]` Invitar usuario por email.
+  Ya existe un primer flujo usable desde `Settings`: si el email no existe, Supabase envía invitación y la membresía queda en estado `invited`. Falta cierre más fino de onboarding, aceptación y UX de multi-tenant.
 - `[x]` Alta de membresía a tenant.
 - `[x]` Cambio de rol por tenant.
 - `[x]` Suspender o remover miembro.
@@ -365,9 +366,9 @@ Estado general:
 - `[x]` Envío outbound real.
 - `[x]` Persistencia de estados sent/delivered/read.
 - `[~]` Manejo de errores y retries.
-  Outbound ahora tiene timeout y retries para fallos transitorios (`429` y `5xx`); falta estrategia de reintento manual/operativa y métricas por intento.
+  Outbound ahora tiene timeout y retries para fallos transitorios (`429` y `5xx`); reintento manual desde conversaciones listo y la pantalla de Canales ya muestra volumen, fallos, retries y rechazos de webhook. Falta observabilidad más fina por intento y alertas.
 - `[~]` Templates y aprobaciones por tenant.
-  Base creada: tabla + policies + actions + queries + UI básica. Falta flujo de aprobación real.
+  Base creada: tabla + policies + actions + queries + UI básica + envío manual desde conversaciones + controles de estado básicos. Ya guarda quién y cuándo cambió/aprobó el template y lo muestra en Canales; además la UX de creación y uso ya tiene preview y validación amigable de componentes. Falta flujo de aprobación real con Meta y validación avanzada por tipo de componente.
 
 ## Calidad técnica y operación
 
