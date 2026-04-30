@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { toBoolean, toNullableString } from "@/lib/utils";
-import { getActiveTenantContext } from "@/server/auth/tenant-context";
+import { requireConversationOperateContext } from "@/server/auth/tenant-context";
 import { getAssignableTenantUsers } from "@/server/queries/tenants";
 import { sendManualConversationReply } from "@/server/services/conversation-messaging";
 import { listWhatsAppTemplates } from "@/server/queries/whatsapp-templates";
@@ -35,7 +35,7 @@ export async function updateConversationRoutingAction(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant } = await requireConversationOperateContext();
   const supabase = await createSupabaseServerClient();
   const assignedTo = toNullableString(formData.get("assigned_to"));
   const status = formData.get("status")?.toString() ?? "open";
@@ -89,7 +89,7 @@ export async function sendConversationReplyAction(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const { activeTenant, user } = await getActiveTenantContext();
+  const { activeTenant, user } = await requireConversationOperateContext();
   const content = formData.get("content")?.toString() ?? "";
   const templateId = formData.get("template_id")?.toString();
   const templateComponentsRaw = formData
@@ -198,7 +198,7 @@ export async function updateConversationLinksAction(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant } = await requireConversationOperateContext();
   const supabase = await createSupabaseServerClient();
   const leadId = toNullableString(formData.get("lead_id"));
   const propertyId = toNullableString(formData.get("property_id"));
@@ -275,7 +275,7 @@ function asRecord(value: Json | null | undefined): Record<string, unknown> {
 }
 
 export async function retryConversationMessageAction(formData: FormData) {
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant } = await requireConversationOperateContext();
   const supabase = await createSupabaseServerClient();
   const messageId = formData.get("message_id")?.toString();
 

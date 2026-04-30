@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { getPropertyById } from "@/server/queries/properties";
+import { canDeleteProperties, canManageProperties } from "@/lib/permissions";
 import { formatCurrency } from "@/lib/utils";
 
 export default async function PropertyDetailPage({
@@ -21,28 +22,36 @@ export default async function PropertyDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant, activeMembership } = await getActiveTenantContext();
   const property = await getPropertyById(activeTenant.id, id);
   const deleteAction = deletePropertyAction.bind(null, property.id);
+  const canEditProperty = canManageProperties(activeMembership.role);
+  const canDeleteProperty = canDeleteProperties(activeMembership.role);
 
   return (
     <div className="space-y-6">
       <ProfileWelcome
         title={property.title}
         action={
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Link
-              className="text-primary inline-flex items-center text-sm font-medium hover:underline"
-              href={`/dashboard/properties/${property.id}/edit`}
-            >
-              Editar
-            </Link>
-            <form action={deleteAction}>
-              <Button type="submit" variant="destructive" shape="pill">
-                Eliminar
-              </Button>
-            </form>
-          </div>
+          canEditProperty || canDeleteProperty ? (
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              {canEditProperty ? (
+                <Link
+                  className="text-primary inline-flex items-center text-sm font-medium hover:underline"
+                  href={`/dashboard/properties/${property.id}/edit`}
+                >
+                  Editar
+                </Link>
+              ) : null}
+              {canDeleteProperty ? (
+                <form action={deleteAction}>
+                  <Button type="submit" variant="destructive" shape="pill">
+                    Eliminar
+                  </Button>
+                </form>
+              ) : null}
+            </div>
+          ) : null
         }
       />
       <section className="grid gap-4 md:grid-cols-4">

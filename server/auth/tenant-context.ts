@@ -3,6 +3,17 @@ import { redirect } from "next/navigation";
 
 import { ACTIVE_TENANT_COOKIE } from "@/server/auth/constants";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  canDeleteLeads,
+  canDeleteProperties,
+  canManageAppointments,
+  canManageFaqs,
+  canManageLeads,
+  canManageProperties,
+  canManageTenant,
+  canOperateConversations,
+} from "@/lib/permissions";
+import { activateAcceptedTenantInvitations } from "@/server/auth/invitations";
 import type { Tables, TenantRole } from "@/types/database";
 
 interface TenantMembershipRecord {
@@ -46,6 +57,8 @@ export async function getTenantMemberships(): Promise<
   TenantMembershipSummary[]
 > {
   const user = await requireUser();
+  await activateAcceptedTenantInvitations(user.id);
+
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
@@ -140,10 +153,77 @@ export async function requirePlatformAdmin() {
 export async function requireTenantAdminContext() {
   const context = await getActiveTenantContext();
 
-  if (
-    context.activeMembership.role !== "tenant_owner" &&
-    context.activeMembership.role !== "tenant_admin"
-  ) {
+  if (!canManageTenant(context.activeMembership.role)) {
+    redirect("/dashboard");
+  }
+
+  return context;
+}
+
+export async function requirePropertyWriteContext() {
+  const context = await getActiveTenantContext();
+
+  if (!canManageProperties(context.activeMembership.role)) {
+    redirect("/dashboard");
+  }
+
+  return context;
+}
+
+export async function requirePropertyDeleteContext() {
+  const context = await getActiveTenantContext();
+
+  if (!canDeleteProperties(context.activeMembership.role)) {
+    redirect("/dashboard");
+  }
+
+  return context;
+}
+
+export async function requireLeadWriteContext() {
+  const context = await getActiveTenantContext();
+
+  if (!canManageLeads(context.activeMembership.role)) {
+    redirect("/dashboard");
+  }
+
+  return context;
+}
+
+export async function requireLeadDeleteContext() {
+  const context = await getActiveTenantContext();
+
+  if (!canDeleteLeads(context.activeMembership.role)) {
+    redirect("/dashboard");
+  }
+
+  return context;
+}
+
+export async function requireAppointmentWriteContext() {
+  const context = await getActiveTenantContext();
+
+  if (!canManageAppointments(context.activeMembership.role)) {
+    redirect("/dashboard");
+  }
+
+  return context;
+}
+
+export async function requireConversationOperateContext() {
+  const context = await getActiveTenantContext();
+
+  if (!canOperateConversations(context.activeMembership.role)) {
+    redirect("/dashboard");
+  }
+
+  return context;
+}
+
+export async function requireFaqManageContext() {
+  const context = await getActiveTenantContext();
+
+  if (!canManageFaqs(context.activeMembership.role)) {
     redirect("/dashboard");
   }
 

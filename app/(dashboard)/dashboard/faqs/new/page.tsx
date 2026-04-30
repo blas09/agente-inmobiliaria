@@ -2,12 +2,12 @@ import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { createFaqAction } from "@/features/faqs/actions";
 import { FaqForm } from "@/features/faqs/faq-form";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
-import { canManageTenant } from "@/lib/permissions";
+import { canManageFaqs } from "@/lib/permissions";
 import { redirect } from "next/navigation";
 
 export default async function NewFaqPage() {
   const { activeMembership } = await getActiveTenantContext();
-  if (!canManageTenant(activeMembership.role)) {
+  if (!canManageFaqs(activeMembership.role)) {
     redirect("/dashboard/faqs");
   }
 

@@ -1,9 +1,9 @@
 .next
 coverage
 node_modules
+*.tsbuildinfo
 .env
 .env.local
 .env.*.local
 pnpm-debug.log
 test-results
-

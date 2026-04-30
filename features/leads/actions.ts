@@ -10,7 +10,10 @@ import {
   toNullableNumber,
   toNullableString,
 } from "@/lib/utils";
-import { getActiveTenantContext } from "@/server/auth/tenant-context";
+import {
+  requireLeadDeleteContext,
+  requireLeadWriteContext,
+} from "@/server/auth/tenant-context";
 import { getAssignableTenantUsers } from "@/server/queries/tenants";
 import type { ActionState } from "@/types/actions";
 import type { LeadQualificationStatus } from "@/types/database";
@@ -71,7 +74,7 @@ export async function createLeadAction(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant } = await requireLeadWriteContext();
   const supabase = await createSupabaseServerClient();
   const result = parseLeadFormData(formData);
 
@@ -113,7 +116,7 @@ export async function updateLeadAction(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant } = await requireLeadWriteContext();
   const supabase = await createSupabaseServerClient();
   const result = parseLeadFormData(formData);
 
@@ -156,7 +159,7 @@ export async function updateLeadRoutingAction(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const { activeTenant, user } = await getActiveTenantContext();
+  const { activeTenant, user } = await requireLeadWriteContext();
   const supabase = await createSupabaseServerClient();
   const assignedTo = toNullableString(formData.get("assigned_to"));
   const pipelineStageId = toNullableString(formData.get("pipeline_stage_id"));
@@ -232,7 +235,7 @@ export async function updateLeadRoutingAction(
 }
 
 export async function deleteLeadAction(leadId: string) {
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant } = await requireLeadDeleteContext();
   const supabase = await createSupabaseServerClient();
 
   await supabase

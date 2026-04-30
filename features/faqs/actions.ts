@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { toNullableString } from "@/lib/utils";
-import { getActiveTenantContext } from "@/server/auth/tenant-context";
+import { requireFaqManageContext } from "@/server/auth/tenant-context";
 import type { ActionState } from "@/types/actions";
 import { faqSchema } from "@/features/faqs/schema";
 
@@ -22,7 +22,7 @@ export async function createFaqAction(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant } = await requireFaqManageContext();
   const supabase = await createSupabaseServerClient();
   const result = parseFaqFormData(formData);
 
@@ -52,7 +52,7 @@ export async function updateFaqAction(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant } = await requireFaqManageContext();
   const supabase = await createSupabaseServerClient();
   const result = parseFaqFormData(formData);
 
@@ -79,7 +79,7 @@ export async function updateFaqAction(
 }
 
 export async function deleteFaqAction(faqId: string) {
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant } = await requireFaqManageContext();
   const supabase = await createSupabaseServerClient();
 
   await supabase

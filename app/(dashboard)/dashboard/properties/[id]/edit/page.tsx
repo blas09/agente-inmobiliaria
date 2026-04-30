@@ -3,7 +3,7 @@ import { PropertyForm } from "@/features/properties/property-form";
 import { updatePropertyAction } from "@/features/properties/actions";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { getPropertyById } from "@/server/queries/properties";
-import { canCreateBusinessRecords } from "@/lib/permissions";
+import { canManageProperties } from "@/lib/permissions";
 import { redirect } from "next/navigation";
 
 export default async function EditPropertyPage({
@@ -13,7 +13,7 @@ export default async function EditPropertyPage({
 }) {
 	const { id } = await params;
 	const { activeTenant, activeMembership } = await getActiveTenantContext();
-	if (!canCreateBusinessRecords(activeMembership.role)) {
+	if (!canManageProperties(activeMembership.role)) {
 		redirect("/dashboard/properties");
 	}
 	const property = await getPropertyById(activeTenant.id, id);

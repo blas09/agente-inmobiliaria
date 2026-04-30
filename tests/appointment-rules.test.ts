@@ -1,5 +1,6 @@
 import {
   DEFAULT_APPOINTMENT_RULES,
+  findAppointmentScheduleConflict,
   getAppointmentRules,
   validateAppointmentLocalDateTime,
 } from "@/features/appointments/rules";
@@ -36,6 +37,58 @@ describe("appointment rules", () => {
       validateAppointmentLocalDateTime(
         "2026-04-10T10:00",
         DEFAULT_APPOINTMENT_RULES,
+      ),
+    ).toBeNull();
+  });
+
+  it("detects appointment conflicts including buffer time", () => {
+    const candidates = [
+      {
+        id: "existing",
+        scheduled_at: "2026-04-10T13:00:00.000Z",
+      },
+    ];
+
+    expect(
+      findAppointmentScheduleConflict(
+        "2026-04-10T14:10:00.000Z",
+        DEFAULT_APPOINTMENT_RULES,
+        candidates,
+      )?.id,
+    ).toBe("existing");
+  });
+
+  it("allows appointments outside duration and buffer", () => {
+    const candidates = [
+      {
+        id: "existing",
+        scheduled_at: "2026-04-10T13:00:00.000Z",
+      },
+    ];
+
+    expect(
+      findAppointmentScheduleConflict(
+        "2026-04-10T14:30:00.000Z",
+        DEFAULT_APPOINTMENT_RULES,
+        candidates,
+      ),
+    ).toBeNull();
+  });
+
+  it("ignores the current appointment when checking update conflicts", () => {
+    const candidates = [
+      {
+        id: "current",
+        scheduled_at: "2026-04-10T13:00:00.000Z",
+      },
+    ];
+
+    expect(
+      findAppointmentScheduleConflict(
+        "2026-04-10T13:00:00.000Z",
+        DEFAULT_APPOINTMENT_RULES,
+        candidates,
+        "current",
       ),
     ).toBeNull();
   });

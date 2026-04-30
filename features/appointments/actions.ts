@@ -5,15 +5,20 @@ import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { toNullableString, zonedDateTimeLocalToUtcIso } from "@/lib/utils";
 import {
-  getActiveTenantContext,
+  requireAppointmentWriteContext,
   requireTenantAdminContext,
 } from "@/server/auth/tenant-context";
 import { getAssignableTenantUsers } from "@/server/queries/tenants";
 import type { ActionState } from "@/types/actions";
-import type { AppointmentStatus } from "@/types/database";
+import type { AppointmentStatus, Json } from "@/types/database";
+import {
+  getAppointmentChangeSet,
+  type AppointmentAuditSnapshot,
+} from "@/features/appointments/audit";
 import { appointmentSchema } from "@/features/appointments/schema";
 import {
   appointmentRulesSchema,
+  findAppointmentScheduleConflict,
   getAppointmentRules,
   mergeAppointmentRulesIntoSettings,
   summarizeAppointmentRules,
@@ -24,6 +29,10 @@ function requiresPlannedScheduleValidation(status: AppointmentStatus) {
   return status === "scheduled" || status === "confirmed";
 }
 
+function toJson(value: unknown): Json {
+  return JSON.parse(JSON.stringify(value ?? {})) as Json;
+}
+
 async function ensureAssignableAdvisor(
   tenantId: string,
   advisorId: string | null,
@@ -32,6 +41,56 @@ async function ensureAssignableAdvisor(
 
   const assignableUsers = await getAssignableTenantUsers(tenantId);
   return assignableUsers.some((user) => user.user_id === advisorId);
+}
+
+async function validateAdvisorAvailability(input: {
+  tenantId: string;
+  advisorId: string | null;
+  scheduledAt: string;
+  appointmentRules: ReturnType<typeof getAppointmentRules>;
+  currentAppointmentId?: string;
+}) {
+  if (!input.advisorId) {
+    return null;
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const scheduledAtDate = new Date(input.scheduledAt);
+  const searchPaddingMs =
+    (input.appointmentRules.default_duration_minutes +
+      input.appointmentRules.buffer_minutes * 2) *
+    60 *
+    1000;
+  const windowStart = new Date(
+    scheduledAtDate.getTime() - searchPaddingMs,
+  ).toISOString();
+  const windowEnd = new Date(
+    scheduledAtDate.getTime() + searchPaddingMs,
+  ).toISOString();
+
+  const { data: candidates, error } = await supabase
+    .from("appointments")
+    .select("id, scheduled_at")
+    .eq("tenant_id", input.tenantId)
+    .eq("advisor_id", input.advisorId)
+    .in("status", ["scheduled", "confirmed"])
+    .gte("scheduled_at", windowStart)
+    .lte("scheduled_at", windowEnd);
+
+  if (error) {
+    return `No se pudo validar disponibilidad del asesor: ${error.message}`;
+  }
+
+  const conflict = findAppointmentScheduleConflict(
+    input.scheduledAt,
+    input.appointmentRules,
+    candidates ?? [],
+    input.currentAppointmentId,
+  );
+
+  return conflict
+    ? "El asesor ya tiene una visita que se solapa con ese horario o su buffer."
+    : null;
 }
 
 function parseAppointmentFormData(formData: FormData, timeZone: string) {
@@ -102,7 +161,7 @@ export async function createAppointmentAction(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant, user } = await requireAppointmentWriteContext();
   const supabase = await createSupabaseServerClient();
   const result = parseAppointmentFormData(formData, activeTenant.timezone);
   const appointmentRules = getAppointmentRules(activeTenant.settings);
@@ -145,6 +204,22 @@ export async function createAppointmentAction(
           scheduled_at: [
             "La visita no respeta el aviso mínimo configurado para el tenant.",
           ],
+        },
+      };
+    }
+
+    const availabilityError = await validateAdvisorAvailability({
+      tenantId: activeTenant.id,
+      advisorId: result.data.advisor_id,
+      scheduledAt: result.data.scheduled_at,
+      appointmentRules,
+    });
+    if (availabilityError) {
+      return {
+        status: "error",
+        message: availabilityError,
+        fieldErrors: {
+          scheduled_at: [availabilityError],
         },
       };
     }
@@ -192,22 +267,42 @@ export async function createAppointmentAction(
     };
   }
 
-  const { error } = await supabase.from("appointments").insert({
-    tenant_id: activeTenant.id,
-    lead_id: leadId,
-    property_id: result.data.property_id,
-    advisor_id: result.data.advisor_id,
-    scheduled_at: result.data.scheduled_at,
-    status: result.data.status,
-    notes: result.data.notes ?? null,
-  });
+  const { data: appointment, error } = await supabase
+    .from("appointments")
+    .insert({
+      tenant_id: activeTenant.id,
+      lead_id: leadId,
+      property_id: result.data.property_id,
+      advisor_id: result.data.advisor_id,
+      scheduled_at: result.data.scheduled_at,
+      status: result.data.status,
+      notes: result.data.notes ?? null,
+    })
+    .select("id")
+    .single();
 
-  if (error) {
+  if (error || !appointment) {
     return {
       status: "error",
-      message: error.message,
+      message: error?.message ?? "No se pudo crear la visita.",
     };
   }
+
+  await supabase.from("audit_logs").insert({
+    tenant_id: activeTenant.id,
+    actor_user_id: user.id,
+    entity_type: "appointment",
+    entity_id: appointment.id,
+    action: "appointment.created",
+    payload: toJson({
+      lead_id: leadId,
+      property_id: result.data.property_id,
+      advisor_id: result.data.advisor_id,
+      scheduled_at: result.data.scheduled_at,
+      status: result.data.status,
+      notes: result.data.notes ?? null,
+    }),
+  });
 
   revalidateAppointmentPaths(paths);
 
@@ -223,7 +318,7 @@ export async function updateAppointmentAction(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant, user } = await requireAppointmentWriteContext();
   const supabase = await createSupabaseServerClient();
   const result = parseAppointmentFormData(formData, activeTenant.timezone);
   const appointmentRules = getAppointmentRules(activeTenant.settings);
@@ -269,11 +364,30 @@ export async function updateAppointmentAction(
         },
       };
     }
+
+    const availabilityError = await validateAdvisorAvailability({
+      tenantId: activeTenant.id,
+      advisorId: result.data.advisor_id,
+      scheduledAt: result.data.scheduled_at,
+      appointmentRules,
+      currentAppointmentId: appointmentId,
+    });
+    if (availabilityError) {
+      return {
+        status: "error",
+        message: availabilityError,
+        fieldErrors: {
+          scheduled_at: [availabilityError],
+        },
+      };
+    }
   }
 
   const { data: currentAppointment, error: appointmentError } = await supabase
     .from("appointments")
-    .select("id, lead_id")
+    .select(
+      "id, lead_id, property_id, advisor_id, scheduled_at, status, notes",
+    )
     .eq("tenant_id", activeTenant.id)
     .eq("id", appointmentId)
     .maybeSingle();
@@ -331,6 +445,36 @@ export async function updateAppointmentAction(
       status: "error",
       message: error.message,
     };
+  }
+
+  const beforeSnapshot: AppointmentAuditSnapshot = {
+    property_id: currentAppointment.property_id,
+    advisor_id: currentAppointment.advisor_id,
+    scheduled_at: currentAppointment.scheduled_at,
+    status: currentAppointment.status,
+    notes: currentAppointment.notes,
+  };
+  const afterSnapshot: AppointmentAuditSnapshot = {
+    property_id: result.data.property_id,
+    advisor_id: result.data.advisor_id,
+    scheduled_at: result.data.scheduled_at,
+    status: result.data.status as AppointmentStatus,
+    notes: result.data.notes ?? null,
+  };
+  const changes = getAppointmentChangeSet(beforeSnapshot, afterSnapshot);
+
+  if (Object.keys(changes).length > 0) {
+    await supabase.from("audit_logs").insert({
+      tenant_id: activeTenant.id,
+      actor_user_id: user.id,
+      entity_type: "appointment",
+      entity_id: appointmentId,
+      action: "appointment.updated",
+      payload: toJson({
+        lead_id: currentAppointment.lead_id,
+        changes,
+      }),
+    });
   }
 
   revalidateAppointmentPaths([

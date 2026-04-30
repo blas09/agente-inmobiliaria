@@ -14,11 +14,11 @@ import {
 } from "@/components/ui/card";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { listFaqs } from "@/server/queries/faqs";
-import { canManageTenant } from "@/lib/permissions";
+import { canManageFaqs } from "@/lib/permissions";
 
 export default async function FaqsPage() {
   const { activeTenant, activeMembership } = await getActiveTenantContext();
-  const canManageFaqs = canManageTenant(activeMembership.role);
+  const canManageTenantFaqs = canManageFaqs(activeMembership.role);
   const faqs = await listFaqs(activeTenant.id);
   const activeFaqs = faqs.filter((faq) => faq.status === "active").length;
 
@@ -27,7 +27,7 @@ export default async function FaqsPage() {
       <ProfileWelcome
         title="FAQs"
         action={
-          canManageFaqs ? (
+          canManageTenantFaqs ? (
           <Link href="/dashboard/faqs/new">
             <Button>Nueva FAQ</Button>
           </Link>
@@ -55,8 +55,8 @@ export default async function FaqsPage() {
         <EmptyState
           title="Todavía no hay FAQs"
           description="Las respuestas base del tenant permiten cubrir preguntas frecuentes con criterio editorial."
-          actionHref={canManageFaqs ? "/dashboard/faqs/new" : undefined}
-          actionLabel={canManageFaqs ? "Crear FAQ" : undefined}
+          actionHref={canManageTenantFaqs ? "/dashboard/faqs/new" : undefined}
+          actionLabel={canManageTenantFaqs ? "Crear FAQ" : undefined}
         />
       ) : (
         <div className="grid gap-4">
@@ -65,7 +65,7 @@ export default async function FaqsPage() {
               <CardHeader>
                 <div className="flex items-center justify-between gap-3">
                   <div className="space-y-1">
-                    {canManageFaqs ? (
+                    {canManageTenantFaqs ? (
                       <Link href={`/dashboard/faqs/${faq.id}/edit`}>
                         <CardTitle className="hover:text-primary text-base">
                           {faq.question}

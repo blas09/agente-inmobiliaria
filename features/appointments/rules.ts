@@ -129,3 +129,56 @@ export function validateAppointmentLocalDateTime(
 
   return null;
 }
+
+export interface AppointmentConflictCandidate {
+  id: string;
+  scheduled_at: string;
+}
+
+function getBufferedTimeRangeMs(scheduledAt: string, rules: AppointmentRules) {
+  const start = new Date(scheduledAt).getTime();
+  const bufferMs = rules.buffer_minutes * 60 * 1000;
+  const durationMs = rules.default_duration_minutes * 60 * 1000;
+
+  if (!Number.isFinite(start)) {
+    return null;
+  }
+
+  return {
+    start: start - bufferMs,
+    end: start + durationMs + bufferMs,
+  };
+}
+
+export function findAppointmentScheduleConflict(
+  scheduledAt: string,
+  rules: AppointmentRules,
+  candidates: AppointmentConflictCandidate[],
+  currentAppointmentId?: string,
+) {
+  const requestedRange = getBufferedTimeRangeMs(scheduledAt, rules);
+  if (!requestedRange) {
+    return null;
+  }
+
+  return (
+    candidates.find((candidate) => {
+      if (candidate.id === currentAppointmentId) {
+        return false;
+      }
+
+      const candidateRange = getBufferedTimeRangeMs(
+        candidate.scheduled_at,
+        rules,
+      );
+      if (!candidateRange) {
+        return false;
+      }
+
+      return (
+        requestedRange.start < candidateRange.end &&
+        requestedRange.end > candidateRange.start
+      );
+    }) ?? null
+  );
+}

@@ -4,7 +4,7 @@ import { updateLeadAction } from "@/features/leads/actions";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { getLeadById, getPipelineStages } from "@/server/queries/leads";
 import { getAssignableTenantUsers } from "@/server/queries/tenants";
-import { canCreateBusinessRecords } from "@/lib/permissions";
+import { canManageLeads } from "@/lib/permissions";
 import { redirect } from "next/navigation";
 
 export default async function EditLeadPage({
@@ -14,7 +14,7 @@ export default async function EditLeadPage({
 }) {
   const { id } = await params;
   const { activeTenant, activeMembership } = await getActiveTenantContext();
-  if (!canCreateBusinessRecords(activeMembership.role)) {
+  if (!canManageLeads(activeMembership.role)) {
     redirect("/dashboard/leads");
   }
   const [lead, stages, advisors] = await Promise.all([

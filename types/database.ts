@@ -618,6 +618,30 @@ export interface Database {
         >;
         Relationships: [];
       };
+      audit_logs: {
+        Row: {
+          id: string;
+          tenant_id: string | null;
+          actor_user_id: string | null;
+          entity_type: string;
+          entity_id: string | null;
+          action: string;
+          payload: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          tenant_id?: string | null;
+          actor_user_id?: string | null;
+          entity_type: string;
+          entity_id?: string | null;
+          action: string;
+          payload?: Json;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["audit_logs"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

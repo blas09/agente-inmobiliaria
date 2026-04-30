@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -219,6 +220,18 @@ function parseMembershipFormData(formData: FormData) {
   });
 }
 
+async function getAuthCallbackUrl() {
+  const headerStore = await headers();
+  const proto = headerStore.get("x-forwarded-proto") ?? "http";
+  const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
+
+  if (!host) {
+    return undefined;
+  }
+
+  return `${proto}://${host}/auth/callback`;
+}
+
 export async function addTenantUserAction(
   _prevState: ActionState,
   formData: FormData,
@@ -240,6 +253,7 @@ export async function addTenantUserAction(
     const admin = createSupabaseAdminClient();
     const { data: invitedUser, error: inviteError } =
       await admin.auth.admin.inviteUserByEmail(result.data.email, {
+        redirectTo: await getAuthCallbackUrl(),
         data: {
           tenant_id: activeTenant.id,
           tenant_role: result.data.role,

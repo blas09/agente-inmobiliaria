@@ -34,3 +34,7 @@ export function hasSupabaseEnv() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   );
 }
+
+export function hasSupabaseServiceRoleEnv() {
+  return Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY);
+}

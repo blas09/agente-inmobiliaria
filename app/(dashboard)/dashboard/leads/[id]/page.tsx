@@ -32,6 +32,11 @@ import {
 import { getLeadAppointments } from "@/server/queries/appointments";
 import { listAvailablePropertiesForSelection } from "@/server/queries/properties";
 import { getAssignableTenantUsers } from "@/server/queries/tenants";
+import {
+  canDeleteLeads,
+  canManageAppointments,
+  canManageLeads,
+} from "@/lib/permissions";
 import { formatDateTime } from "@/lib/utils";
 
 export default async function LeadDetailPage({
@@ -40,8 +45,11 @@ export default async function LeadDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant, activeMembership } = await getActiveTenantContext();
   const appointmentRules = getAppointmentRules(activeTenant.settings);
+  const canEditLead = canManageLeads(activeMembership.role);
+  const canDeleteLead = canDeleteLeads(activeMembership.role);
+  const canScheduleAppointment = canManageAppointments(activeMembership.role);
   const [
     lead,
     stages,
@@ -74,19 +82,25 @@ export default async function LeadDetailPage({
       <ProfileWelcome
         title={lead.full_name}
         action={
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Link
-              className="text-primary inline-flex items-center text-sm font-medium hover:underline"
-              href={`/dashboard/leads/${lead.id}/edit`}
-            >
-              Editar
-            </Link>
-            <form action={deleteAction}>
-              <Button type="submit" variant="destructive" shape="pill">
-                Eliminar
-              </Button>
-            </form>
-          </div>
+          canEditLead || canDeleteLead ? (
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              {canEditLead ? (
+                <Link
+                  className="text-primary inline-flex items-center text-sm font-medium hover:underline"
+                  href={`/dashboard/leads/${lead.id}/edit`}
+                >
+                  Editar
+                </Link>
+              ) : null}
+              {canDeleteLead ? (
+                <form action={deleteAction}>
+                  <Button type="submit" variant="destructive" shape="pill">
+                    Eliminar
+                  </Button>
+                </form>
+              ) : null}
+            </div>
+          ) : null
         }
       />
       <section className="grid gap-4 md:grid-cols-4">
@@ -230,27 +244,29 @@ export default async function LeadDetailPage({
         </Card>
       </div>
       <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <LeadRoutingForm
-          action={updateLeadRoutingAction.bind(null, lead.id)}
-          advisorOptions={advisors.map((advisor) => ({
-            id: advisor.user_id,
-            label:
-              advisor.user_profiles?.full_name ??
-              advisor.user_profiles?.email ??
-              advisor.user_id,
-            role: advisor.role,
-          }))}
-          initialValues={{
-            assigned_to: lead.assigned_to,
-            pipeline_stage_id: lead.pipeline_stage_id,
-            qualification_status: lead.qualification_status,
-            is_human_handoff_required: lead.is_human_handoff_required,
-          }}
-          stageOptions={stages.map((stageOption) => ({
-            id: stageOption.id,
-            name: stageOption.name,
-          }))}
-        />
+        {canEditLead ? (
+          <LeadRoutingForm
+            action={updateLeadRoutingAction.bind(null, lead.id)}
+            advisorOptions={advisors.map((advisor) => ({
+              id: advisor.user_id,
+              label:
+                advisor.user_profiles?.full_name ??
+                advisor.user_profiles?.email ??
+                advisor.user_id,
+              role: advisor.role,
+            }))}
+            initialValues={{
+              assigned_to: lead.assigned_to,
+              pipeline_stage_id: lead.pipeline_stage_id,
+              qualification_status: lead.qualification_status,
+              is_human_handoff_required: lead.is_human_handoff_required,
+            }}
+            stageOptions={stages.map((stageOption) => ({
+              id: stageOption.id,
+              name: stageOption.name,
+            }))}
+          />
+        ) : null}
         <Card>
           <CardHeader>
             <CardTitle>Conversaciones asociadas</CardTitle>
@@ -288,28 +304,30 @@ export default async function LeadDetailPage({
         </Card>
       </div>
       <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <AppointmentForm
-          action={appointmentAction}
-          advisorOptions={advisors.map((advisor) => ({
-            id: advisor.user_id,
-            label:
-              advisor.user_profiles?.full_name ??
-              advisor.user_profiles?.email ??
-              advisor.user_id,
-            role: advisor.role,
-          }))}
-          initialValues={{
-            advisor_id: lead.assigned_to,
-          }}
-          propertyOptions={properties.map((property) => ({
-            id: property.id,
-            label: `${property.title}${property.external_ref ? ` · ${property.external_ref}` : ""}`,
-          }))}
-          rulesSummary={summarizeAppointmentRules(appointmentRules)}
-          submitLabel="Agendar visita"
-          timezone={activeTenant.timezone}
-          title="Agenda interna"
-        />
+        {canScheduleAppointment ? (
+          <AppointmentForm
+            action={appointmentAction}
+            advisorOptions={advisors.map((advisor) => ({
+              id: advisor.user_id,
+              label:
+                advisor.user_profiles?.full_name ??
+                advisor.user_profiles?.email ??
+                advisor.user_id,
+              role: advisor.role,
+            }))}
+            initialValues={{
+              advisor_id: lead.assigned_to,
+            }}
+            propertyOptions={properties.map((property) => ({
+              id: property.id,
+              label: `${property.title}${property.external_ref ? ` · ${property.external_ref}` : ""}`,
+            }))}
+            rulesSummary={summarizeAppointmentRules(appointmentRules)}
+            submitLabel="Agendar visita"
+            timezone={activeTenant.timezone}
+            title="Agenda interna"
+          />
+        ) : null}
         <Card>
           <CardHeader>
             <CardTitle>Visitas del lead</CardTitle>

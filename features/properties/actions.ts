@@ -10,7 +10,10 @@ import {
   toNullableNumber,
   toNullableString,
 } from "@/lib/utils";
-import { getActiveTenantContext } from "@/server/auth/tenant-context";
+import {
+  requirePropertyDeleteContext,
+  requirePropertyWriteContext,
+} from "@/server/auth/tenant-context";
 import type { ActionState } from "@/types/actions";
 import { propertySchema } from "@/features/properties/schema";
 
@@ -46,7 +49,7 @@ export async function createPropertyAction(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant } = await requirePropertyWriteContext();
   const supabase = await createSupabaseServerClient();
   const result = parsePropertyFormData(formData);
 
@@ -81,7 +84,7 @@ export async function updatePropertyAction(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant } = await requirePropertyWriteContext();
   const supabase = await createSupabaseServerClient();
   const result = parsePropertyFormData(formData);
 
@@ -112,7 +115,7 @@ export async function updatePropertyAction(
 }
 
 export async function deletePropertyAction(propertyId: string) {
-  const { activeTenant } = await getActiveTenantContext();
+  const { activeTenant } = await requirePropertyDeleteContext();
   const supabase = await createSupabaseServerClient();
 
   await supabase
