@@ -304,7 +304,12 @@ export async function createAppointmentAction(
     }),
   });
 
-  revalidateAppointmentPaths(paths);
+  revalidateAppointmentPaths([
+    ...paths,
+    ...(result.data.property_id
+      ? [`/dashboard/properties/${result.data.property_id}`]
+      : []),
+  ]);
 
   return {
     status: "success",
@@ -385,9 +390,7 @@ export async function updateAppointmentAction(
 
   const { data: currentAppointment, error: appointmentError } = await supabase
     .from("appointments")
-    .select(
-      "id, lead_id, property_id, advisor_id, scheduled_at, status, notes",
-    )
+    .select("id, lead_id, property_id, advisor_id, scheduled_at, status, notes")
     .eq("tenant_id", activeTenant.id)
     .eq("id", appointmentId)
     .maybeSingle();
@@ -480,6 +483,12 @@ export async function updateAppointmentAction(
   revalidateAppointmentPaths([
     ...paths,
     `/dashboard/leads/${currentAppointment.lead_id}`,
+    ...(currentAppointment.property_id
+      ? [`/dashboard/properties/${currentAppointment.property_id}`]
+      : []),
+    ...(result.data.property_id
+      ? [`/dashboard/properties/${result.data.property_id}`]
+      : []),
   ]);
 
   return {

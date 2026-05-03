@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDateTimeLocalInput } from "@/lib/utils";
+import { appointmentStatusLabels } from "@/features/appointments/status";
 
 interface AppointmentFormProps {
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
@@ -91,11 +92,13 @@ export function AppointmentForm({
               id="status"
               name="status"
             >
-              <option value="scheduled">Agendada</option>
-              <option value="confirmed">Confirmada</option>
-              <option value="completed">Completada</option>
-              <option value="canceled">Cancelada</option>
-              <option value="no_show">No asistió</option>
+              {Object.entries(appointmentStatusLabels).map(
+                ([status, label]) => (
+                  <option key={status} value={status}>
+                    {label}
+                  </option>
+                ),
+              )}
             </NativeSelect>
           </FormField>
           <FormField

@@ -340,10 +340,33 @@ Expected verification:
 
 ### 005 - Appointments as Internal Source of Truth
 
-Status: `todo`  
-Priority: `P1`  
-Type: `MVP`  
+Status: `done`
+Priority: `P1`
+Type: `MVP`
 Primary roles: Product Owner, Commercial Domain, Project Leader / Technical Lead, Backend / Security, UI/UX Specialist, Frontend Engineer, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Reviewing appointment creation/update flows, advisor availability checks, status transitions, and agenda visibility from lead/conversation/property contexts.
+- 2026-05-03: Completed. Appointment states now have shared Spanish labels/tones, agenda filters are visible, property detail shows related visits, and appointment changes revalidate affected property pages.
+
+Completed:
+
+- Confirmed appointment create/update actions validate tenant-scoped lead/property records, assignable advisors, business hours, advance notice, and advisor conflicts for planned visits.
+- Added shared appointment status labels and UI tones for consistent agenda, form, and related-record presentation.
+- Added agenda filters for status and advisor using the existing query support.
+- Added property-level visit visibility so a property can show scheduled/completed/canceled visits tied to it.
+- Revalidated property detail pages when appointments are created or updated with a property association.
+- Added focused tests for appointment status labels and tones.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/prettier --write ...` completed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed: 7 files, 23 tests.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/next build --webpack` passed.
+- Local Supabase/PostgREST appointments check passed outside the sandbox: appointment select returned `200`.
 
 Problem:
 

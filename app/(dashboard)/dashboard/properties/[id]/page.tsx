@@ -13,12 +13,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
+import { getPropertyAppointments } from "@/server/queries/appointments";
 import {
   getPropertyById,
   getPropertyConversations,
 } from "@/server/queries/properties";
 import { canDeleteProperties, canManageProperties } from "@/lib/permissions";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
+import {
+  getAppointmentStatusLabel,
+  getAppointmentStatusTone,
+} from "@/features/appointments/status";
 
 export default async function PropertyDetailPage({
   params,
@@ -27,9 +32,10 @@ export default async function PropertyDetailPage({
 }) {
   const { id } = await params;
   const { activeTenant, activeMembership } = await getActiveTenantContext();
-  const [property, conversations] = await Promise.all([
+  const [property, conversations, appointments] = await Promise.all([
     getPropertyById(activeTenant.id, id),
     getPropertyConversations(activeTenant.id, id),
+    getPropertyAppointments(activeTenant.id, id),
   ]);
   const deleteAction = deletePropertyAction.bind(null, property.id);
   const canEditProperty = canManageProperties(activeMembership.role);
@@ -271,6 +277,62 @@ export default async function PropertyDetailPage({
                   ) : (
                     <span className="text-foreground">Sin lead</span>
                   )}
+                </div>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Visitas de la propiedad</CardTitle>
+          <CardDescription>
+            Agenda interna asociada a esta ficha comercial.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          {appointments.length === 0 ? (
+            <EmptyState
+              title="Sin visitas agendadas"
+              description="Las visitas cargadas desde leads o conversaciones para esta propiedad van a aparecer acá."
+              actionHref="/dashboard/appointments"
+              actionLabel="Ver agenda"
+            />
+          ) : (
+            appointments.map((appointment) => (
+              <div
+                className="border-border bg-card rounded-xl border px-4 py-3"
+                key={appointment.id}
+              >
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="font-medium">
+                      {formatDateTime(appointment.scheduled_at)}
+                    </p>
+                    <p className="text-muted-foreground mt-1">
+                      {appointment.lead?.full_name ?? "Lead no disponible"} ·{" "}
+                      {appointment.advisor?.full_name ??
+                        appointment.advisor?.email ??
+                        "Sin asesor"}
+                    </p>
+                  </div>
+                  <Badge variant={getAppointmentStatusTone(appointment.status)}>
+                    {getAppointmentStatusLabel(appointment.status)}
+                  </Badge>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-3">
+                  <Link
+                    className="text-primary hover:underline"
+                    href={`/dashboard/leads/${appointment.lead_id}`}
+                  >
+                    Ver lead
+                  </Link>
+                  <Link
+                    className="text-primary hover:underline"
+                    href="/dashboard/appointments"
+                  >
+                    Ver agenda
+                  </Link>
                 </div>
               </div>
             ))

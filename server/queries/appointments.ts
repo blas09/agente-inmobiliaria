@@ -146,3 +146,22 @@ export async function getLeadAppointments(tenantId: string, leadId: string) {
 
   return enrichAppointments(data ?? []);
 }
+
+export async function getPropertyAppointments(
+  tenantId: string,
+  propertyId: string,
+) {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("appointments")
+    .select("*")
+    .eq("tenant_id", tenantId)
+    .eq("property_id", propertyId)
+    .order("scheduled_at", { ascending: true });
+
+  if (error) {
+    throw new Error(`Failed to load property appointments: ${error.message}`);
+  }
+
+  return enrichAppointments(data ?? []);
+}
