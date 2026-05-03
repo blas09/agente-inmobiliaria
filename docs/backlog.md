@@ -525,10 +525,34 @@ Expected verification:
 
 ### 008 - Focused Regression Coverage
 
-Status: `todo`  
-Priority: `P1`  
-Type: `technical debt`  
+Status: `done`
+Priority: `P1`
+Type: `technical debt`
 Primary roles: Project Leader / Technical Lead, Backend / Security, Integrations / WhatsApp, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Reviewing current regression coverage and adding focused tests around critical WhatsApp payload/status handling without introducing brittle E2E coverage.
+- 2026-05-03: Completed. Added focused WhatsApp webhook/status regression coverage and verified the full existing regression suite.
+
+Completed:
+
+- Added tests for valid WhatsApp message/status webhook payload parsing.
+- Added tests for supported and unsupported WhatsApp delivery status mapping.
+- Added tests for idempotent status transitions so stale delivery events do not downgrade already-read/delivered/failed messages.
+- Confirmed existing focused coverage for permissions, appointment rules, appointment audit changes, appointment status labels, dashboard reporting, channel health, auth redirects, and utility date formatting.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/prettier --write ...` completed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed: 9 files, 32 tests.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/next build --webpack` passed.
+
+Remaining risk:
+
+- Full outbound provider behavior and browser-level E2E flows remain manual or environment-dependent and should be revisited only if internal pilot testing exposes blockers.
 
 Problem:
 

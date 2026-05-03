@@ -87,7 +87,9 @@ export type WhatsAppStatus = z.infer<typeof whatsAppStatusSchema>;
 export type WhatsAppValue = z.infer<typeof whatsAppValueSchema>;
 export type WhatsAppChange = z.infer<typeof whatsAppChangeSchema>;
 export type WhatsAppEntry = z.infer<typeof whatsAppEntrySchema>;
-export type WhatsAppWebhookPayload = z.infer<typeof whatsAppWebhookPayloadSchema>;
+export type WhatsAppWebhookPayload = z.infer<
+  typeof whatsAppWebhookPayloadSchema
+>;
 
 type ProcessingResult =
   | {
@@ -151,7 +153,7 @@ function resolveMessageContent(message: WhatsAppMessage) {
   }
 }
 
-function mapWhatsAppMessageStatus(status: string | undefined) {
+export function mapWhatsAppMessageStatus(status: string | undefined) {
   if (!status) return null;
   switch (status) {
     case "sent":
@@ -164,7 +166,7 @@ function mapWhatsAppMessageStatus(status: string | undefined) {
   }
 }
 
-function shouldApplyStatusTransition(
+export function shouldApplyStatusTransition(
   currentStatus: string | null,
   incomingStatus: string,
 ) {
@@ -473,7 +475,11 @@ async function processStatusEvent(input: {
     const patch: Database["public"]["Tables"]["messages"]["Update"] = {
       message_status: mappedStatus,
     };
-    if (mappedStatus === "delivered" && input.status.timestamp && !message.delivered_at) {
+    if (
+      mappedStatus === "delivered" &&
+      input.status.timestamp &&
+      !message.delivered_at
+    ) {
       patch.delivered_at = new Date(
         Number(input.status.timestamp) * 1000,
       ).toISOString();
