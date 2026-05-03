@@ -43,7 +43,7 @@ insert into auth.users (
 )
 values
   (
-    '11111111-1111-1111-1111-111111111111',
+    '11111111-1111-4111-8111-111111111111',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -78,7 +78,7 @@ values
     false
   ),
   (
-    '22222222-2222-2222-2222-222222222222',
+    '22222222-2222-4222-8222-222222222222',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -113,7 +113,7 @@ values
     false
   ),
   (
-    '44444444-1111-1111-1111-111111111111',
+    '44444444-1111-4111-8111-111111111111',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -148,7 +148,7 @@ values
     false
   ),
   (
-    '55555555-1111-1111-1111-111111111111',
+    '55555555-1111-4111-8111-111111111111',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -183,7 +183,7 @@ values
     false
   ),
   (
-    '66666666-1111-1111-1111-111111111111',
+    '66666666-1111-4111-8111-111111111111',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -218,7 +218,7 @@ values
     false
   ),
   (
-    '33333333-3333-3333-3333-333333333333',
+    '33333333-3333-4333-8333-333333333333',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -255,7 +255,7 @@ values
 on conflict (id) do nothing;
 
 insert into public.platform_users (user_id, role, status)
-values ('33333333-3333-3333-3333-333333333333', 'platform_admin', 'active')
+values ('33333333-3333-4333-8333-333333333333', 'platform_admin', 'active')
 on conflict (user_id) do nothing;
 
 insert into public.tenants (
@@ -270,7 +270,7 @@ insert into public.tenants (
   branding
 )
 values (
-  'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
   'Inmobiliaria Demo Paraguay',
   'demo-paraguay',
   'active',
@@ -294,60 +294,60 @@ insert into auth.identities (
 )
 values
   (
-    '44444444-4444-4444-4444-444444444441',
-    '11111111-1111-1111-1111-111111111111',
-    '11111111-1111-1111-1111-111111111111',
-    '{"sub":"11111111-1111-1111-1111-111111111111","email":"owner@demo.py","email_verified":true}'::jsonb,
+    '44444444-4444-4444-8444-444444444441',
+    '11111111-1111-4111-8111-111111111111',
+    '11111111-1111-4111-8111-111111111111',
+    '{"sub":"11111111-1111-4111-8111-111111111111","email":"owner@demo.py","email_verified":true}'::jsonb,
     'email',
     timezone('utc', now()),
     timezone('utc', now()),
     timezone('utc', now())
   ),
   (
-    '44444444-4444-4444-4444-444444444442',
-    '22222222-2222-2222-2222-222222222222',
-    '22222222-2222-2222-2222-222222222222',
-    '{"sub":"22222222-2222-2222-2222-222222222222","email":"advisor@demo.py","email_verified":true}'::jsonb,
+    '44444444-4444-4444-8444-444444444442',
+    '22222222-2222-4222-8222-222222222222',
+    '22222222-2222-4222-8222-222222222222',
+    '{"sub":"22222222-2222-4222-8222-222222222222","email":"advisor@demo.py","email_verified":true}'::jsonb,
     'email',
     timezone('utc', now()),
     timezone('utc', now()),
     timezone('utc', now())
   ),
   (
-    '44444444-4444-4444-4444-444444444444',
-    '44444444-1111-1111-1111-111111111111',
-    '44444444-1111-1111-1111-111111111111',
-    '{"sub":"44444444-1111-1111-1111-111111111111","email":"tenantadmin@demo.py","email_verified":true}'::jsonb,
+    '44444444-4444-4444-8444-444444444444',
+    '44444444-1111-4111-8111-111111111111',
+    '44444444-1111-4111-8111-111111111111',
+    '{"sub":"44444444-1111-4111-8111-111111111111","email":"tenantadmin@demo.py","email_verified":true}'::jsonb,
     'email',
     timezone('utc', now()),
     timezone('utc', now()),
     timezone('utc', now())
   ),
   (
-    '44444444-4444-4444-4444-444444444445',
-    '55555555-1111-1111-1111-111111111111',
-    '55555555-1111-1111-1111-111111111111',
-    '{"sub":"55555555-1111-1111-1111-111111111111","email":"operator@demo.py","email_verified":true}'::jsonb,
+    '44444444-4444-4444-8444-444444444445',
+    '55555555-1111-4111-8111-111111111111',
+    '55555555-1111-4111-8111-111111111111',
+    '{"sub":"55555555-1111-4111-8111-111111111111","email":"operator@demo.py","email_verified":true}'::jsonb,
     'email',
     timezone('utc', now()),
     timezone('utc', now()),
     timezone('utc', now())
   ),
   (
-    '44444444-4444-4444-4444-444444444446',
-    '66666666-1111-1111-1111-111111111111',
-    '66666666-1111-1111-1111-111111111111',
-    '{"sub":"66666666-1111-1111-1111-111111111111","email":"viewer@demo.py","email_verified":true}'::jsonb,
+    '44444444-4444-4444-8444-444444444446',
+    '66666666-1111-4111-8111-111111111111',
+    '66666666-1111-4111-8111-111111111111',
+    '{"sub":"66666666-1111-4111-8111-111111111111","email":"viewer@demo.py","email_verified":true}'::jsonb,
     'email',
     timezone('utc', now()),
     timezone('utc', now()),
     timezone('utc', now())
   ),
   (
-    '44444444-4444-4444-4444-444444444443',
-    '33333333-3333-3333-3333-333333333333',
-    '33333333-3333-3333-3333-333333333333',
-    '{"sub":"33333333-3333-3333-3333-333333333333","email":"admin@platform.local","email_verified":true}'::jsonb,
+    '44444444-4444-4444-8444-444444444443',
+    '33333333-3333-4333-8333-333333333333',
+    '33333333-3333-4333-8333-333333333333',
+    '{"sub":"33333333-3333-4333-8333-333333333333","email":"admin@platform.local","email_verified":true}'::jsonb,
     'email',
     timezone('utc', now()),
     timezone('utc', now()),
@@ -357,19 +357,19 @@ on conflict (id) do nothing;
 
 insert into public.tenant_users (tenant_id, user_id, role, status)
 values
-  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '11111111-1111-1111-1111-111111111111', 'tenant_owner', 'active'),
-  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '44444444-1111-1111-1111-111111111111', 'tenant_admin', 'active'),
-  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '22222222-2222-2222-2222-222222222222', 'advisor', 'active'),
-  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '55555555-1111-1111-1111-111111111111', 'operator', 'active'),
-  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '66666666-1111-1111-1111-111111111111', 'viewer', 'active')
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111111', 'tenant_owner', 'active'),
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '44444444-1111-4111-8111-111111111111', 'tenant_admin', 'active'),
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '22222222-2222-4222-8222-222222222222', 'advisor', 'active'),
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '55555555-1111-4111-8111-111111111111', 'operator', 'active'),
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '66666666-1111-4111-8111-111111111111', 'viewer', 'active')
 on conflict (tenant_id, user_id) do nothing;
 
 insert into public.pipeline_stages (id, tenant_id, name, position, category, is_default)
 values
-  ('10000000-0000-0000-0000-000000000001', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Nuevo', 1, 'inbox', true),
-  ('10000000-0000-0000-0000-000000000002', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Calificado', 2, 'qualified', false),
-  ('10000000-0000-0000-0000-000000000003', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Visita', 3, 'visit', false),
-  ('10000000-0000-0000-0000-000000000004', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Cerrado ganado', 4, 'won', false)
+  ('10000000-0000-4000-8000-000000000001', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'Nuevo', 1, 'inbox', true),
+  ('10000000-0000-4000-8000-000000000002', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'Calificado', 2, 'qualified', false),
+  ('10000000-0000-4000-8000-000000000003', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'Visita', 3, 'visit', false),
+  ('10000000-0000-4000-8000-000000000004', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'Cerrado ganado', 4, 'won', false)
 on conflict (id) do nothing;
 
 insert into public.channels (
@@ -385,8 +385,8 @@ insert into public.channels (
   connected_at
 )
 values (
-  'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
-  'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+  'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
   'whatsapp',
   'meta_whatsapp_cloud',
   'waba-demo-001',
@@ -412,9 +412,9 @@ insert into public.channel_whatsapp_accounts (
   metadata
 )
 values (
-  'cccccccc-cccc-cccc-cccc-cccccccccccc',
-  'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-  'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+  'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
   'meta-bm-001',
   'waba-001',
   'phone-001',
@@ -454,8 +454,8 @@ insert into public.properties (
 )
 values
   (
-    'dddddddd-dddd-dddd-dddd-dddddddddddd',
-    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
     'ASU-1001',
     'Departamento de 2 dormitorios en Villa Morra',
     'Departamento moderno con balcon, amenities y cochera.',
@@ -475,13 +475,13 @@ values
     false,
     true,
     'available',
-    '22222222-2222-2222-2222-222222222222',
+    '22222222-2222-4222-8222-222222222222',
     'manual',
     timezone('utc', now())
   ),
   (
-    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
-    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
     'LMB-2001',
     'Casa con patio en Lambaré',
     'Casa familiar con jardin y espacio para mascotas.',
@@ -501,7 +501,7 @@ values
     false,
     false,
     'available',
-    '22222222-2222-2222-2222-222222222222',
+    '22222222-2222-4222-8222-222222222222',
     'manual',
     timezone('utc', now())
   )
@@ -509,21 +509,21 @@ on conflict (id) do nothing;
 
 insert into public.property_features (tenant_id, property_id, feature_key, feature_value)
 values
-  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'dddddddd-dddd-dddd-dddd-dddddddddddd', 'amenities', 'Piscina, quincho, gimnasio'),
-  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'outdoor', 'Patio amplio y jardin')
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd', 'amenities', 'Piscina, quincho, gimnasio'),
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee', 'outdoor', 'Patio amplio y jardin')
 on conflict do nothing;
 
 insert into public.faqs (tenant_id, question, answer, category, status)
 values
   (
-    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
     '¿Trabajan solo por WhatsApp?',
     'No. Priorizamos WhatsApp, pero tambien centralizamos email y otros canales progresivamente.',
     'general',
     'active'
   ),
   (
-    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
     '¿Se puede coordinar visita?',
     'Si. Podemos registrar tu interes y coordinar una visita con un asesor.',
     'visitas',
@@ -554,8 +554,8 @@ insert into public.leads (
   pipeline_stage_id
 )
 values (
-  'ffffffff-ffff-ffff-ffff-ffffffffffff',
-  'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+  'ffffffff-ffff-4fff-8fff-ffffffffffff',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
   'Laura Gonzalez',
   'laura@example.com',
   '+595981999999',
@@ -572,16 +572,16 @@ values (
   'Busca departamento con amenities y acepta credito.',
   'qualified',
   78,
-  '22222222-2222-2222-2222-222222222222',
-  '10000000-0000-0000-0000-000000000002'
+  '22222222-2222-4222-8222-222222222222',
+  '10000000-0000-4000-8000-000000000002'
 )
 on conflict (id) do nothing;
 
 insert into public.lead_property_interests (tenant_id, lead_id, property_id, interest_level)
 values (
-  'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-  'ffffffff-ffff-ffff-ffff-ffffffffffff',
-  'dddddddd-dddd-dddd-dddd-dddddddddddd',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  'ffffffff-ffff-4fff-8fff-ffffffffffff',
+  'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
   'high'
 )
 on conflict (lead_id, property_id) do nothing;
@@ -601,12 +601,12 @@ insert into public.conversations (
   ai_enabled
 )
 values (
-  'abababab-abab-abab-abab-abababababab',
-  'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-  'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
-  'ffffffff-ffff-ffff-ffff-ffffffffffff',
-  'dddddddd-dddd-dddd-dddd-dddddddddddd',
-  '22222222-2222-2222-2222-222222222222',
+  'abababab-abab-4bab-8bab-abababababab',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+  'ffffffff-ffff-4fff-8fff-ffffffffffff',
+  'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+  '22222222-2222-4222-8222-222222222222',
   'pending_human',
   '+595981999999',
   'Laura Gonzalez',
@@ -628,8 +628,8 @@ insert into public.messages (
 )
 values
   (
-    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-    'abababab-abab-abab-abab-abababababab',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    'abababab-abab-4bab-8bab-abababababab',
     'lead',
     'inbound',
     'Hola, sigue disponible el departamento de Villa Morra?',
@@ -638,8 +638,8 @@ values
     timezone('utc', now()) - interval '5 minutes'
   ),
   (
-    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-    'abababab-abab-abab-abab-abababababab',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    'abababab-abab-4bab-8bab-abababababab',
     'agent',
     'outbound',
     'Si, sigue disponible. Si queres, te hago unas preguntas y coordinamos visita.',
@@ -651,20 +651,20 @@ on conflict do nothing;
 
 insert into public.lead_stage_history (tenant_id, lead_id, stage_id, changed_by, notes)
 values (
-  'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-  'ffffffff-ffff-ffff-ffff-ffffffffffff',
-  '10000000-0000-0000-0000-000000000002',
-  '22222222-2222-2222-2222-222222222222',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  'ffffffff-ffff-4fff-8fff-ffffffffffff',
+  '10000000-0000-4000-8000-000000000002',
+  '22222222-2222-4222-8222-222222222222',
   'Lead calificado por presupuesto e interes concreto.'
 )
 on conflict do nothing;
 
 insert into public.audit_logs (tenant_id, actor_user_id, entity_type, entity_id, action, payload)
 values (
-  'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-  '11111111-1111-1111-1111-111111111111',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  '11111111-1111-4111-8111-111111111111',
   'property',
-  'dddddddd-dddd-dddd-dddd-dddddddddddd',
+  'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
   'property.created',
   '{"title":"Departamento de 2 dormitorios en Villa Morra"}'::jsonb
 )
