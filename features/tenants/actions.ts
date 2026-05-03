@@ -212,11 +212,11 @@ export async function updateCurrentTenantSettingsAction(
   };
 }
 
-function parseMembershipFormData(formData: FormData) {
+function parseAddMembershipFormData(formData: FormData) {
   return tenantMembershipSchema.safeParse({
     email: formData.get("email")?.toString().trim().toLowerCase() ?? "",
     role: formData.get("role"),
-    status: formData.get("status") ?? "active",
+    status: "active",
   });
 }
 
@@ -238,7 +238,7 @@ export async function addTenantUserAction(
 ): Promise<ActionState> {
   const { activeTenant } = await requireTenantAdminContext();
   const supabase = await createSupabaseServerClient();
-  const result = parseMembershipFormData(formData);
+  const result = parseAddMembershipFormData(formData);
 
   if (!result.success) {
     return {
@@ -264,8 +264,7 @@ export async function addTenantUserAction(
       return {
         status: "error",
         message:
-          inviteError?.message ??
-          "No se pudo enviar la invitación al usuario.",
+          inviteError?.message ?? "No se pudo enviar la invitación al usuario.",
       };
     }
 
@@ -356,7 +355,7 @@ export async function addTenantUserAction(
   }
 
   revalidatePath("/dashboard/settings");
-  return { status: "success", message: "Membresía actualizada." };
+  return { status: "success", message: "Miembro activo en el tenant." };
 }
 
 export async function updateTenantUserAction(

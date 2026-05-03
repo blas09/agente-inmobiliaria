@@ -21,11 +21,11 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 
 const roleOptions: Array<{ value: TenantRole; label: string }> = [
-  { value: "tenant_owner", label: "Owner" },
-  { value: "tenant_admin", label: "Admin" },
-  { value: "advisor", label: "Advisor" },
-  { value: "operator", label: "Operator" },
-  { value: "viewer", label: "Viewer" },
+  { value: "tenant_owner", label: "Propietario" },
+  { value: "tenant_admin", label: "Administrador" },
+  { value: "advisor", label: "Asesor" },
+  { value: "operator", label: "Operador" },
+  { value: "viewer", label: "Lectura" },
 ];
 
 const statusOptions = [
@@ -34,6 +34,17 @@ const statusOptions = [
   { value: "suspended", label: "Suspendido" },
   { value: "removed", label: "Removido" },
 ];
+
+const roleLabelByValue = new Map(
+  roleOptions.map((option) => [option.value, option.label]),
+);
+const statusLabelByValue = new Map(
+  statusOptions.map((option) => [option.value, option.label]),
+);
+
+export function getTenantRoleLabel(role: TenantRole) {
+  return roleLabelByValue.get(role) ?? role;
+}
 
 export function AddTenantUserForm({
   action,
@@ -47,13 +58,14 @@ export function AddTenantUserForm({
       <CardHeader>
         <CardTitle>Agregar miembro</CardTitle>
         <CardDescription>
-          Si el email ya existe, se suma al tenant. Si no existe, se envía una invitación y queda como invitado.
+          Si el email ya existe, se activa en el tenant. Si no existe, se envía
+          una invitación y queda como invitado.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form
           action={formAction}
-          className="grid gap-4 md:grid-cols-[1.6fr_1fr_1fr_auto]"
+          className="grid gap-4 md:grid-cols-[1.6fr_1fr_auto]"
         >
           <FormField
             htmlFor="email"
@@ -71,15 +83,6 @@ export function AddTenantUserForm({
           <FormField htmlFor="role" label="Rol">
             <NativeSelect defaultValue="advisor" id="role" name="role">
               {roleOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </NativeSelect>
-          </FormField>
-          <FormField htmlFor="status" label="Estado">
-            <NativeSelect defaultValue="invited" id="status" name="status">
-              {statusOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
@@ -147,7 +150,7 @@ function TenantUserRow({
               {user.user_profiles?.email ?? user.user_id}
             </p>
             <Badge className="w-fit" variant="lightPrimary">
-              {user.status}
+              {statusLabelByValue.get(user.status) ?? user.status}
             </Badge>
           </div>
           <input

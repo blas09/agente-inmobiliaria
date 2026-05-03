@@ -73,22 +73,22 @@ Progress notes:
 
 Role/action matrix:
 
-| Area | Allowed roles | Server guard |
-| --- | --- | --- |
-| Platform tenant create/update | `platform_admin` | `requirePlatformAdmin` |
-| Current tenant settings | `tenant_owner`, `tenant_admin` | `requireTenantAdminContext` |
-| Tenant users and memberships | `tenant_owner`, `tenant_admin` | `requireTenantAdminContext` |
-| Channels and WhatsApp templates | `tenant_owner`, `tenant_admin` | `requireTenantAdminContext` |
-| Pipeline stages | `tenant_owner`, `tenant_admin` | `requireTenantAdminContext` |
-| Properties create/update | `tenant_owner`, `tenant_admin`, `advisor`, `operator` | `requirePropertyWriteContext` |
-| Properties delete | `tenant_owner`, `tenant_admin` | `requirePropertyDeleteContext` |
-| Leads create/update/routing | `tenant_owner`, `tenant_admin`, `advisor`, `operator` | `requireLeadWriteContext` |
-| Leads delete | `tenant_owner`, `tenant_admin` | `requireLeadDeleteContext` |
-| Conversations operate/reply/link/retry | `tenant_owner`, `tenant_admin`, `advisor`, `operator` | `requireConversationOperateContext` |
-| Appointments create/update | `tenant_owner`, `tenant_admin`, `advisor`, `operator` | `requireAppointmentWriteContext` |
-| Appointment rules | `tenant_owner`, `tenant_admin` | `requireTenantAdminContext` |
-| FAQs create/update/delete | `tenant_owner`, `tenant_admin`, `operator` | `requireFaqManageContext` |
-| WhatsApp webhook ingestion | machine-to-machine | signature verification plus service-role processing |
+| Area                                   | Allowed roles                                         | Server guard                                        |
+| -------------------------------------- | ----------------------------------------------------- | --------------------------------------------------- |
+| Platform tenant create/update          | `platform_admin`                                      | `requirePlatformAdmin`                              |
+| Current tenant settings                | `tenant_owner`, `tenant_admin`                        | `requireTenantAdminContext`                         |
+| Tenant users and memberships           | `tenant_owner`, `tenant_admin`                        | `requireTenantAdminContext`                         |
+| Channels and WhatsApp templates        | `tenant_owner`, `tenant_admin`                        | `requireTenantAdminContext`                         |
+| Pipeline stages                        | `tenant_owner`, `tenant_admin`                        | `requireTenantAdminContext`                         |
+| Properties create/update               | `tenant_owner`, `tenant_admin`, `advisor`, `operator` | `requirePropertyWriteContext`                       |
+| Properties delete                      | `tenant_owner`, `tenant_admin`                        | `requirePropertyDeleteContext`                      |
+| Leads create/update/routing            | `tenant_owner`, `tenant_admin`, `advisor`, `operator` | `requireLeadWriteContext`                           |
+| Leads delete                           | `tenant_owner`, `tenant_admin`                        | `requireLeadDeleteContext`                          |
+| Conversations operate/reply/link/retry | `tenant_owner`, `tenant_admin`, `advisor`, `operator` | `requireConversationOperateContext`                 |
+| Appointments create/update             | `tenant_owner`, `tenant_admin`, `advisor`, `operator` | `requireAppointmentWriteContext`                    |
+| Appointment rules                      | `tenant_owner`, `tenant_admin`                        | `requireTenantAdminContext`                         |
+| FAQs create/update/delete              | `tenant_owner`, `tenant_admin`, `operator`            | `requireFaqManageContext`                           |
+| WhatsApp webhook ingestion             | machine-to-machine                                    | signature verification plus service-role processing |
 
 Completed:
 
@@ -144,10 +144,34 @@ Expected verification:
 
 ### 002 - Invitations and Memberships
 
-Status: `todo`  
+Status: `done`  
 Priority: `P0`  
 Type: `MVP`  
 Primary roles: Product Owner, Project Manager, Project Leader / Technical Lead, Backend / Security, UI/UX Specialist, Frontend Engineer, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Reviewing the Settings membership flow, invitation activation, role/status transitions, and membership UX copy.
+- 2026-05-03: Completed. Existing users are activated directly when added, new users are forced into invited state, and membership status/role labels are clearer in Settings.
+
+Completed:
+
+- Reviewed invitation activation in `app/auth/callback/route.ts` and `server/auth/invitations.ts`.
+- Confirmed accepted invited memberships are activated when the auth callback resolves a user and when tenant memberships are loaded.
+- Changed the add-member action so submitted status is ignored for new additions: existing users become `active`, while new invited users remain `invited`.
+- Kept manual status transitions only in the existing-member update flow.
+- Preserved the last-active-owner protection when changing/removing owner memberships.
+- Clarified Settings copy for existing vs new users.
+- Removed the status picker from the add-member form to avoid implying that new users can be created as active before accepting an invitation.
+- Added Spanish role/status labels in the membership UI instead of exposing raw internal role/status values.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed: 6 files, 21 tests.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
+- Reviewed role/status transition paths for existing users, invited users, suspended/removed memberships, and last-owner protection.
+- Manual invite flow with local Supabase email capture was not executed because the Supabase CLI/runtime is not available in this shell.
 
 Problem:
 

@@ -24,6 +24,7 @@ import {
 import { TenantForm } from "@/features/tenants/tenant-form";
 import {
   AddTenantUserForm,
+  getTenantRoleLabel,
   TenantUsersList,
 } from "@/features/tenants/tenant-user-form";
 import { Badge } from "@/components/ui/badge";
@@ -157,10 +158,7 @@ export default async function SettingsPage() {
               <AddTenantUserForm action={addTenantUserAction} />
             ) : null}
             {canManage ? (
-              <TenantUsersList
-                action={updateTenantUserAction}
-                users={users}
-              />
+              <TenantUsersList action={updateTenantUserAction} users={users} />
             ) : (
               users.map((user) => (
                 <div
@@ -176,7 +174,9 @@ export default async function SettingsPage() {
                       {user.user_profiles?.email ?? user.user_id}
                     </p>
                   </div>
-                  <Badge variant="outline">{user.role}</Badge>
+                  <Badge variant="outline">
+                    {getTenantRoleLabel(user.role)}
+                  </Badge>
                 </div>
               ))
             )}
