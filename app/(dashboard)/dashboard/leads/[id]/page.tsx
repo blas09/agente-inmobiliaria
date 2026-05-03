@@ -297,6 +297,23 @@ export default async function LeadDetailPage({
                     {conversation.status} ·{" "}
                     {formatDateTime(conversation.last_message_at)}
                   </p>
+                  <p className="text-muted-foreground mt-1">
+                    Propiedad:{" "}
+                    {conversation.properties ? (
+                      <span className="text-foreground">
+                        {conversation.properties.title}
+                        {conversation.properties.external_ref
+                          ? ` · ${conversation.properties.external_ref}`
+                          : ""}
+                      </span>
+                    ) : conversation.property_id ? (
+                      <span className="text-foreground">
+                        Propiedad no disponible
+                      </span>
+                    ) : (
+                      <span className="text-foreground">Sin propiedad</span>
+                    )}
+                  </p>
                 </Link>
               ))
             )}

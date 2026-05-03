@@ -61,7 +61,7 @@ Statuses:
 
 ### 001 - Permissions and Tenant Safety
 
-Status: `done`  
+Status: `done`
 Priority: `P0`  
 Type: `MVP`  
 Primary roles: Product Owner, Project Leader / Technical Lead, Architecture and Multitenancy, Backend / Security, QA Engineer / Test Agent
@@ -282,10 +282,32 @@ Expected verification:
 
 ### 004 - Lead/Conversation/Property Linking
 
-Status: `todo`  
-Priority: `P1`  
-Type: `MVP`  
+Status: `done`
+Priority: `P1`
+Type: `MVP`
 Primary roles: Commercial Domain, Project Leader / Technical Lead, Backend / Security, UI/UX Specialist, Frontend Engineer, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Reviewing tenant-scoped linking actions and the visibility of linked lead/conversation/property context across detail pages.
+- 2026-05-03: Completed. Conversation link updates now revalidate related lead/property pages, lead detail shows the property context for each conversation, and property detail shows linked conversations plus associated lead context.
+
+Completed:
+
+- Preserved manual linking as the MVP path through the existing conversation linking form.
+- Kept server-side tenant validation for selected lead and property records before updating a conversation.
+- Added revalidation for previous and newly linked lead/property detail pages after conversation link changes.
+- Added linked property context to the lead detail conversation list.
+- Added property detail operational context showing linked conversations and associated leads.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/prettier --write ...` completed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed: 6 files, 21 tests.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/next build --webpack` passed.
+- Local Supabase/PostgREST relation check passed outside the sandbox: linked conversation select with embedded `properties(...)` and `leads(...)` returned `200`.
 
 Problem:
 

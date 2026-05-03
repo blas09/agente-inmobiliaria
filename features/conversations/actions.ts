@@ -92,9 +92,7 @@ export async function sendConversationReplyAction(
   const { activeTenant, user } = await requireConversationOperateContext();
   const content = formData.get("content")?.toString() ?? "";
   const templateId = formData.get("template_id")?.toString();
-  const templateComponentsRaw = formData
-    .get("template_components")
-    ?.toString();
+  const templateComponentsRaw = formData.get("template_components")?.toString();
 
   if (!content.trim() && !templateId) {
     return {
@@ -203,6 +201,23 @@ export async function updateConversationLinksAction(
   const leadId = toNullableString(formData.get("lead_id"));
   const propertyId = toNullableString(formData.get("property_id"));
 
+  const { data: currentConversation, error: currentConversationError } =
+    await supabase
+      .from("conversations")
+      .select("lead_id, property_id")
+      .eq("tenant_id", activeTenant.id)
+      .eq("id", conversationId)
+      .maybeSingle();
+
+  if (currentConversationError || !currentConversation) {
+    return {
+      status: "error",
+      message:
+        currentConversationError?.message ??
+        "La conversación seleccionada no existe en este tenant.",
+    };
+  }
+
   if (leadId) {
     const { data: lead, error: leadError } = await supabase
       .from("leads")
@@ -257,6 +272,19 @@ export async function updateConversationLinksAction(
 
   revalidatePath("/dashboard/conversations");
   revalidatePath(`/dashboard/conversations/${conversationId}`);
+  for (const relatedLeadId of new Set([currentConversation.lead_id, leadId])) {
+    if (relatedLeadId) {
+      revalidatePath(`/dashboard/leads/${relatedLeadId}`);
+    }
+  }
+  for (const relatedPropertyId of new Set([
+    currentConversation.property_id,
+    propertyId,
+  ])) {
+    if (relatedPropertyId) {
+      revalidatePath(`/dashboard/properties/${relatedPropertyId}`);
+    }
+  }
 
   return {
     status: "success",
@@ -421,7 +449,9 @@ export async function retryConversationMessageAction(formData: FormData) {
     revalidatePath(`/dashboard/conversations/${message.conversation_id}`);
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "No se pudo reenviar el mensaje.";
+      error instanceof Error
+        ? error.message
+        : "No se pudo reenviar el mensaje.";
 
     await supabase.from("channel_events").insert({
       tenant_id: activeTenant.id,

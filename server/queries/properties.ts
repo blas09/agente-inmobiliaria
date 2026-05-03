@@ -61,6 +61,39 @@ export async function getPropertyById(
   return data;
 }
 
+export async function getPropertyConversations(
+  tenantId: string,
+  propertyId: string,
+) {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("conversations")
+    .select(
+      "id, status, contact_display_name, contact_identifier, last_message_at, lead_id, leads(id, full_name, phone)",
+    )
+    .eq("tenant_id", tenantId)
+    .eq("property_id", propertyId)
+    .order("last_message_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Failed to load property conversations: ${error.message}`);
+  }
+
+  return (data ?? []) as unknown as Array<{
+    id: string;
+    status: string;
+    contact_display_name: string | null;
+    contact_identifier: string | null;
+    last_message_at: string | null;
+    lead_id: string | null;
+    leads: {
+      id: string;
+      full_name: string;
+      phone: string | null;
+    } | null;
+  }>;
+}
+
 export async function listAvailablePropertiesForSelection(tenantId: string) {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase

@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { deletePropertyAction } from "@/features/properties/actions";
 import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,9 +13,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
-import { getPropertyById } from "@/server/queries/properties";
+import {
+  getPropertyById,
+  getPropertyConversations,
+} from "@/server/queries/properties";
 import { canDeleteProperties, canManageProperties } from "@/lib/permissions";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatDateTime } from "@/lib/utils";
 
 export default async function PropertyDetailPage({
   params,
@@ -23,7 +27,10 @@ export default async function PropertyDetailPage({
 }) {
   const { id } = await params;
   const { activeTenant, activeMembership } = await getActiveTenantContext();
-  const property = await getPropertyById(activeTenant.id, id);
+  const [property, conversations] = await Promise.all([
+    getPropertyById(activeTenant.id, id),
+    getPropertyConversations(activeTenant.id, id),
+  ]);
   const deleteAction = deletePropertyAction.bind(null, property.id);
   const canEditProperty = canManageProperties(activeMembership.role);
   const canDeleteProperty = canDeleteProperties(activeMembership.role);
@@ -209,6 +216,67 @@ export default async function PropertyDetailPage({
           </CardContent>
         </Card>
       </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Contexto operativo</CardTitle>
+          <CardDescription>
+            Conversaciones y leads vinculados a esta propiedad.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          {conversations.length === 0 ? (
+            <EmptyState
+              title="Sin conversaciones vinculadas"
+              description="Cuando una conversación se asocie a esta propiedad, el lead y el contacto van a quedar visibles acá."
+              actionHref="/dashboard/conversations"
+              actionLabel="Ver conversaciones"
+            />
+          ) : (
+            conversations.map((conversation) => (
+              <div
+                className="border-border bg-card rounded-xl border px-4 py-3"
+                key={conversation.id}
+              >
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <Link
+                      className="text-primary font-medium hover:underline"
+                      href={`/dashboard/conversations/${conversation.id}`}
+                    >
+                      {conversation.contact_display_name ??
+                        conversation.contact_identifier ??
+                        "Conversación sin nombre"}
+                    </Link>
+                    <p className="text-muted-foreground mt-1">
+                      {conversation.status} ·{" "}
+                      {formatDateTime(conversation.last_message_at)}
+                    </p>
+                  </div>
+                  <Badge variant="outline">{conversation.status}</Badge>
+                </div>
+                <div className="text-muted-foreground mt-3">
+                  Lead:{" "}
+                  {conversation.leads ? (
+                    <Link
+                      className="text-primary hover:underline"
+                      href={`/dashboard/leads/${conversation.leads.id}`}
+                    >
+                      {conversation.leads.full_name}
+                      {conversation.leads.phone
+                        ? ` · ${conversation.leads.phone}`
+                        : ""}
+                    </Link>
+                  ) : conversation.lead_id ? (
+                    <span className="text-foreground">Lead no disponible</span>
+                  ) : (
+                    <span className="text-foreground">Sin lead</span>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

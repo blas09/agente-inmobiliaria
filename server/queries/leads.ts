@@ -71,7 +71,9 @@ export async function getLeadConversations(tenantId: string, leadId: string) {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("conversations")
-    .select("id, status, contact_display_name, last_message_at")
+    .select(
+      "id, status, contact_display_name, last_message_at, property_id, properties(id, title, external_ref)",
+    )
     .eq("tenant_id", tenantId)
     .eq("lead_id", leadId)
     .order("last_message_at", { ascending: false });
@@ -80,7 +82,18 @@ export async function getLeadConversations(tenantId: string, leadId: string) {
     throw new Error(`Failed to load lead conversations: ${error.message}`);
   }
 
-  return data ?? [];
+  return (data ?? []) as unknown as Array<{
+    id: string;
+    status: string;
+    contact_display_name: string | null;
+    last_message_at: string | null;
+    property_id: string | null;
+    properties: {
+      id: string;
+      title: string;
+      external_ref: string | null;
+    } | null;
+  }>;
 }
 
 export async function getPipelineStages(tenantId: string) {
