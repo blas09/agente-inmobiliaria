@@ -9,6 +9,21 @@ This document summarizes:
 3. What is missing for a more serious commercial MVP.
 4. What each product section does and how it should be used.
 
+## Internal Pilot Readiness
+
+Decision date: 2026-05-03
+
+Current decision:
+
+- the scoped MVP is ready for a disciplined internal testing round with caveats
+- it is not ready for unsupervised customer use
+- the authenticated browser walkthrough must be executed during the internal testing session
+- real WhatsApp provider delivery requires valid Meta credentials and remains caveated until verified
+
+Release checklist:
+
+- see [Internal Pilot Checklist](./internal-pilot-checklist.md)
+
 ## Current State
 
 The project already has a real operational foundation:
@@ -24,9 +39,9 @@ The project already has a real operational foundation:
 
 Practical conclusion:
 
-- the system can already start an internal functional testing round
+- the system can start a disciplined internal functional testing round
 - it is not ready for unsupervised real customers yet
-- the highest-value work is now to test the complete operational flow and close business gaps, not to keep polishing foundation
+- the highest-value work is now to run the authenticated walkthrough, classify issues, and decide whether any pilot blocker remains
 
 ## Current MVP Cut
 
@@ -38,13 +53,13 @@ This cut is intentionally narrow. New work should be classified before implement
 
 ### MVP Must Have
 
-1. Harden server-side permissions for tenant-scoped writes and role-sensitive actions.
-2. Close the invitation and membership workflow enough for real internal testing.
-3. Make the full property -> lead -> conversation -> visit flow usable without broken transitions.
-4. Make appointments operational enough for advisor assignment, status changes, and internal agenda visibility.
-5. Add minimal commercial reporting for advisor activity, pipeline/stage, response time, and visit outcomes.
-6. Keep WhatsApp reliable for supervised manual operation, including inbound, outbound, templates, retries, and error visibility.
-7. Add focused regression coverage for MVP-critical permissions, tenant scoping, WhatsApp payload handling, and business-state transitions.
+1. `[x]` Harden server-side permissions for tenant-scoped writes and role-sensitive actions.
+2. `[x]` Close the invitation and membership workflow enough for real internal testing.
+3. `[x]` Make the full property -> lead -> conversation -> visit flow usable without broken transitions at code/build level.
+4. `[x]` Make appointments operational enough for advisor assignment, status changes, and internal agenda visibility.
+5. `[x]` Add minimal commercial reporting for advisor activity, pipeline/stage, response time, and visit outcomes.
+6. `[x]` Keep WhatsApp reliable for supervised manual operation, including inbound, outbound, templates, retries, and error visibility.
+7. `[x]` Add focused regression coverage for MVP-critical permissions, tenant scoping, WhatsApp payload handling, and business-state transitions.
 
 ### Explicitly Post-MVP
 
@@ -56,7 +71,17 @@ This cut is intentionally narrow. New work should be classified before implement
 - Large architecture rewrites.
 - Self-service onboarding.
 
-## Missing for a First Testable MVP
+## Remaining Before Internal Testing Session
+
+This is no longer a feature backlog. These are execution checks for the first serious test session:
+
+- confirm local or target environment is running
+- login with seed users
+- execute the authenticated walkthrough in [Internal Pilot Checklist](./internal-pilot-checklist.md)
+- classify any issue found as `pilot blocker`, `non-blocker`, or `post-MVP`
+- verify real WhatsApp delivery only if valid Meta credentials are part of the test session
+
+## Historical Gaps Addressed for the First Testable MVP
 
 This is the minimum reasonable scope to start using the system in disciplined internal tests.
 

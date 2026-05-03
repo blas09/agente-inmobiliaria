@@ -707,10 +707,39 @@ Expected verification:
 
 ### 011 - Release Readiness / Internal Pilot Checklist
 
-Status: `todo`  
-Priority: `P1`  
-Type: `MVP`  
+Status: `done`
+Priority: `P1`
+Type: `MVP`
 Primary roles: Product Owner, Project Manager, Project Leader / Technical Lead, QA Engineer / Test Agent, Documentation / Roadmap
+
+Progress notes:
+
+- 2026-05-03: Started. Preparing internal pilot checklist, confirming docs state, and running release-readiness checks.
+- 2026-05-03: Completed. Internal pilot checklist was added, roadmap/status/pending docs were updated, required checks passed, and local smoke checks passed with documented caveats.
+
+Completed:
+
+- Added `docs/internal-pilot-checklist.md`.
+- Documented target environment, required environment variables, seed users, automated checks, MVP walkthrough steps, known caveats, post-MVP scope, and release decision.
+- Updated `docs/mvp-status.md` to reflect internal-pilot readiness with caveats.
+- Updated `docs/roadmap.md` to mark the scoped MVP must-have backlog as complete and link the release checklist.
+- Replaced `docs/pending.md` with the current post-MVP and validation-oriented pending state.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/prettier --write ...` completed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed: 10 files, 35 tests.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/next build --webpack` passed.
+- Local smoke check passed: `/login` returned `200` on the existing dev server at `127.0.0.1:3003`.
+- Local smoke check passed: invalid WhatsApp webhook JSON returned `400` on the existing dev server at `127.0.0.1:3003`.
+
+Release decision:
+
+- The scoped MVP is ready for disciplined internal testing with caveats.
+- It is not ready for unsupervised customer use.
+- The authenticated browser walkthrough remains the first action in the internal testing session.
 
 Problem:
 

@@ -14,27 +14,33 @@ The scoped MVP should validate one complete commercial operation for a real esta
 
 The goal is not to keep expanding features. The goal is to make this flow reliable enough for disciplined internal testing and a first supervised commercial pilot.
 
+Current readiness decision:
+
+- scoped MVP feature work is complete for an internal testing round
+- release state is documented in [Internal Pilot Checklist](./internal-pilot-checklist.md)
+- the authenticated browser walkthrough remains the required next validation step
+
 ### Must Have
 
-1. `[MVP]` Harden tenant user permissions in server actions and feature-level mutations.
+1. `[x] [MVP]` Harden tenant user permissions in server actions and feature-level mutations.
    - Done when critical writes validate authenticated user, active tenant, and role on the server.
    - Verification: role-based negative cases for settings, channels, properties, leads, conversations, appointments, FAQs, and tenant users.
-2. `[MVP]` Close the invitation and membership workflow enough for real internal testing.
+2. `[x] [MVP]` Close the invitation and membership workflow enough for real internal testing.
    - Done when inviting, accepting, suspending/removing, and role changes are clear and do not depend on manual database work for normal cases.
    - Verification: owner/admin/advisor flows with at least one invited user.
-3. `[MVP]` Make the commercial flow frictionless from property to visit.
+3. `[x] [MVP]` Make the commercial flow frictionless from property to visit.
    - Done when a user can create/select a property, create or receive a lead, link a conversation, reply, move pipeline/status, and schedule a visit without broken transitions.
    - Verification: full manual walkthrough with seeded tenant data.
-4. `[MVP]` Make appointments operational enough for internal use.
+4. `[x] [MVP]` Make appointments operational enough for internal use.
    - Done when appointments have clear visibility, advisor assignment, status changes, and basic conflict/availability expectations within the internal agenda.
    - Verification: create, confirm, cancel, and review appointments by advisor.
-5. `[MVP]` Add minimal commercial reporting.
+5. `[x] [MVP]` Add minimal commercial reporting.
    - Done when the dashboard or reports expose activity by advisor, pipeline/stage, response time, and visit outcomes at a basic level.
    - Verification: metrics match seeded/test data.
-6. `[MVP]` Keep WhatsApp reliable for manual supervised operation.
+6. `[x] [MVP]` Keep WhatsApp reliable for manual supervised operation.
    - Done when inbound, outbound, template usage, event tracking, retries/manual retry, and error visibility are sufficient for internal tests.
    - Verification: webhook rejection, inbound message, manual outbound, template send, and retry/error cases.
-7. `[technical debt]` Add focused regression coverage for MVP-critical logic.
+7. `[x] [technical debt]` Add focused regression coverage for MVP-critical logic.
    - Done when critical permissions, tenant scoping, WhatsApp payload handling, and business-state transitions have tests where practical.
    - Verification: `pnpm test`, plus targeted tests for touched areas.
 
@@ -42,9 +48,9 @@ The goal is not to keep expanding features. The goal is to make this flow reliab
 
 - `[MVP]` Improve lead pipeline history visibility and auditability.
 - `[MVP]` Improve lead search/filtering where it blocks internal testing.
-- `[technical debt]` Add structured logs for sensitive operations and external integrations.
-- `[technical debt]` Add basic rate limiting/hardening for public endpoints.
-- `[MVP]` Refine UI empty/error/loading states in the main commercial flow.
+- `[x] [technical debt]` Add structured logs for sensitive operations and external integrations.
+- `[x] [technical debt]` Add basic hardening for public endpoints.
+- `[x] [MVP]` Refine UI empty/error/loading states in the main commercial flow.
 
 ### Post-MVP
 
@@ -293,9 +299,10 @@ The goal is not to keep expanding features. The goal is to make this flow reliab
 - `[x]` Leads by source.
 - `[x]` Active properties.
 - `[x]` Open conversations.
-- `[ ]` Report by advisor.
-- `[ ]` Report by stage.
-- `[ ]` Response-time report.
+- `[x]` Report by advisor.
+- `[x]` Report by stage.
+- `[x]` Response-time report.
+- `[x]` Visit outcome report.
 
 ## Phase 2 - Initial Automation
 
@@ -447,11 +454,11 @@ Current decision:
 
 - `[ ]` Integration tests.
 - `[ ]` End-to-end tests.
-- `[ ]` Centralized structured logs.
+- `[~]` Centralized structured logs.
 - `[ ]` More complete error boundaries.
 - `[ ]` Action traceability from services.
-- `[ ]` External integration observability.
-- `[ ]` Rate limiting or hardening for public endpoints.
+- `[~]` External integration observability.
+- `[~]` Rate limiting or hardening for public endpoints.
 
 ## Base Closure Backlog Before Scaling Features
 
@@ -469,7 +476,7 @@ Current decision:
 ## Summary by Stage
 
 - `Phase 0`: mostly done.
-- `Phase 1`: partially done; the domain foundation is implemented, but real operation is still pending.
+- `Phase 1`: ready for disciplined internal testing with caveats; authenticated walkthrough is the next validation step.
 - `Phase 2`: mostly pending, although the base model exists.
 - `Phase 3`: only the abstraction is done.
 - `Phase 4`: pending.

@@ -1,119 +1,36 @@
-# Current Backlog
+# Current Pending Work
 
-This file tracks what remains to close the scoped MVP and what should stay out of scope for now.
+This file tracks what remains after completing the scoped MVP backlog.
 
 Current MVP flow:
 
 `property -> lead -> conversation -> visit -> follow-up`
 
-Work must be classified as `MVP`, `bug`, `technical debt`, `post-MVP`, or `exploration` before implementation.
+## Current Release State
 
-## Must Have for MVP
+Status: ready for disciplined internal testing with caveats.
 
-### 1. Permissions and Tenant Safety
+Reference:
 
-Classification: `MVP`
+- [Internal Pilot Checklist](./internal-pilot-checklist.md)
 
-- Harden permissions in server actions and feature-level mutations.
-- Validate authenticated user, active tenant, and role on every critical write.
-- Review negative cases for settings, channels, properties, leads, conversations, appointments, FAQs, and tenant users.
+The implementation backlog for the first MVP cut is complete. The next work is validation, not feature expansion.
 
-Done when:
+## Required Before Calling The MVP Internally Verified
 
-- role-sensitive writes cannot be performed only by bypassing UI guards
-- tenant-scoped mutations cannot cross tenant boundaries
-- critical cases have focused tests or documented manual verification
+1. Run the authenticated browser walkthrough with seed users.
+2. Classify any issue found as `pilot blocker`, `non-blocker`, or `post-MVP`.
+3. Confirm whether real WhatsApp provider delivery is part of the pilot.
+4. If real WhatsApp delivery is in scope, verify valid Meta credentials and template behavior.
+5. Update this file and `mvp-status.md` after the walkthrough.
 
-### 2. Invitations and Memberships
+## Known Caveats
 
-Classification: `MVP`
-
-- Finish the invitation flow enough for internal tests with real users.
-- Make accepting invitations, role changes, suspension/removal, and invited state behavior clear.
-- Improve multi-tenant membership handling only where it blocks MVP testing.
-
-Done when:
-
-- an admin can invite a user without manual database work
-- the invited user can enter the tenant flow predictably
-- owner/admin/advisor cases are manually verified
-
-### 3. End-to-End Commercial Flow
-
-Classification: `MVP`
-
-- Make the main flow frictionless: property -> lead -> conversation -> visit -> follow-up.
-- Ensure linking lead/conversation/property is clear and stable.
-- Ensure pipeline/status changes are visible enough for advisors.
-
-Done when:
-
-- the full flow can be completed with seeded or test data without broken transitions
-- the user can understand the next action from each detail screen
-- obvious runtime errors in the main flow are fixed
-
-### 4. Appointments as Internal Source of Truth
-
-Classification: `MVP`
-
-- Improve appointment visibility, advisor assignment, and status handling.
-- Make basic availability/conflict expectations explicit inside the internal agenda.
-- Keep Google Calendar out of scope for this cut.
-
-Done when:
-
-- users can create, confirm, cancel, and review visits by advisor
-- appointment state is visible from the relevant lead/conversation context
-- internal agenda behavior is clear enough for testing
-
-### 5. Minimal Commercial Reporting
-
-Classification: `MVP`
-
-- Add basic reporting by advisor.
-- Add basic reporting by pipeline/stage.
-- Add basic response-time visibility.
-- Add basic visit outcomes or appointment status visibility.
-
-Done when:
-
-- metrics match test data
-- reports are useful for internal operational review
-- no advanced dashboard redesign is required
-
-### 6. WhatsApp Manual Operation Hardening
-
-Classification: `MVP`
-
-- Keep inbound/outbound reliable enough for supervised manual testing.
-- Preserve event tracking, webhook rejection visibility, retries/manual retry, and template usage.
-- Defer real Meta template approval/sync unless it becomes a pilot blocker.
-
-Done when:
-
-- inbound message, manual outbound, template send, retry/error, and invalid webhook cases are verified
-- operational errors are visible enough to debug internal tests
-
-### 7. Focused Regression Coverage
-
-Classification: `technical debt`
-
-- Add tests for MVP-critical permissions and tenant scoping.
-- Add tests for WhatsApp payload handling where practical.
-- Add tests for business-state transitions touched during MVP work.
-
-Done when:
-
-- critical changed paths have regression coverage or explicit manual verification
-- `pnpm test` passes
-
-## Should Have If It Does Not Block Must Have Work
-
-- `[MVP]` Improve lead pipeline history visibility and auditability.
-- `[MVP]` Improve lead search/filtering only where it blocks internal tests.
-- `[technical debt]` Add structured logs for sensitive operations and external integrations.
-- `[technical debt]` Add basic rate limiting/hardening for public endpoints.
-- `[MVP]` Refine empty, error, loading, and transactional feedback states in the main commercial flow.
+- Authenticated browser walkthrough is pending.
+- Real Meta outbound delivery requires valid provider credentials.
+- Real Meta template approval/sync is post-MVP unless it blocks the pilot.
+- No persistent distributed rate limiter is implemented for public endpoints.
+- Browser-level E2E tests are not in place.
 
 ## Post-MVP
 
@@ -125,21 +42,13 @@ Done when:
 - Guided channel onboarding from UI.
 - Advanced reports and management dashboards.
 - Self-service tenant onboarding.
+- Google Calendar integration.
+- Billing.
+- Advanced AI.
+- Full omnichannel support.
 
 ## Do Not Touch Yet
 
-- Advanced AI.
-- Billing.
-- Full omnichannel support.
-- Google Calendar integration.
-- Large architecture rewrites.
-
-## Recommended Execution Order
-
-1. Permissions and tenant safety.
-2. Invitations and memberships.
-3. End-to-end commercial flow.
-4. Appointments as internal source of truth.
-5. Minimal commercial reporting.
-6. WhatsApp manual operation hardening.
-7. Focused regression coverage alongside each item above.
+- Broad architecture rewrites.
+- Production launch automation.
+- Full security/compliance audit.
