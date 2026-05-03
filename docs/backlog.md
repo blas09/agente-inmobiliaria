@@ -645,10 +645,37 @@ Expected verification:
 
 ### 010 - Structured Logs and Endpoint Hardening
 
-Status: `todo`  
-Priority: `P2`  
-Type: `technical debt`  
+Status: `done`
+Priority: `P2`
+Type: `technical debt`
 Primary roles: Project Leader / Technical Lead, Backend / Security, Integrations / WhatsApp, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Reviewing public webhook and sensitive action observability; focusing on bounded WhatsApp webhook logging and basic request hardening.
+- 2026-05-03: Completed. WhatsApp webhook now has bounded body handling, sanitized rejection logging, invalid verification logging, and focused hardening tests.
+
+Completed:
+
+- Added a 256 KB body limit for WhatsApp webhook POST requests.
+- Added structured helper logic for UTF-8 byte size checks and bounded rejection payloads.
+- Truncated logged webhook request bodies to avoid storing large payloads in `channel_events`.
+- Logged invalid GET verification attempts as `whatsapp.webhook.invalid_verification`.
+- Preserved existing signature, invalid JSON, invalid payload, and inbound processing behavior.
+- Added focused tests for byte counting, body-size rejection, and truncation metadata.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/prettier --write ...` completed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed: 10 files, 35 tests.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/next build --webpack` passed.
+- Manual endpoint check passed: local Next dev server returned `400` for invalid webhook JSON and was stopped after verification.
+
+Remaining risk:
+
+- No persistent distributed rate limiter was added. Add it only if pilot traffic or abuse patterns justify the extra infrastructure.
 
 Problem:
 

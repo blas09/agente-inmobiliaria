@@ -7,6 +7,11 @@ import {
   processWhatsAppWebhook,
   validateWhatsAppWebhookPayload,
 } from "@/server/services/whatsapp-inbound";
+import {
+  buildWebhookRejectionPayload,
+  isWebhookBodyTooLarge,
+  WHATSAPP_WEBHOOK_MAX_BODY_BYTES,
+} from "@/server/services/whatsapp-webhook-hardening";
 import type { Json } from "@/types/database";
 
 function toJson(value: unknown): Json {
@@ -37,10 +42,17 @@ async function logWebhookRejection(input: {
   }
 }
 
-function verifySignature(rawBody: string, appSecret: string, signature: string) {
+function verifySignature(
+  rawBody: string,
+  appSecret: string,
+  signature: string,
+) {
   const expectedSignature =
     "sha256=" +
-    crypto.createHmac("sha256", appSecret).update(rawBody, "utf8").digest("hex");
+    crypto
+      .createHmac("sha256", appSecret)
+      .update(rawBody, "utf8")
+      .digest("hex");
 
   const expected = Buffer.from(expectedSignature, "utf8");
   const received = Buffer.from(signature, "utf8");
@@ -66,6 +78,16 @@ export async function GET(request: Request) {
     return new NextResponse(challenge, { status: 200 });
   }
 
+  await logWebhookRejection({
+    eventType: "whatsapp.webhook.invalid_verification",
+    payload: {
+      mode,
+      has_verify_token: Boolean(token),
+      has_challenge: Boolean(challenge),
+    },
+    errorMessage: "Invalid webhook verification request",
+  });
+
   return NextResponse.json(
     { error: "Invalid webhook verification request" },
     { status: 403 },
@@ -77,11 +99,23 @@ export async function POST(request: Request) {
   const signatureHeader = request.headers.get("x-hub-signature-256");
   const rawBody = await request.text();
 
+  if (isWebhookBodyTooLarge(rawBody)) {
+    await logWebhookRejection({
+      eventType: "whatsapp.webhook.body_too_large",
+      payload: buildWebhookRejectionPayload({ body: rawBody }),
+      errorMessage: `Webhook body exceeds ${WHATSAPP_WEBHOOK_MAX_BODY_BYTES} bytes`,
+    });
+    return NextResponse.json(
+      { error: "Webhook body too large" },
+      { status: 413 },
+    );
+  }
+
   if (env.WHATSAPP_APP_SECRET) {
     if (!signatureHeader) {
       await logWebhookRejection({
         eventType: "whatsapp.webhook.missing_signature",
-        payload: { body: rawBody },
+        payload: buildWebhookRejectionPayload({ body: rawBody }),
         errorMessage: "Missing x-hub-signature-256 header",
       });
       return NextResponse.json(
@@ -99,7 +133,7 @@ export async function POST(request: Request) {
     if (!isValid) {
       await logWebhookRejection({
         eventType: "whatsapp.webhook.invalid_signature",
-        payload: { body: rawBody },
+        payload: buildWebhookRejectionPayload({ body: rawBody }),
         errorMessage: "Webhook signature verification failed",
       });
       return NextResponse.json(
@@ -115,10 +149,13 @@ export async function POST(request: Request) {
   } catch {
     await logWebhookRejection({
       eventType: "whatsapp.webhook.invalid_json",
-      payload: { body: rawBody },
+      payload: buildWebhookRejectionPayload({ body: rawBody }),
       errorMessage: "Invalid JSON payload",
     });
-    return NextResponse.json({ error: "Invalid JSON payload" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid JSON payload" },
+      { status: 400 },
+    );
   }
 
   const parsedPayload = validateWhatsAppWebhookPayload(payload);
