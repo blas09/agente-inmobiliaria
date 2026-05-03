@@ -61,10 +61,51 @@ Statuses:
 
 ### 001 - Permissions and Tenant Safety
 
-Status: `todo`  
+Status: `done`  
 Priority: `P0`  
 Type: `MVP`  
 Primary roles: Product Owner, Project Leader / Technical Lead, Architecture and Multitenancy, Backend / Security, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Auditing server actions, route handlers, services, and existing server-side guards before implementation.
+- 2026-05-03: Completed. Server-side guard audit found the existing guard layer mostly in place; tenant membership writes were tightened to include explicit `tenant_id` filters on final updates.
+
+Role/action matrix:
+
+| Area | Allowed roles | Server guard |
+| --- | --- | --- |
+| Platform tenant create/update | `platform_admin` | `requirePlatformAdmin` |
+| Current tenant settings | `tenant_owner`, `tenant_admin` | `requireTenantAdminContext` |
+| Tenant users and memberships | `tenant_owner`, `tenant_admin` | `requireTenantAdminContext` |
+| Channels and WhatsApp templates | `tenant_owner`, `tenant_admin` | `requireTenantAdminContext` |
+| Pipeline stages | `tenant_owner`, `tenant_admin` | `requireTenantAdminContext` |
+| Properties create/update | `tenant_owner`, `tenant_admin`, `advisor`, `operator` | `requirePropertyWriteContext` |
+| Properties delete | `tenant_owner`, `tenant_admin` | `requirePropertyDeleteContext` |
+| Leads create/update/routing | `tenant_owner`, `tenant_admin`, `advisor`, `operator` | `requireLeadWriteContext` |
+| Leads delete | `tenant_owner`, `tenant_admin` | `requireLeadDeleteContext` |
+| Conversations operate/reply/link/retry | `tenant_owner`, `tenant_admin`, `advisor`, `operator` | `requireConversationOperateContext` |
+| Appointments create/update | `tenant_owner`, `tenant_admin`, `advisor`, `operator` | `requireAppointmentWriteContext` |
+| Appointment rules | `tenant_owner`, `tenant_admin` | `requireTenantAdminContext` |
+| FAQs create/update/delete | `tenant_owner`, `tenant_admin`, `operator` | `requireFaqManageContext` |
+| WhatsApp webhook ingestion | machine-to-machine | signature verification plus service-role processing |
+
+Completed:
+
+- Audited critical server actions and route handlers for settings, channels/templates, properties, leads, conversations, appointments, FAQs, tenant users, platform tenants, and WhatsApp webhook ingestion.
+- Confirmed active tenant and active membership are resolved through `getActiveTenantContext`, with role-specific guards layered on top.
+- Confirmed critical tenant-scoped mutations use `activeTenant.id` and tenant-scoped filters.
+- Hardened tenant membership update paths by adding explicit `.eq("tenant_id", activeTenant.id)` to final `tenant_users` updates after membership lookup.
+- Documented the role/action matrix above.
+
+Verification:
+
+- Static guard audit completed with `rg` across actions, route handlers, services, and permission helpers.
+- Reviewed `server/auth/tenant-context.ts`, `lib/permissions.ts`, `features/*/actions.ts`, WhatsApp webhook route, and related service entry points.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed: 6 files, 21 tests.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
+- Direct `pnpm test` is not available until the shell loads Node/pnpm; see `AGENTS.md` common commands for the local nvm workaround.
 
 Problem:
 

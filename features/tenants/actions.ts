@@ -291,6 +291,7 @@ export async function addTenantUserAction(
           role: result.data.role,
           status: "invited",
         })
+        .eq("tenant_id", activeTenant.id)
         .eq("id", existingMembership.id);
 
       if (error) {
@@ -335,6 +336,7 @@ export async function addTenantUserAction(
         role: result.data.role,
         status: result.data.status,
       })
+      .eq("tenant_id", activeTenant.id)
       .eq("id", existingMembership.id);
 
     if (error) {
@@ -429,6 +431,7 @@ export async function updateTenantUserAction(
       role: result.data.role,
       status: result.data.status,
     })
+    .eq("tenant_id", activeTenant.id)
     .eq("id", memberId);
 
   if (error) {

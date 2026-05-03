@@ -238,6 +238,21 @@ pnpm build
 
 `pnpm dev` and `pnpm start` use `127.0.0.1:3003` in this repo.
 
+If the Codex shell cannot find `node`, `pnpm`, or `npm`, load the local `nvm` installation first:
+
+```bash
+source ~/.nvm/nvm.sh
+nvm use
+```
+
+When `pnpm` is unavailable but dependencies already exist, use local binaries directly:
+
+```bash
+source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run
+source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .
+source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json
+```
+
 ## Do Not Touch Yet Without Explicit Decision
 
 - Advanced AI.
