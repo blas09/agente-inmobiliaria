@@ -297,6 +297,6 @@ Exit criteria:
 
 ## Immediate Next Step
 
-Start with the `UI/UX MVP Polish` grooming.
+Review the `UI/UX MVP Polish` grooming output in [UI/UX MVP Polish Backlog](./ui-ux-backlog.md).
 
-The first deliverable should be a prioritized UI/UX backlog, not code changes. After review, accepted UI/UX tasks can be executed one by one.
+After review, accepted UI/UX tasks can be executed one by one.
