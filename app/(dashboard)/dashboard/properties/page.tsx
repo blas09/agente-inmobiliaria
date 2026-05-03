@@ -145,6 +145,7 @@ export default async function PropertiesPage({
                 ? "Cargar propiedad"
                 : undefined
           }
+          tone={hasActiveFilters ? "search" : "default"}
         />
       ) : (
         <CardBox className="overflow-hidden">

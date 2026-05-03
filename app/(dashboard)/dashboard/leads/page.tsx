@@ -141,6 +141,7 @@ export default async function LeadsPage({
                 ? "Crear lead"
                 : undefined
           }
+          tone={hasActiveFilters ? "search" : "default"}
         />
       ) : (
         <CardBox className="overflow-hidden">

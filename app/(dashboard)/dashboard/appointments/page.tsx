@@ -178,6 +178,7 @@ export default async function AppointmentsPage({
                 ? "Ir a leads"
                 : undefined
           }
+          tone={hasActiveFilters ? "search" : "default"}
         />
       ) : (
         <div className="grid gap-6">

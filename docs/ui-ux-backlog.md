@@ -388,10 +388,30 @@ Verification:
 
 ### UI-008 - Feedback, Empty, Error, And Loading State Consistency
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `UI/UX`
 Primary roles: UI/UX Specialist, Frontend Engineer, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Auditing shared feedback, empty states, route loading behavior, and destructive actions.
+- 2026-05-03: Completed. Standardized empty/search states, added safer destructive submits, and added a dashboard route loading state.
+
+Completed:
+
+- Replaced the generic empty-state initials with consistent icons and added a search-specific empty state tone.
+- Applied the search empty-state tone to filtered no-result states in properties, leads, and appointments.
+- Added a shared confirmation submit button for destructive form actions.
+- Added confirmation prompts to visible delete actions for properties, leads, and FAQs.
+- Added a route-level loading skeleton for the authenticated dashboard area.
+- Kept existing inline action feedback behavior but tightened the shared feedback presentation.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
 
 Problem:
 

@@ -2,9 +2,10 @@ import Link from "next/link";
 
 import { deletePropertyAction } from "@/features/properties/actions";
 import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
+import { ConfirmSubmitButton } from "@/components/shared/confirm-submit-button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -65,9 +66,9 @@ export default async function PropertyDetailPage({
               ) : null}
               {canDeleteProperty ? (
                 <form action={deleteAction}>
-                  <Button type="submit" variant="destructive" shape="pill">
+                  <ConfirmSubmitButton confirmMessage="¿Eliminar esta propiedad? Esta acción no se puede deshacer.">
                     Eliminar
-                  </Button>
+                  </ConfirmSubmitButton>
                 </form>
               ) : null}
             </div>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { CircleHelp, SearchX } from "lucide-react";
 
 import { CardBox } from "@/components/dashboard/card-box";
 import { buttonVariants } from "@/components/ui/button";
@@ -16,6 +17,7 @@ interface EmptyStateProps {
   footer?: ReactNode;
   actionHref?: string;
   actionLabel?: string;
+  tone?: "default" | "search";
 }
 
 export function EmptyState({
@@ -24,12 +26,15 @@ export function EmptyState({
   footer,
   actionHref,
   actionLabel,
+  tone = "default",
 }: EmptyStateProps) {
+  const Icon = tone === "search" ? SearchX : CircleHelp;
+
   return (
     <CardBox className="border-dashed">
       <CardHeader className="space-y-3">
         <div className="bg-lightprimary text-primary flex h-11 w-11 items-center justify-center rounded-lg text-sm font-semibold">
-          AG
+          <Icon className="h-5 w-5" aria-hidden="true" />
         </div>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>

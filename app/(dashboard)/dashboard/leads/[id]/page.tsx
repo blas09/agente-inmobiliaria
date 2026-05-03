@@ -12,9 +12,10 @@ import {
 } from "@/features/leads/actions";
 import { LeadRoutingForm } from "@/features/leads/lead-routing-form";
 import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
+import { ConfirmSubmitButton } from "@/components/shared/confirm-submit-button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -105,9 +106,9 @@ export default async function LeadDetailPage({
               ) : null}
               {canDeleteLead ? (
                 <form action={deleteAction}>
-                  <Button type="submit" variant="destructive" shape="pill">
+                  <ConfirmSubmitButton confirmMessage="¿Eliminar este lead? Esta acción no se puede deshacer.">
                     Eliminar
-                  </Button>
+                  </ConfirmSubmitButton>
                 </form>
               ) : null}
             </div>
