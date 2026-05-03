@@ -1,183 +1,221 @@
 # AGENTS.md
 
-## Objetivo del Proyecto
+## Project Goal
 
-SaaS multitenant para inmobiliarias de Paraguay, enfocado en centralizar propiedades, leads, conversaciones, agenda, FAQs, canales y operacion comercial asistida por automatizacion e IA.
+Multitenant SaaS for real estate agencies in Paraguay, focused on centralizing properties, leads, conversations, appointments, FAQs, channels, and commercial operations assisted by automation and AI.
 
-El foco actual es cerrar un MVP comercial testeable con una base seria de multitenancy, permisos, WhatsApp y workflows operativos.
+The current focus is to close a scoped, testable commercial MVP with a solid foundation for multitenancy, permissions, WhatsApp, and operational workflows.
 
-## Reglas Globales
+## Global Rules
 
-- Mantener aislamiento por tenant en toda entidad de negocio.
-- No confiar en permisos de UI como unica barrera.
-- Validar entradas con Zod en limites de entrada.
-- Antes de implementar una feature nueva, clasificarla como `MVP`, `post-MVP`, `deuda tecnica`, `bug` o `exploracion`.
-- No implementar features `post-MVP` o `exploracion` sin decision explicita.
-- Preferir patrones existentes antes de crear nuevas abstracciones.
-- Mantener cambios acotados al dominio de la tarea.
-- No cambiar la direccion visual global sin una decision explicita.
-- No tocar `.env.local`, secretos ni credenciales reales salvo pedido explicito.
-- No revertir cambios ajenos.
-- No documentar por reflejo; actualizar documentacion cuando cambien decisiones, estado del MVP, convenciones o comportamiento relevante.
+- Keep tenant isolation in every business entity.
+- Do not rely on UI permissions as the only enforcement layer.
+- Validate input with Zod at input boundaries.
+- Before implementing a new feature, classify it as `MVP`, `post-MVP`, `technical debt`, `bug`, or `exploration`.
+- Do not implement `post-MVP` or `exploration` features without an explicit decision.
+- Prefer existing patterns before creating new abstractions.
+- Keep changes scoped to the task domain.
+- Do not change the global visual direction without an explicit decision.
+- Do not edit `.env.local`, secrets, or real credentials unless explicitly requested.
+- Do not revert changes made by others.
+- Do not document reflexively; update documentation when decisions, MVP status, conventions, or relevant behavior change.
 
-## Gobierno del MVP
+## Language Policy
 
-El proyecto debe avanzar sobre un MVP acotado. La prioridad es validar una operacion comercial completa para una inmobiliaria antes de expandir alcance.
+- Internal engineering language is English.
+- User-facing product language is Spanish.
+- Code identifiers, file names, folder names, types, schemas, tests, technical comments, commits, PRs, and agent/developer documentation should be written in English.
+- UI labels, navigation, form messages, empty states, customer-facing emails, WhatsApp templates, and other visible product copy should be written in Spanish unless a specific feature requires otherwise.
+- Do not do large naming refactors only to translate existing code. Apply this convention to new work and opportunistic edits when the touched area is already being changed.
 
-### Alcance MVP
+## Engineering Principles
 
-- Usuarios, roles y permisos suficientemente seguros para pruebas internas.
-- Propiedades operativas como source of truth comercial.
-- Leads operativos con asignacion, estado y pipeline basico.
-- Conversaciones operativas con respuesta manual, handoff y vinculos a lead/propiedad.
-- Agenda basica usable para visitas.
-- WhatsApp suficientemente confiable para pruebas internas.
-- Reportes minimos para entender actividad comercial.
+- Keep code simple, explicit, and boring unless complexity is justified.
+- Avoid duplicating business logic. Extract shared helpers only when reuse is real and the abstraction is clear.
+- Keep functions small and focused on one responsibility.
+- Prefer descriptive names over comments that explain unclear code.
+- Keep validation at system boundaries: forms, server actions, route handlers, webhooks, and external adapters.
+- Separate UI, data access, business rules, and external integrations.
+- Avoid hidden side effects. Make mutations and external calls explicit.
+- Handle errors explicitly. Do not swallow exceptions silently.
+- Prefer strict types. Avoid `any` unless there is a documented reason.
+- Do not mix broad refactors with feature work unless required for the task.
+- Do not introduce dependencies without clear value and low maintenance risk.
+- Write tests for critical business logic, permissions, integrations, and reproducible bugs.
+- Keep changes small enough to review safely.
 
-### Fuera de Alcance Hasta Decision Explicita
+## MVP Governance
 
-- IA avanzada.
+The project must move toward a scoped MVP. The priority is to validate a complete commercial operation for a real estate agency before expanding scope.
+
+### MVP Scope
+
+- Users, roles, and permissions secure enough for internal testing.
+- Operational properties as the commercial source of truth.
+- Operational leads with assignment, status, and basic pipeline.
+- Operational conversations with manual replies, handoff, and links to leads/properties.
+- Basic appointments workflow for property visits.
+- WhatsApp reliable enough for internal testing.
+- Minimal reports to understand commercial activity.
+
+### Out of Scope Until Explicit Decision
+
+- Advanced AI.
 - Billing.
-- Omnicanal completo.
+- Full omnichannel support.
 - Google Calendar.
-- Automatizaciones complejas.
-- Reescritura visual global.
-- Integraciones externas grandes que no bloqueen la validacion del MVP.
+- Complex automations.
+- Global visual rewrite.
+- Large external integrations that do not block MVP validation.
 
-### Clasificacion de Trabajo
+### Work Classification
 
-- `MVP`: necesario para probar o vender el MVP comercial inicial.
-- `bug`: error reproducible o riesgo operativo actual.
-- `deuda tecnica`: mejora necesaria para sostener seguridad, calidad o velocidad sin cambiar producto visible.
-- `post-MVP`: valioso, pero no necesario para validar el MVP.
-- `exploracion`: investigacion o prueba sin compromiso de implementacion.
+- `MVP`: required to test or sell the initial commercial MVP.
+- `bug`: reproducible error or current operational risk.
+- `technical debt`: improvement needed to sustain security, quality, or delivery speed without changing visible product behavior.
+- `post-MVP`: valuable, but not required to validate the MVP.
+- `exploration`: research or prototype without implementation commitment.
 
-Solo `MVP`, `bug` y deuda tecnica justificada deben entrar al flujo normal de implementacion.
+Only `MVP`, `bug`, and justified `technical debt` should enter the normal implementation flow.
 
-## Arquitectura
+## Architecture
 
-- `app/`: routing, layouts, pages, route handlers y server actions cercanas a la UI.
-- `features/`: vistas, forms, schemas y casos de uso de UI por dominio.
-- `server/`: queries, repositories, services, policies y logica backend del lado servidor.
-- `integrations/`: adapters externos como WhatsApp, email e IA.
-- `components/`: componentes visuales reutilizables sin conocimiento fuerte de dominio.
-- `lib/`: utilidades compartidas, entorno, helpers y validaciones transversales.
-- `supabase/`: migraciones, seed y SQL reproducible.
-- `tests/`: pruebas automatizadas.
-- `types/`: tipos compartidos.
+- `app/`: routing, layouts, pages, route handlers, and server actions close to the UI.
+- `features/`: views, forms, schemas, and UI use cases by domain.
+- `server/`: queries, repositories, services, policies, and server-side backend logic.
+- `integrations/`: external adapters such as WhatsApp, email, and AI.
+- `components/`: reusable visual components without strong domain knowledge.
+- `lib/`: shared utilities, environment, helpers, and cross-cutting validations.
+- `supabase/`: migrations, seed, and reproducible SQL.
+- `tests/`: automated tests.
+- `types/`: shared types.
 
-## Reglas de Dependencia
+## Dependency Rules
 
-- `app` puede usar `features`, `components`, `server` y `lib`.
-- `features` puede usar `components`, `lib` y `server`.
-- `server` no depende de `app`.
-- `integrations` puede depender de `server` y `lib`, nunca de `app`.
-- `components/ui` no conoce el dominio.
+- `app` may use `features`, `components`, `server`, and `lib`.
+- `features` may use `components`, `lib`, and `server`.
+- `server` must not depend on `app`.
+- `integrations` may depend on `server` and `lib`, never on `app`.
+- `components/ui` must not know the product domain.
 
-## Multitenancy y Seguridad
+## Multitenancy and Security
 
-- Toda tabla de negocio debe tener `tenant_id`, salvo justificacion explicita.
-- Toda query tenant-scoped debe filtrar por tenant activo o apoyarse en RLS de forma controlada.
-- Las mutaciones deben validar usuario, tenant y rol en servidor.
-- `platform_admin` debe tratarse como rol global separado de la logica tenant-scoped.
-- Los webhooks, jobs y operaciones machine-to-machine deben tener reglas separadas, auditables y con uso controlado del service role.
-- Los secretos no deben guardarse ni exponerse en tablas operativas; usar referencias como `credentials_ref` cuando aplique.
-- La IA no decide verdad de negocio: precios, disponibilidad, reglas comerciales y estado operativo salen de datos estructurados.
+- Every business table must have `tenant_id`, unless there is an explicit justification.
+- Every tenant-scoped query must filter by active tenant or rely on RLS in a controlled way.
+- Mutations must validate user, tenant, and role on the server.
+- `platform_admin` must be treated as a global role separate from tenant-scoped logic.
+- Webhooks, jobs, and machine-to-machine operations must have separate, auditable rules with controlled service role usage.
+- Secrets must not be stored or exposed in operational tables; use references like `credentials_ref` when applicable.
+- AI must not decide business truth: prices, availability, commercial rules, and operational status come from structured data.
 
-## Roles de Agentes
+## Agent Roles
 
 ### Product Owner
 
-Define que vale la pena construir y que queda fuera. Mantiene el foco del MVP, prioriza por valor comercial y valida que cada feature ayude al flujo principal de operacion inmobiliaria: propiedad -> lead -> conversacion -> visita -> seguimiento.
+Defines what is worth building and what stays out. Keeps MVP focus, prioritizes by commercial value, and validates that each feature helps the main real estate operation flow: property -> lead -> conversation -> visit -> follow-up.
 
-Debe bloquear scope creep cuando una idea no ayuda a probar o vender el MVP comercial inicial.
+Must block scope creep when an idea does not help test or sell the initial commercial MVP.
 
 ### Project Manager
 
-Convierte el roadmap en ejecucion ordenada. Crea tareas concretas, separa epicas, features, bugs y deuda tecnica, define dependencias, mantiene estado de avance y verifica que cada tarea tenga criterio de cierre.
+Turns the roadmap into ordered execution. Creates concrete tasks, separates epics, features, bugs, and technical debt, defines dependencies, tracks progress, and verifies that each task has a closure criterion.
 
-Debe mantener actualizados `docs/roadmap.md`, `docs/mvp-status.md` y `docs/pending.md` cuando cambia el estado real del proyecto.
+Must keep `docs/roadmap.md`, `docs/mvp-status.md`, and `docs/pending.md` updated when the real project state changes.
 
-### Feature Lead / Orquestador
+### Project Leader / Technical Lead
 
-Convierte una necesidad de producto en un plan de implementacion concreto. Define alcance, riesgos, dominios afectados, orden de trabajo, verificacion minima y documentacion necesaria.
+Defines the technical scope of each task and turns a prioritized need into a concrete implementation plan. Decides technical impact, affected domains, work order, ownership, minimum verification, and whether migrations, tests, refactors, or documentation are needed.
 
-### Arquitectura y Multitenancy
+Must avoid overbuilt solutions and protect the repo's existing technical patterns.
 
-Valida estructura, boundaries, dependencias, tenant isolation, RLS, roles globales y consistencia con las decisiones base del proyecto.
+### Architecture and Multitenancy
 
-### Dominio Comercial
+Validates structure, boundaries, dependencies, tenant isolation, RLS, global roles, and consistency with the project's base decisions.
 
-Valida el comportamiento funcional de propiedades, leads, conversaciones, agenda, pipeline, FAQs, canales, tenants y operacion inmobiliaria.
+### Commercial Domain
 
-### Backend / Seguridad
+Validates functional behavior for properties, leads, conversations, appointments, pipeline, FAQs, channels, tenants, and real estate operations.
 
-Implementa y revisa server actions, route handlers, queries, repositories, services, policies, validaciones, permisos y errores.
+### Backend / Security
 
-### Integraciones / WhatsApp
+Implements and reviews server actions, route handlers, queries, repositories, services, policies, validations, permissions, and errors.
 
-Implementa y revisa webhooks, inbound, outbound, templates, channel events, idempotencia, firma de requests, credenciales por tenant y manejo de errores externos.
+### Integrations / WhatsApp
 
-### Frontend / UX Operativa
+Implements and reviews webhooks, inbound, outbound, templates, channel events, idempotency, request signatures, tenant credentials, and external error handling.
 
-Implementa UI consistente con el sistema visual actual. Prioriza interfaces densas, claras y operativas sobre composiciones de marketing.
+### UI/UX Specialist
 
-### QA / Verificacion
+Owns visual coherence, ease of use, hierarchy, density, responsive behavior, empty states, errors, loading states, and transactional feedback.
 
-Define y ejecuta la verificacion minima segun el riesgo del cambio. Revisa regresiones, permisos, tenant isolation y flujos manuales criticos.
+Must keep the interface consistent with the current visual system and validate that each screen helps users operate better, not only look better.
 
-### Documentacion / Roadmap
+### Frontend Engineer
 
-Actualiza `README.md`, `docs/roadmap.md`, `docs/mvp-status.md`, `docs/pending.md` u otros documentos cuando cambian decisiones, convenciones, estado del MVP o comportamiento relevante.
+Implements components, screens, forms, states, and responsive behavior using existing patterns. Works with the UI/UX Specialist when a task touches visual or operational experience.
 
-## Orquestacion Para Features Nuevas
+### QA Engineer / Test Agent
 
-1. Product Owner define objetivo, valor comercial, alcance MVP y prioridad.
-2. Project Manager convierte el objetivo en tareas concretas, dependencias y criterio de cierre.
-3. Feature Lead define plan tecnico, riesgos, dominios afectados, orden de trabajo y verificacion minima.
-4. Arquitectura y Multitenancy revisa impacto en estructura, tenant isolation, RLS y permisos.
-5. Dominio Comercial valida el comportamiento esperado si la feature toca workflows de negocio.
-6. Backend / Seguridad implementa o revisa modelo, queries, server actions, route handlers, policies y validaciones.
-7. Integraciones / WhatsApp participa si hay canales, webhooks, templates, eventos o proveedores externos.
-8. Frontend / UX Operativa implementa la interfaz usando patrones existentes.
-9. QA / Verificacion ejecuta checks automatizados y pruebas manuales proporcionales al riesgo.
-10. Project Manager actualiza estado de avance y bloqueos.
-11. Documentacion / Roadmap actualiza documentos si corresponde.
+Defines and runs the minimum testing strategy according to change risk. Reviews regressions, permissions, tenant isolation, and critical manual flows.
 
-## Orquestacion Para Roadmap
+Must write or request tests when the change warrants it, especially for reproducible bugs, permissions, business logic, integrations, and data transformations.
 
-1. Product Owner define o ajusta el objetivo del MVP.
-2. Project Manager revisa `docs/roadmap.md`, `docs/mvp-status.md` y `docs/pending.md`.
-3. Product Owner y Project Manager clasifican items como `MVP`, `post-MVP`, `deuda tecnica`, `bug` o `exploracion`.
-4. Project Manager ordena el backlog en `must have`, `should have`, `post-MVP`, `no tocar todavia` y `bugs / hardening`.
-5. Feature Lead toma solo tareas listas para implementacion, con alcance y criterio de cierre claros.
-6. Al cerrar una tarea, Project Manager actualiza el estado documental si corresponde.
+### Documentation / Roadmap
 
-## Flujo Para Bugs
+Updates `README.md`, `docs/roadmap.md`, `docs/mvp-status.md`, `docs/pending.md`, or other documents when decisions, conventions, MVP status, or relevant behavior change.
 
-1. Reproducir o aislar el bug.
-2. Identificar dominio y owner principal.
-3. Corregir la causa, no solo el sintoma visible.
-4. Agregar o ajustar pruebas si el bug es facil de cubrir.
-5. Ejecutar verificacion enfocada.
-6. Documentar solo si cambia comportamiento esperado o estado del roadmap.
+## Orchestration for New Features
 
-## Checklist Antes de Cerrar
+1. Product Owner defines objective, commercial value, MVP scope, and priority.
+2. Project Manager turns the objective into concrete tasks, dependencies, and closure criteria.
+3. Project Leader / Technical Lead defines technical scope, plan, risks, affected domains, ownership, and minimum verification.
+4. Architecture and Multitenancy reviews impact on structure, tenant isolation, RLS, and permissions.
+5. Commercial Domain validates expected behavior if the feature touches business workflows.
+6. Backend / Security implements or reviews model, queries, server actions, route handlers, policies, and validations.
+7. Integrations / WhatsApp participates if channels, webhooks, templates, events, or external providers are involved.
+8. UI/UX Specialist validates visual coherence and ease of use when there are interface changes.
+9. Frontend Engineer implements the interface using existing patterns.
+10. QA Engineer / Test Agent runs automated checks, manual tests, and adds tests proportional to risk.
+11. Project Manager updates progress and blockers.
+12. Documentation / Roadmap updates documents when applicable.
 
-- La tarea fue clasificada como `MVP`, `bug`, `deuda tecnica`, `post-MVP` o `exploracion`.
-- Si no era `MVP` ni `bug`, hubo decision explicita para avanzar.
-- El criterio de cierre esta cumplido.
-- El cambio respeta tenant isolation.
-- Las mutaciones validan usuario, tenant y rol en servidor.
-- Las entradas estan validadas con schemas o validaciones equivalentes.
-- La UI usa componentes y patrones existentes.
-- Los estados vacios, errores y feedback transaccional son claros cuando aplican.
-- Las migraciones y seeds estan incluidos si cambio el modelo de datos.
-- Los webhooks o integraciones tienen idempotencia y trazabilidad cuando aplica.
-- Se ejecuto la verificacion minima razonable.
-- La documentacion se actualizo si cambio el estado del MVP, una decision o una convencion.
+## Orchestration for Roadmap
 
-## Comandos Habituales
+1. Product Owner defines or adjusts the MVP objective.
+2. Project Manager reviews `docs/roadmap.md`, `docs/mvp-status.md`, and `docs/pending.md`.
+3. Product Owner and Project Manager classify items as `MVP`, `post-MVP`, `technical debt`, `bug`, or `exploration`.
+4. Project Manager orders the backlog into `must have`, `should have`, `post-MVP`, `do not touch yet`, and `bugs / hardening`.
+5. Project Leader / Technical Lead only takes tasks ready for implementation, with clear scope and closure criteria.
+6. When a task closes, Project Manager updates documentation state when applicable.
+
+## Bug Flow
+
+1. Reproduce or isolate the bug.
+2. Identify the domain and main owner.
+3. Fix the cause, not only the visible symptom.
+4. Add or adjust tests when the bug is easy to cover.
+5. Run focused verification.
+6. Document only if expected behavior or roadmap state changes.
+
+## Closure Checklist
+
+- The task was classified as `MVP`, `bug`, `technical debt`, `post-MVP`, or `exploration`.
+- If it was not `MVP` or `bug`, there was an explicit decision to proceed.
+- Closure criteria are met.
+- Technical scope was defined and stayed scoped.
+- The change respects tenant isolation.
+- Mutations validate user, tenant, and role on the server.
+- Inputs are validated with schemas or equivalent validations.
+- The UI uses existing components and patterns.
+- UI/UX reviewed visual coherence and ease of use when there were relevant interface changes.
+- Empty states, errors, and transactional feedback are clear when applicable.
+- Migrations and seeds are included when the data model changed.
+- Webhooks or integrations have idempotency and traceability when applicable.
+- QA ran the reasonable minimum verification.
+- Tests were added or adjusted when the change warranted it.
+- Documentation was updated if MVP state, a decision, or a convention changed.
+
+## Common Commands
 
 ```bash
 pnpm dev
@@ -186,13 +224,13 @@ pnpm test
 pnpm build
 ```
 
-`pnpm dev` y `pnpm start` usan `127.0.0.1:3003` en este repo.
+`pnpm dev` and `pnpm start` use `127.0.0.1:3003` in this repo.
 
-## No Tocar Todavia Sin Decision Explicita
+## Do Not Touch Yet Without Explicit Decision
 
-- IA avanzada.
+- Advanced AI.
 - Billing.
-- Omnicanal completo.
+- Full omnichannel support.
 - Google Calendar.
-- Reescritura visual global.
-- Cambios amplios de arquitectura.
+- Global visual rewrite.
+- Broad architecture changes.
