@@ -18,31 +18,23 @@ export interface ChannelHealthMetrics {
   }>;
 }
 
-export async function getChannelHealthMetrics(
-  tenantId: string,
-  days = 7,
-): Promise<ChannelHealthMetrics> {
-  const supabase = await createSupabaseServerClient();
-  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+export interface ChannelHealthEventRow {
+  id: string;
+  event_type: string;
+  processing_status: string;
+  error_message: string | null;
+  created_at: string;
+}
 
-  const { data, error } = await supabase
-    .from("channel_events")
-    .select("id, event_type, processing_status, error_message, created_at")
-    .eq("tenant_id", tenantId)
-    .gte("created_at", since)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  const rows = data ?? [];
-
+export function buildChannelHealthMetrics(
+  rows: ChannelHealthEventRow[],
+  since: string,
+): ChannelHealthMetrics {
   const recentFailures = rows
     .filter(
       (row) =>
         row.event_type.includes("failed") ||
-        row.event_type === "whatsapp.webhook.invalid_signature" ||
+        row.event_type.startsWith("whatsapp.webhook.") ||
         row.processing_status === "failed",
     )
     .slice(0, 5)
@@ -67,8 +59,8 @@ export async function getChannelHealthMetrics(
     outboundRetryFailedCount: rows.filter(
       (row) => row.event_type === "whatsapp.message.outbound.retry.failed",
     ).length,
-    webhookRejectedCount: rows.filter(
-      (row) => row.event_type === "whatsapp.webhook.invalid_signature",
+    webhookRejectedCount: rows.filter((row) =>
+      row.event_type.startsWith("whatsapp.webhook."),
     ).length,
     inboundCount: rows.filter(
       (row) => row.event_type === "whatsapp.message.inbound",
@@ -80,4 +72,26 @@ export async function getChannelHealthMetrics(
       .length,
     recentFailures,
   };
+}
+
+export async function getChannelHealthMetrics(
+  tenantId: string,
+  days = 7,
+): Promise<ChannelHealthMetrics> {
+  const supabase = await createSupabaseServerClient();
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+
+  const { data, error } = await supabase
+    .from("channel_events")
+    .select("id, event_type, processing_status, error_message, created_at")
+    .eq("tenant_id", tenantId)
+    .gte("created_at", since)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const rows = data ?? [];
+  return buildChannelHealthMetrics(rows, since);
 }

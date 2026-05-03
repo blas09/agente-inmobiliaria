@@ -460,10 +460,37 @@ Expected verification:
 
 ### 007 - WhatsApp Manual Operation Hardening
 
-Status: `todo`  
-Priority: `P1`  
-Type: `MVP`  
+Status: `done`
+Priority: `P1`
+Type: `MVP`
 Primary roles: Product Owner, Project Leader / Technical Lead, Integrations / WhatsApp, Backend / Security, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Reviewing inbound webhook handling, manual outbound, template send, retry behavior, and operational error visibility.
+- 2026-05-03: Completed. Manual WhatsApp operation now exposes outbound failure details in conversation timeline, passes saved template components into manual sends, and counts all webhook rejection event types in channel health.
+
+Completed:
+
+- Reviewed inbound webhook validation, invalid JSON/payload/signature rejection logging, outbound send failure logging, template validation, and manual retry behavior.
+- Added saved template components to the conversation reply form so default template payloads are visible and reusable.
+- Added outbound `error_message` visibility next to failed messages in the conversation timeline before retry.
+- Expanded channel health metrics to count every `whatsapp.webhook.*` rejection, not only invalid signatures.
+- Extracted channel health aggregation into a tested helper.
+- Added focused tests for outbound/retry/webhook health counters and recent incident visibility.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/prettier --write ...` completed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed: 9 files, 29 tests.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/next build --webpack` passed.
+- Local Supabase/PostgREST channel health check passed outside the sandbox: `channel_events` select returned `200`.
+
+Remaining risk:
+
+- Real Meta outbound delivery and template approval/sync still require provider credentials and are outside this MVP task.
 
 Problem:
 

@@ -34,7 +34,10 @@ import { listLeads } from "@/server/queries/leads";
 import { listAvailablePropertiesForSelection } from "@/server/queries/properties";
 import { listActiveWhatsAppTemplates } from "@/server/queries/whatsapp-templates";
 import { formatDateTime } from "@/lib/utils";
-import { canManageAppointments, canOperateConversations } from "@/lib/permissions";
+import {
+  canManageAppointments,
+  canOperateConversations,
+} from "@/lib/permissions";
 
 export default async function ConversationDetailPage({
   params,
@@ -165,40 +168,43 @@ export default async function ConversationDetailPage({
             </CardContent>
           </Card>
           {canOperate ? (
-          <ConversationRoutingForm
-            action={updateConversationRoutingAction.bind(null, conversation.id)}
-            advisorOptions={advisors.map((advisor) => ({
-              id: advisor.user_id,
-              label:
-                advisor.user_profiles?.full_name ??
-                advisor.user_profiles?.email ??
-                advisor.user_id,
-              role: advisor.role,
-            }))}
-            initialValues={{
-              assigned_to: conversation.assigned_to,
-              status: conversation.status,
-              handoff_reason: conversation.handoff_reason,
-              ai_enabled: conversation.ai_enabled,
-            }}
-          />
+            <ConversationRoutingForm
+              action={updateConversationRoutingAction.bind(
+                null,
+                conversation.id,
+              )}
+              advisorOptions={advisors.map((advisor) => ({
+                id: advisor.user_id,
+                label:
+                  advisor.user_profiles?.full_name ??
+                  advisor.user_profiles?.email ??
+                  advisor.user_id,
+                role: advisor.role,
+              }))}
+              initialValues={{
+                assigned_to: conversation.assigned_to,
+                status: conversation.status,
+                handoff_reason: conversation.handoff_reason,
+                ai_enabled: conversation.ai_enabled,
+              }}
+            />
           ) : null}
           {canOperate ? (
-          <ConversationLinkingForm
-            action={updateConversationLinksAction.bind(null, conversation.id)}
-            initialValues={{
-              lead_id: conversation.lead_id,
-              property_id: conversation.property_id,
-            }}
-            leadOptions={leads.map((lead) => ({
-              id: lead.id,
-              label: `${lead.full_name}${lead.phone ? ` · ${lead.phone}` : ""}`,
-            }))}
-            propertyOptions={properties.map((property) => ({
-              id: property.id,
-              label: `${property.title}${property.external_ref ? ` · ${property.external_ref}` : ""}`,
-            }))}
-          />
+            <ConversationLinkingForm
+              action={updateConversationLinksAction.bind(null, conversation.id)}
+              initialValues={{
+                lead_id: conversation.lead_id,
+                property_id: conversation.property_id,
+              }}
+              leadOptions={leads.map((lead) => ({
+                id: lead.id,
+                label: `${lead.full_name}${lead.phone ? ` · ${lead.phone}` : ""}`,
+              }))}
+              propertyOptions={properties.map((property) => ({
+                id: property.id,
+                label: `${property.title}${property.external_ref ? ` · ${property.external_ref}` : ""}`,
+              }))}
+            />
           ) : null}
           {conversation.lead_id && canSchedule ? (
             <AppointmentForm
@@ -307,15 +313,16 @@ export default async function ConversationDetailPage({
         </div>
         <div className="space-y-6">
           {canOperate ? (
-          <ManualReplyForm
-            action={sendConversationReplyAction.bind(null, conversation.id)}
-            templates={templates.map((template) => ({
-              id: template.id,
-              name: template.name,
-              language: template.language,
-              category: template.category,
-            }))}
-          />
+            <ManualReplyForm
+              action={sendConversationReplyAction.bind(null, conversation.id)}
+              templates={templates.map((template) => ({
+                id: template.id,
+                name: template.name,
+                language: template.language,
+                category: template.category,
+                components: template.components,
+              }))}
+            />
           ) : null}
           <Card>
             <CardHeader>
@@ -350,19 +357,26 @@ export default async function ConversationDetailPage({
                   {canOperate &&
                   message.direction === "outbound" &&
                   message.message_status === "failed" ? (
-                    <form
-                      action={retryConversationMessageAction}
-                      className="mt-3 flex justify-end"
-                    >
-                      <input
-                        name="message_id"
-                        type="hidden"
-                        value={message.id}
-                      />
-                      <Button size="sm" variant="outline" type="submit">
-                        Reintentar
-                      </Button>
-                    </form>
+                    <div className="mt-3 space-y-3">
+                      {message.error_message ? (
+                        <p className="rounded-xl border border-white/30 bg-white/10 px-3 py-2 text-xs text-white">
+                          Error: {message.error_message}
+                        </p>
+                      ) : null}
+                      <form
+                        action={retryConversationMessageAction}
+                        className="flex justify-end"
+                      >
+                        <input
+                          name="message_id"
+                          type="hidden"
+                          value={message.id}
+                        />
+                        <Button size="sm" variant="outline" type="submit">
+                          Reintentar
+                        </Button>
+                      </form>
+                    </div>
                   ) : null}
                 </div>
               ))}

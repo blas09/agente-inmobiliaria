@@ -94,16 +94,18 @@ export default async function ChannelsPage() {
         <CardContent className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <div className="border-border bg-muted rounded-xl border p-4">
-              <p className="text-muted-foreground text-xs uppercase tracking-[0.18em]">
+              <p className="text-muted-foreground text-xs tracking-[0.18em] uppercase">
                 Outbound
               </p>
-              <p className="mt-2 text-2xl font-semibold">{health.outboundCount}</p>
+              <p className="mt-2 text-2xl font-semibold">
+                {health.outboundCount}
+              </p>
               <p className="text-muted-foreground mt-1 text-sm">
                 {health.deliveredCount} delivered · {health.readCount} read
               </p>
             </div>
             <div className="border-border bg-muted rounded-xl border p-4">
-              <p className="text-muted-foreground text-xs uppercase tracking-[0.18em]">
+              <p className="text-muted-foreground text-xs tracking-[0.18em] uppercase">
                 Fallidos
               </p>
               <p className="mt-2 text-2xl font-semibold">
@@ -114,7 +116,7 @@ export default async function ChannelsPage() {
               </p>
             </div>
             <div className="border-border bg-muted rounded-xl border p-4">
-              <p className="text-muted-foreground text-xs uppercase tracking-[0.18em]">
+              <p className="text-muted-foreground text-xs tracking-[0.18em] uppercase">
                 Retries
               </p>
               <p className="mt-2 text-2xl font-semibold">
@@ -125,14 +127,14 @@ export default async function ChannelsPage() {
               </p>
             </div>
             <div className="border-border bg-muted rounded-xl border p-4">
-              <p className="text-muted-foreground text-xs uppercase tracking-[0.18em]">
+              <p className="text-muted-foreground text-xs tracking-[0.18em] uppercase">
                 Webhook rechazado
               </p>
               <p className="mt-2 text-2xl font-semibold">
                 {health.webhookRejectedCount}
               </p>
               <p className="text-muted-foreground mt-1 text-sm">
-                Firmas invalidas detectadas
+                Rechazos registrados
               </p>
             </div>
           </div>
@@ -261,7 +263,7 @@ export default async function ChannelsPage() {
                         </Badge>
                       </div>
                     </div>
-                    <div className="grid gap-2 text-xs text-muted-foreground md:grid-cols-2">
+                    <div className="text-muted-foreground grid gap-2 text-xs md:grid-cols-2">
                       <p>
                         Ultimo cambio:{" "}
                         {template.status_updated_at
@@ -271,11 +273,11 @@ export default async function ChannelsPage() {
                       <p>
                         Por:{" "}
                         {template.status_updated_by
-                          ? actorProfiles.get(template.status_updated_by)
+                          ? (actorProfiles.get(template.status_updated_by)
                               ?.full_name ??
                             actorProfiles.get(template.status_updated_by)
                               ?.email ??
-                            template.status_updated_by
+                            template.status_updated_by)
                           : "Sin registrar"}
                       </p>
                       <p>
@@ -287,10 +289,10 @@ export default async function ChannelsPage() {
                       <p>
                         Aprobado por:{" "}
                         {template.approved_by
-                          ? actorProfiles.get(template.approved_by)
+                          ? (actorProfiles.get(template.approved_by)
                               ?.full_name ??
                             actorProfiles.get(template.approved_by)?.email ??
-                            template.approved_by
+                            template.approved_by)
                           : "Sin registrar"}
                       </p>
                     </div>
