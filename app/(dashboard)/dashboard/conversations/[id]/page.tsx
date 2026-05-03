@@ -20,6 +20,7 @@ import {
 import { ConversationLinkingForm } from "@/features/conversations/conversation-linking-form";
 import { ManualReplyForm } from "@/features/conversations/manual-reply-form";
 import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
+import { ActionSheet } from "@/components/shared/action-sheet";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -73,6 +74,7 @@ export default async function ConversationDetailPage({
   const assignedAdvisor = advisors.find(
     (advisor) => advisor.user_id === conversation.assigned_to,
   );
+  const nextAppointment = appointments[0] ?? null;
 
   return (
     <div className="space-y-6">
@@ -80,50 +82,6 @@ export default async function ConversationDetailPage({
         title={conversation.contact_display_name ?? "Conversación"}
         description="Espacio para responder, asignar responsable, vincular contexto comercial y coordinar visitas."
       />
-      <section className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">Estado</p>
-            <div className="mt-3">
-              <Badge
-                variant={
-                  conversation.status === "pending_human"
-                    ? "lightWarning"
-                    : "lightPrimary"
-                }
-              >
-                {getConversationStatusLabel(conversation.status)}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">Canal</p>
-            <p className="mt-3 text-lg font-semibold">
-              {conversation.channels?.display_name ?? "No disponible"}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">Asesor</p>
-            <p className="mt-3 text-lg font-semibold">
-              {assignedAdvisor?.user_profiles?.full_name ??
-                assignedAdvisor?.user_profiles?.email ??
-                "Sin asignar"}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">IA</p>
-            <p className="mt-3 text-lg font-semibold">
-              {conversation.ai_enabled ? "Habilitada" : "Deshabilitada"}
-            </p>
-          </CardContent>
-        </Card>
-      </section>
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(360px,0.8fr)]">
         <div className="space-y-6">
           {canOperate ? (
@@ -230,15 +188,31 @@ export default async function ConversationDetailPage({
             </CardContent>
           </Card>
         </div>
-        <aside className="space-y-6">
+        <aside className="space-y-4 xl:sticky xl:top-24 xl:self-start">
           <Card>
             <CardHeader>
-              <CardTitle>Contexto conversacional</CardTitle>
+              <CardTitle>Contexto operativo</CardTitle>
               <CardDescription>
-                Estado operativo, vínculos y handoff de esta conversación.
+                Datos necesarios para responder y avanzar el caso.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge
+                  variant={
+                    conversation.status === "pending_human"
+                      ? "lightWarning"
+                      : "lightPrimary"
+                  }
+                >
+                  {getConversationStatusLabel(conversation.status)}
+                </Badge>
+                <Badge
+                  variant={conversation.ai_enabled ? "lightSuccess" : "gray"}
+                >
+                  IA {conversation.ai_enabled ? "habilitada" : "desactivada"}
+                </Badge>
+              </div>
               <div className="border-border bg-muted grid gap-3 rounded-xl border p-4 sm:grid-cols-2">
                 <div>
                   <p className="text-muted-foreground text-xs font-medium tracking-[0.16em] uppercase">
@@ -275,6 +249,38 @@ export default async function ConversationDetailPage({
                   </p>
                 </div>
               </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="border-border bg-card rounded-xl border px-4 py-3">
+                  <p className="text-muted-foreground text-xs font-medium tracking-[0.16em] uppercase">
+                    Responsable
+                  </p>
+                  <p className="mt-1 font-medium">
+                    {assignedAdvisor?.user_profiles?.full_name ??
+                      assignedAdvisor?.user_profiles?.email ??
+                      "Sin asignar"}
+                  </p>
+                </div>
+                <div className="border-border bg-card rounded-xl border px-4 py-3">
+                  <p className="text-muted-foreground text-xs font-medium tracking-[0.16em] uppercase">
+                    Canal
+                  </p>
+                  <p className="mt-1 font-medium">
+                    {conversation.channels?.display_name ?? "No disponible"}
+                  </p>
+                </div>
+              </div>
+              <div className="border-border bg-lightprimary rounded-xl border p-4">
+                <p className="text-muted-foreground text-xs font-medium tracking-[0.16em] uppercase">
+                  Próxima acción
+                </p>
+                <p className="mt-1 font-medium">
+                  {nextAppointment
+                    ? `Visita ${getAppointmentStatusLabel(nextAppointment.status).toLowerCase()} · ${formatDateTime(nextAppointment.scheduled_at)}`
+                    : conversation.lead_id
+                      ? "Responder o agendar visita"
+                      : "Vincular lead para poder agendar"}
+                </p>
+              </div>
               <div className="border-border bg-lightprimary rounded-xl border p-4">
                 <p className="text-muted-foreground">Motivo de handoff</p>
                 <p className="mt-1">
@@ -283,149 +289,176 @@ export default async function ConversationDetailPage({
               </div>
             </CardContent>
           </Card>
-          {canOperate ? (
-            <ConversationRoutingForm
-              action={updateConversationRoutingAction.bind(
-                null,
-                conversation.id,
-              )}
-              advisorOptions={advisors.map((advisor) => ({
-                id: advisor.user_id,
-                label:
-                  advisor.user_profiles?.full_name ??
-                  advisor.user_profiles?.email ??
-                  advisor.user_id,
-                role: advisor.role,
-              }))}
-              initialValues={{
-                assigned_to: conversation.assigned_to,
-                status: conversation.status,
-                handoff_reason: conversation.handoff_reason,
-                ai_enabled: conversation.ai_enabled,
-              }}
-            />
-          ) : null}
-          {canOperate ? (
-            <ConversationLinkingForm
-              action={updateConversationLinksAction.bind(null, conversation.id)}
-              initialValues={{
-                lead_id: conversation.lead_id,
-                property_id: conversation.property_id,
-              }}
-              leadOptions={leads.map((lead) => ({
-                id: lead.id,
-                label: `${lead.full_name}${lead.phone ? ` · ${lead.phone}` : ""}`,
-              }))}
-              propertyOptions={properties.map((property) => ({
-                id: property.id,
-                label: `${property.title}${property.external_ref ? ` · ${property.external_ref}` : ""}`,
-              }))}
-            />
-          ) : null}
-          {conversation.lead_id && canSchedule ? (
-            <AppointmentForm
-              action={createAppointmentAction.bind(null, conversation.lead_id, [
-                `/dashboard/conversations/${conversation.id}`,
-                `/dashboard/leads/${conversation.lead_id}`,
-                "/dashboard/appointments",
-              ])}
-              advisorOptions={advisors.map((advisor) => ({
-                id: advisor.user_id,
-                label:
-                  advisor.user_profiles?.full_name ??
-                  advisor.user_profiles?.email ??
-                  advisor.user_id,
-                role: advisor.role,
-              }))}
-              initialValues={{
-                property_id: conversation.property_id,
-                advisor_id: conversation.assigned_to,
-              }}
-              propertyOptions={properties.map((property) => ({
-                id: property.id,
-                label: `${property.title}${property.external_ref ? ` · ${property.external_ref}` : ""}`,
-              }))}
-              rulesSummary={summarizeAppointmentRules(appointmentRules)}
-              submitLabel="Agendar visita desde conversación"
-              timezone={activeTenant.timezone}
-              title="Agenda y visita"
-            />
-          ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>Agenda y visita</CardTitle>
-                <CardDescription>
-                  La agenda interna depende de tener un lead asociado.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <EmptyState
-                  title={
-                    conversation.lead_id
-                      ? "Sin permisos para agenda"
-                      : "Falta vincular un lead"
-                  }
-                  description={
-                    conversation.lead_id
-                      ? "Necesitás un rol operativo para agendar o editar visitas desde la conversación."
-                      : "Primero asociá esta conversación a un lead para poder agendar una visita."
-                  }
-                />
-              </CardContent>
-            </Card>
-          )}
           <Card>
             <CardHeader>
-              <CardTitle>Visitas asociadas al lead</CardTitle>
+              <CardTitle>Acciones operativas</CardTitle>
               <CardDescription>
-                Últimas visitas cargadas para el lead vinculado.
+                Abrí cada acción en un panel lateral sin estirar esta pantalla.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              {appointments.length === 0 ? (
-                <EmptyState
-                  title="Sin visitas agendadas"
-                  description="Cuando el lead pase a visita, la agenda interna y su estado van a quedar visibles acá."
-                />
-              ) : (
-                appointments.map((appointment) => (
-                  <div
-                    key={appointment.id}
-                    className="border-border bg-card rounded-xl border px-4 py-3"
-                  >
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                      <p className="font-medium">
-                        {formatDateTime(appointment.scheduled_at)}
-                      </p>
-                      <Badge
-                        variant={getAppointmentStatusTone(appointment.status)}
-                      >
-                        {getAppointmentStatusLabel(appointment.status)}
-                      </Badge>
-                    </div>
-                    <p className="text-muted-foreground mt-1">
-                      {appointment.property?.title ?? "Sin propiedad"} ·{" "}
-                      {appointment.advisor?.full_name ??
-                        appointment.advisor?.email ??
-                        "Sin asesor"}
-                    </p>
-                  </div>
-                ))
-              )}
-              <Link
-                className="text-primary hover:underline"
-                href="/dashboard/appointments"
-              >
-                Ir a la agenda completa
-              </Link>
-              {conversation.lead_id ? (
-                <Link
-                  className="text-primary hover:underline"
-                  href={`/dashboard/leads/${conversation.lead_id}`}
+            <CardContent className="space-y-3">
+              {canOperate ? (
+                <ActionSheet
+                  triggerLabel="Routing y handoff"
+                  title="Routing y handoff"
+                  description="Responsable, estado operativo e IA de esta conversación."
                 >
-                  Ver flujo del lead
-                </Link>
+                  <ConversationRoutingForm
+                    action={updateConversationRoutingAction.bind(
+                      null,
+                      conversation.id,
+                    )}
+                    advisorOptions={advisors.map((advisor) => ({
+                      id: advisor.user_id,
+                      label:
+                        advisor.user_profiles?.full_name ??
+                        advisor.user_profiles?.email ??
+                        advisor.user_id,
+                      role: advisor.role,
+                    }))}
+                    initialValues={{
+                      assigned_to: conversation.assigned_to,
+                      status: conversation.status,
+                      handoff_reason: conversation.handoff_reason,
+                      ai_enabled: conversation.ai_enabled,
+                    }}
+                  />
+                </ActionSheet>
               ) : null}
+              {canOperate ? (
+                <ActionSheet
+                  triggerLabel="Vínculos"
+                  title="Vínculos"
+                  description="Lead y propiedad asociados a esta conversación."
+                >
+                  <ConversationLinkingForm
+                    action={updateConversationLinksAction.bind(
+                      null,
+                      conversation.id,
+                    )}
+                    initialValues={{
+                      lead_id: conversation.lead_id,
+                      property_id: conversation.property_id,
+                    }}
+                    leadOptions={leads.map((lead) => ({
+                      id: lead.id,
+                      label: `${lead.full_name}${lead.phone ? ` · ${lead.phone}` : ""}`,
+                    }))}
+                    propertyOptions={properties.map((property) => ({
+                      id: property.id,
+                      label: `${property.title}${property.external_ref ? ` · ${property.external_ref}` : ""}`,
+                    }))}
+                  />
+                </ActionSheet>
+              ) : null}
+              <ActionSheet
+                triggerLabel="Agenda y visita"
+                title="Agenda y visita"
+                description="Crear una visita o revisar por qué no está disponible."
+              >
+                {conversation.lead_id && canSchedule ? (
+                  <AppointmentForm
+                    action={createAppointmentAction.bind(
+                      null,
+                      conversation.lead_id,
+                      [
+                        `/dashboard/conversations/${conversation.id}`,
+                        `/dashboard/leads/${conversation.lead_id}`,
+                        "/dashboard/appointments",
+                      ],
+                    )}
+                    advisorOptions={advisors.map((advisor) => ({
+                      id: advisor.user_id,
+                      label:
+                        advisor.user_profiles?.full_name ??
+                        advisor.user_profiles?.email ??
+                        advisor.user_id,
+                      role: advisor.role,
+                    }))}
+                    initialValues={{
+                      property_id: conversation.property_id,
+                      advisor_id: conversation.assigned_to,
+                    }}
+                    propertyOptions={properties.map((property) => ({
+                      id: property.id,
+                      label: `${property.title}${property.external_ref ? ` · ${property.external_ref}` : ""}`,
+                    }))}
+                    rulesSummary={summarizeAppointmentRules(appointmentRules)}
+                    submitLabel="Agendar visita desde conversación"
+                    timezone={activeTenant.timezone}
+                    title="Agenda y visita"
+                  />
+                ) : (
+                  <EmptyState
+                    title={
+                      conversation.lead_id
+                        ? "Sin permisos para agenda"
+                        : "Falta vincular un lead"
+                    }
+                    description={
+                      conversation.lead_id
+                        ? "Necesitás un rol operativo para agendar o editar visitas desde la conversación."
+                        : "Primero asociá esta conversación a un lead para poder agendar una visita."
+                    }
+                  />
+                )}
+              </ActionSheet>
+              <ActionSheet
+                triggerLabel="Visitas del lead"
+                title="Visitas del lead"
+                description="Historial de visitas vinculadas al lead."
+              >
+                <div className="space-y-3 text-sm">
+                  {appointments.length === 0 ? (
+                    <EmptyState
+                      title="Sin visitas agendadas"
+                      description="Cuando el lead pase a visita, la agenda interna y su estado van a quedar visibles acá."
+                    />
+                  ) : (
+                    appointments.map((appointment) => (
+                      <div
+                        key={appointment.id}
+                        className="border-border bg-card rounded-xl border px-4 py-3"
+                      >
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                          <p className="font-medium">
+                            {formatDateTime(appointment.scheduled_at)}
+                          </p>
+                          <Badge
+                            variant={getAppointmentStatusTone(
+                              appointment.status,
+                            )}
+                          >
+                            {getAppointmentStatusLabel(appointment.status)}
+                          </Badge>
+                        </div>
+                        <p className="text-muted-foreground mt-1">
+                          {appointment.property?.title ?? "Sin propiedad"} ·{" "}
+                          {appointment.advisor?.full_name ??
+                            appointment.advisor?.email ??
+                            "Sin asesor"}
+                        </p>
+                      </div>
+                    ))
+                  )}
+                  <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+                    <Link
+                      className="text-primary text-sm font-medium hover:underline"
+                      href="/dashboard/appointments"
+                    >
+                      Ir a la agenda completa
+                    </Link>
+                    {conversation.lead_id ? (
+                      <Link
+                        className="text-primary text-sm font-medium hover:underline"
+                        href={`/dashboard/leads/${conversation.lead_id}`}
+                      >
+                        Ver flujo del lead
+                      </Link>
+                    ) : null}
+                  </div>
+                </div>
+              </ActionSheet>
             </CardContent>
           </Card>
         </aside>

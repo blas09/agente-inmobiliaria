@@ -47,11 +47,12 @@ Out of scope for this stage:
 3. `P1` Search And Filter Usability
 4. `P1` Feedback, Empty, Error, And Loading State Consistency
 5. `P1` Conversation Workspace Polish
-6. `P1` Appointment UX Polish
-7. `P1` Form Structure And Field Help
-8. `P1` Responsive And Mobile Polish
-9. `P2` Visual System Cleanup
-10. `P2` Secondary Admin Screen Polish
+6. `P1` Compact Conversation Detail Layout
+7. `P1` Appointment UX Polish
+8. `P1` Form Structure And Field Help
+9. `P1` Responsive And Mobile Polish
+10. `P2` Visual System Cleanup
+11. `P2` Secondary Admin Screen Polish
 
 UI/UX Specialist decision:
 
@@ -289,6 +290,79 @@ Verification:
 - Manual conversation detail walkthrough.
 - Failed message visual state review using seeded or mocked state if available.
 - Desktop and mobile screenshots.
+
+### UI-004A - Compact Conversation Detail Layout
+
+Status: `done`
+Priority: `P1`
+Type: `UI/UX`
+Primary roles: Product Owner, UI/UX Specialist, Frontend Engineer, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Compacting the conversation detail with a sticky operational panel and collapsible secondary actions.
+- 2026-05-03: Completed. Reduced default vertical load by keeping reply and timeline primary, moving critical context into a compact side panel, and collapsing secondary operational controls.
+- 2026-05-03: Refined after review. Secondary operational sections now behave as a single accordion group to avoid several long panels stretching the side column at once.
+- 2026-05-03: Fixed accordion behavior with explicit grouped toggle handling instead of relying on native details grouping.
+- 2026-05-03: Replaced collapsible side-panel content with action sheets so long operational forms no longer stretch the two-column page layout.
+
+Completed:
+
+- Removed the separate top status cards from the conversation detail page.
+- Added a compact sticky operational context panel with status, AI state, lead, property, advisor, channel, next action, and handoff reason.
+- Added a reusable action sheet component for secondary dashboard workflows.
+- Moved routing/handoff, lead/property linking, appointment creation, and related visits into lateral action sheets while preserving every existing workflow.
+- Kept the side column short and stable so long secondary content does not create empty visual space in the main conversation column.
+- Kept the reply composer and message timeline immediately visible as the primary workspace.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
+
+Problem:
+
+The conversation detail screen is still too long for day-to-day operation. It exposes too many forms and secondary blocks at once, which creates excessive vertical scroll and weak hierarchy. Operators need to respond and understand the commercial context quickly without scanning every operational control.
+
+UX decision:
+
+- Keep split view as the base pattern.
+- Keep conversation reply and timeline as the primary workspace.
+- Use a compact sticky side panel for operational context.
+- Use out-of-flow action panels for less frequent actions.
+- Do not use global tabs as the main structure, because they separate conversation context from the message workflow.
+
+Scope:
+
+- Keep status, lead, property, advisor, and next action visible by default.
+- Compact the side panel summary so it fits above operational controls.
+- Move secondary actions out of the page flow: full appointment form, full related visits list, advanced routing/handoff, and lead/property linking.
+- Preserve all existing capabilities.
+- Keep UI copy in Spanish.
+
+Out of scope:
+
+- Real-time chat.
+- New appointment capabilities.
+- New lead/property detail data.
+- Global tabs across the whole page.
+- Replacing the conversation composer.
+
+Acceptance criteria:
+
+- The conversation page is shorter and easier to scan.
+- Reply and timeline remain immediately available.
+- Critical context remains visible without opening a section.
+- Less frequent controls can be opened when needed without stretching the main page layout.
+- No existing conversation, linking, routing, appointment, or retry capability is removed.
+
+Verification:
+
+- Manual conversation detail walkthrough.
+- Desktop review for sticky side panel behavior.
+- Mobile review to ensure action sheets remain usable.
+- Existing automated checks pass.
 
 ### UI-005 - Appointment UX Polish
 
