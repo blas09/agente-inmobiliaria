@@ -12,6 +12,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  getAppointmentStatusLabel,
+  getAppointmentStatusTone,
+} from "@/features/appointments/status";
 import { getDashboardSummary } from "@/server/queries/dashboard";
 import { getAppContext } from "@/server/auth/tenant-context";
 import { getPlatformSummary } from "@/server/queries/tenants";
@@ -37,6 +41,22 @@ const metricCards = [
     tone: "success",
   },
 ] as const;
+
+function formatResponseMinutes(minutes: number | null) {
+  if (minutes === null) {
+    return "Sin datos";
+  }
+
+  if (minutes < 60) {
+    return `${minutes} min`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return remainingMinutes > 0
+    ? `${hours} h ${remainingMinutes} min`
+    : `${hours} h`;
+}
 
 export default async function DashboardPage() {
   const context = await getAppContext();
@@ -163,6 +183,126 @@ export default async function DashboardPage() {
               <div className="border-border rounded-xl border px-4 py-3">
                 <span className="text-muted-foreground">Locale</span>
                 <p className="mt-1 font-semibold">{activeTenant.locale}</p>
+              </div>
+            </CardContent>
+          </CardBox>
+        </div>
+        <div className="col-span-12 xl:col-span-6">
+          <CardBox className="h-full w-full">
+            <CardHeader>
+              <CardTitle>Pipeline comercial</CardTitle>
+              <CardDescription>
+                Distribución actual de leads por etapa operativa.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {summary.pipelineReport.length === 0 ? (
+                <EmptyState
+                  title="Sin etapas configuradas"
+                  description="Las etapas del pipeline van a aparecer cuando el tenant tenga configuración comercial."
+                  actionHref="/dashboard/settings"
+                  actionLabel="Ver settings"
+                />
+              ) : (
+                summary.pipelineReport.map((stage) => (
+                  <div
+                    className="border-border flex items-center justify-between rounded-xl border px-4 py-3"
+                    key={stage.stageId}
+                  >
+                    <p className="text-sm font-medium">{stage.label}</p>
+                    <Badge variant={stage.total > 0 ? "lightPrimary" : "gray"}>
+                      {stage.total}
+                    </Badge>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </CardBox>
+        </div>
+        <div className="col-span-12 xl:col-span-6">
+          <CardBox className="h-full w-full">
+            <CardHeader>
+              <CardTitle>Leads por asesor</CardTitle>
+              <CardDescription>
+                Carga comercial asignada a cada responsable.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {summary.advisorReport.length === 0 ? (
+                <EmptyState
+                  title="Sin leads asignados"
+                  description="Cuando se asignen leads a asesores, la distribución va a quedar visible acá."
+                  actionHref="/dashboard/leads"
+                  actionLabel="Ver leads"
+                />
+              ) : (
+                summary.advisorReport.map((advisor) => (
+                  <div
+                    className="border-border flex items-center justify-between rounded-xl border px-4 py-3"
+                    key={advisor.advisorId}
+                  >
+                    <p className="text-sm font-medium">{advisor.label}</p>
+                    <Badge variant="lightSecondary">{advisor.total}</Badge>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </CardBox>
+        </div>
+        <div className="col-span-12 xl:col-span-6">
+          <CardBox className="h-full w-full">
+            <CardHeader>
+              <CardTitle>Resultado de visitas</CardTitle>
+              <CardDescription>
+                Estado actual de la agenda interna del tenant.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {summary.appointmentOutcomeReport.map((item) => (
+                <div
+                  className="border-border flex items-center justify-between rounded-xl border px-4 py-3"
+                  key={item.status}
+                >
+                  <p className="text-sm font-medium">
+                    {getAppointmentStatusLabel(item.status)}
+                  </p>
+                  <Badge variant={getAppointmentStatusTone(item.status)}>
+                    {item.total}
+                  </Badge>
+                </div>
+              ))}
+            </CardContent>
+          </CardBox>
+        </div>
+        <div className="col-span-12 xl:col-span-6">
+          <CardBox className="h-full w-full">
+            <CardHeader>
+              <CardTitle>Primera respuesta</CardTitle>
+              <CardDescription>
+                Tiempo desde primer mensaje entrante hasta primera respuesta
+                saliente.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4 text-sm sm:grid-cols-3">
+              <div className="border-border rounded-xl border px-4 py-3">
+                <span className="text-muted-foreground">Promedio</span>
+                <p className="mt-1 font-semibold">
+                  {formatResponseMinutes(
+                    summary.firstResponseReport.averageFirstResponseMinutes,
+                  )}
+                </p>
+              </div>
+              <div className="border-border rounded-xl border px-4 py-3">
+                <span className="text-muted-foreground">Respondidas</span>
+                <p className="mt-1 font-semibold">
+                  {summary.firstResponseReport.respondedConversations}
+                </p>
+              </div>
+              <div className="border-border rounded-xl border px-4 py-3">
+                <span className="text-muted-foreground">Pendientes</span>
+                <p className="mt-1 font-semibold">
+                  {summary.firstResponseReport.pendingResponseConversations}
+                </p>
               </div>
             </CardContent>
           </CardBox>

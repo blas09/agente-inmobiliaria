@@ -400,10 +400,32 @@ Expected verification:
 
 ### 006 - Minimal Commercial Reporting
 
-Status: `todo`  
-Priority: `P1`  
-Type: `MVP`  
+Status: `done`
+Priority: `P1`
+Type: `MVP`
 Primary roles: Product Owner, Commercial Domain, Project Leader / Technical Lead, Backend / Security, Frontend Engineer, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Extending the tenant dashboard with minimal advisor, pipeline, response-time, and appointment outcome reporting while keeping the existing dashboard layout.
+- 2026-05-03: Completed. Tenant dashboard now includes minimal reports for pipeline stages, advisor load, appointment outcomes, and first-response timing.
+
+Completed:
+
+- Added focused reporting helpers for advisor distribution, pipeline distribution, appointment outcomes, and first response.
+- Extended the dashboard summary query with tenant-scoped leads, pipeline stages, appointments, messages, and advisor profile labels.
+- Added compact dashboard sections for pipeline, leads by advisor, visit outcomes, and first response.
+- Kept reporting read-only and aligned with the existing dashboard card/list patterns.
+- Added query-level helper tests for the reporting aggregations.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/prettier --write ...` completed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed: 8 files, 27 tests.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/next build --webpack` passed.
+- Local Supabase/PostgREST reporting check passed outside the sandbox: message reporting select returned `200`.
 
 Problem:
 
