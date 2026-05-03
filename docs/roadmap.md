@@ -18,7 +18,8 @@ Current readiness decision:
 
 - scoped MVP feature work is complete for an internal testing round
 - release state is documented in [Internal Pilot Checklist](./internal-pilot-checklist.md)
-- the authenticated browser walkthrough remains the required next validation step
+- the authenticated browser walkthrough was completed manually
+- the next phase should follow the sequenced path in [MVP Path To Customer Use](./mvp-path.md)
 
 ### Must Have
 

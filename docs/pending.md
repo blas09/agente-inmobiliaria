@@ -8,25 +8,27 @@ Current MVP flow:
 
 ## Current Release State
 
-Status: ready for disciplined internal testing with caveats.
+Status: internal manual testing completed; preparing the path toward a supervised customer MVP.
 
 Reference:
 
 - [Internal Pilot Checklist](./internal-pilot-checklist.md)
+- [MVP Path To Customer Use](./mvp-path.md)
 
-The implementation backlog for the first MVP cut is complete. The next work is validation, not feature expansion.
+The implementation backlog for the first MVP cut is complete. The next work should be sequenced grooming and readiness, not broad feature expansion.
 
-## Required Before Calling The MVP Internally Verified
+## Required Before Customer-Facing MVP
 
-1. Run the authenticated browser walkthrough with seed users.
-2. Classify any issue found as `pilot blocker`, `non-blocker`, or `post-MVP`.
-3. Confirm whether real WhatsApp provider delivery is part of the pilot.
-4. If real WhatsApp delivery is in scope, verify valid Meta credentials and template behavior.
-5. Update this file and `mvp-status.md` after the walkthrough.
+1. Complete the `UI/UX MVP Polish` grooming.
+2. Review and approve the resulting UI/UX backlog.
+3. Execute accepted UI/UX tasks one by one.
+4. Complete the operational, security, onboarding, and pilot readiness groomings defined in `mvp-path.md`.
+5. Confirm whether real WhatsApp provider delivery is part of the first customer pilot.
+6. If real WhatsApp delivery is in scope, verify valid Meta credentials and template behavior.
 
 ## Known Caveats
 
-- Authenticated browser walkthrough is pending.
+- Customer-facing readiness grooming is pending.
 - Real Meta outbound delivery requires valid provider credentials.
 - Real Meta template approval/sync is post-MVP unless it blocks the pilot.
 - No persistent distributed rate limiter is implemented for public endpoints.

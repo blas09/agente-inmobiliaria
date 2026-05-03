@@ -17,8 +17,9 @@ Current decision:
 
 - the scoped MVP is ready for a disciplined internal testing round with caveats
 - it is not ready for unsupervised customer use
-- the authenticated browser walkthrough must be executed during the internal testing session
+- the authenticated browser walkthrough was completed manually
 - real WhatsApp provider delivery requires valid Meta credentials and remains caveated until verified
+- the next phase should follow the sequenced path in [MVP Path To Customer Use](./mvp-path.md)
 
 Release checklist:
 
@@ -39,9 +40,9 @@ The project already has a real operational foundation:
 
 Practical conclusion:
 
-- the system can start a disciplined internal functional testing round
+- the system has passed a manual internal functional testing round
 - it is not ready for unsupervised real customers yet
-- the highest-value work is now to run the authenticated walkthrough, classify issues, and decide whether any pilot blocker remains
+- the highest-value work is now to groom and execute customer-facing MVP readiness work in sequence
 
 ## Current MVP Cut
 
