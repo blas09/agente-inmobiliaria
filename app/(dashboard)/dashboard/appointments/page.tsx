@@ -40,6 +40,10 @@ export default async function AppointmentsPage({
   const { activeTenant, activeMembership } = await getActiveTenantContext();
   const canEditAppointments = canManageAppointments(activeMembership.role);
   const appointmentRules = getAppointmentRules(activeTenant.settings);
+  const hasActiveFilters = Boolean(
+    (params.status && params.status !== "all") ||
+    (params.advisor && params.advisor !== "all"),
+  );
   const [appointments, advisors, properties] = await Promise.all([
     listAppointments(activeTenant.id, {
       status: params.status,
@@ -136,10 +140,30 @@ export default async function AppointmentsPage({
       </CardBox>
       {appointments.length === 0 ? (
         <EmptyState
-          title="No hay visitas cargadas"
-          description="Podés agendarlas desde un lead o una conversación con lead vinculado."
-          actionHref={canEditAppointments ? "/dashboard/leads" : undefined}
-          actionLabel={canEditAppointments ? "Ir a leads" : undefined}
+          title={
+            hasActiveFilters
+              ? "Sin visitas para este filtro"
+              : "No hay visitas cargadas"
+          }
+          description={
+            hasActiveFilters
+              ? "Probá limpiar los filtros o revisar otro asesor o estado de visita."
+              : "Podés agendarlas desde un lead o una conversación con lead vinculado."
+          }
+          actionHref={
+            hasActiveFilters
+              ? "/dashboard/appointments"
+              : canEditAppointments
+                ? "/dashboard/leads"
+                : undefined
+          }
+          actionLabel={
+            hasActiveFilters
+              ? "Limpiar filtros"
+              : canEditAppointments
+                ? "Ir a leads"
+                : undefined
+          }
         />
       ) : (
         <div className="grid gap-6">

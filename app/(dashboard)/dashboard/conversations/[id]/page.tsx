@@ -332,54 +332,62 @@ export default async function ConversationDetailPage({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`max-w-[92%] rounded-2xl px-4 py-3 text-sm sm:max-w-[85%] ${
-                    message.direction === "outbound"
-                      ? "bg-primary ml-auto text-white shadow-sm"
-                      : "border-border bg-muted text-foreground border"
-                  }`}
-                >
-                  <p>
-                    {message.content ?? "Mensaje sin contenido renderizable"}
-                  </p>
-                  <p
-                    className={`mt-2 text-xs ${
+              {messages.length === 0 ? (
+                <EmptyState
+                  title="Sin mensajes todavía"
+                  description="Cuando llegue un inbound o se envíe una respuesta manual, el historial va a quedar registrado acá."
+                />
+              ) : (
+                messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`max-w-[92%] rounded-2xl px-4 py-3 text-sm sm:max-w-[85%] ${
                       message.direction === "outbound"
-                        ? "text-white/80"
-                        : "text-muted-foreground"
+                        ? "bg-primary ml-auto text-white shadow-sm"
+                        : "border-border bg-muted text-foreground border"
                     }`}
                   >
-                    {message.sender_type} · {formatDateTime(message.created_at)}{" "}
-                    · {message.message_status}
-                  </p>
-                  {canOperate &&
-                  message.direction === "outbound" &&
-                  message.message_status === "failed" ? (
-                    <div className="mt-3 space-y-3">
-                      {message.error_message ? (
-                        <p className="rounded-xl border border-white/30 bg-white/10 px-3 py-2 text-xs text-white">
-                          Error: {message.error_message}
-                        </p>
-                      ) : null}
-                      <form
-                        action={retryConversationMessageAction}
-                        className="flex justify-end"
-                      >
-                        <input
-                          name="message_id"
-                          type="hidden"
-                          value={message.id}
-                        />
-                        <Button size="sm" variant="outline" type="submit">
-                          Reintentar
-                        </Button>
-                      </form>
-                    </div>
-                  ) : null}
-                </div>
-              ))}
+                    <p>
+                      {message.content ?? "Mensaje sin contenido renderizable"}
+                    </p>
+                    <p
+                      className={`mt-2 text-xs ${
+                        message.direction === "outbound"
+                          ? "text-white/80"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {message.sender_type} ·{" "}
+                      {formatDateTime(message.created_at)} ·{" "}
+                      {message.message_status}
+                    </p>
+                    {canOperate &&
+                    message.direction === "outbound" &&
+                    message.message_status === "failed" ? (
+                      <div className="mt-3 space-y-3">
+                        {message.error_message ? (
+                          <p className="rounded-xl border border-white/30 bg-white/10 px-3 py-2 text-xs text-white">
+                            Error: {message.error_message}
+                          </p>
+                        ) : null}
+                        <form
+                          action={retryConversationMessageAction}
+                          className="flex justify-end"
+                        >
+                          <input
+                            name="message_id"
+                            type="hidden"
+                            value={message.id}
+                          />
+                          <Button size="sm" variant="outline" type="submit">
+                            Reintentar
+                          </Button>
+                        </form>
+                      </div>
+                    ) : null}
+                  </div>
+                ))
+              )}
             </CardContent>
           </Card>
         </div>

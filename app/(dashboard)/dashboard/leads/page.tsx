@@ -29,6 +29,7 @@ export default async function LeadsPage({
   const { activeTenant, activeMembership } = await getActiveTenantContext();
   const canManageLeadRecords = canManageLeads(activeMembership.role);
   const leads = await listLeads(activeTenant.id, params);
+  const hasActiveFilters = Boolean(params.q || params.status);
   const qualifiedCount = leads.filter(
     (lead) => lead.qualification_status === "qualified",
   ).length;
@@ -42,9 +43,9 @@ export default async function LeadsPage({
         title="Leads"
         action={
           canManageLeadRecords ? (
-          <Link href="/dashboard/leads/new">
-            <Button>Nuevo lead</Button>
-          </Link>
+            <Link href="/dashboard/leads/new">
+              <Button>Nuevo lead</Button>
+            </Link>
           ) : null
         }
       />
@@ -67,10 +68,30 @@ export default async function LeadsPage({
       />
       {leads.length === 0 ? (
         <EmptyState
-          title="No hay leads todavía"
-          description="Podés cargarlos manualmente o dejar lista la estructura para WhatsApp y otros canales."
-          actionHref={canManageLeadRecords ? "/dashboard/leads/new" : undefined}
-          actionLabel={canManageLeadRecords ? "Crear lead" : undefined}
+          title={
+            hasActiveFilters
+              ? "Sin leads para este filtro"
+              : "No hay leads todavía"
+          }
+          description={
+            hasActiveFilters
+              ? "Probá limpiar los filtros o buscar por otro contacto, fuente o estado."
+              : "Podés cargarlos manualmente o dejar lista la estructura para WhatsApp y otros canales."
+          }
+          actionHref={
+            hasActiveFilters
+              ? "/dashboard/leads"
+              : canManageLeadRecords
+                ? "/dashboard/leads/new"
+                : undefined
+          }
+          actionLabel={
+            hasActiveFilters
+              ? "Limpiar filtros"
+              : canManageLeadRecords
+                ? "Crear lead"
+                : undefined
+          }
         />
       ) : (
         <CardBox className="overflow-hidden">

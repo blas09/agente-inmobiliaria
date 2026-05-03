@@ -584,10 +584,36 @@ Expected verification:
 
 ### 009 - Main Flow UI Feedback Pass
 
-Status: `todo`  
-Priority: `P2`  
-Type: `MVP`  
+Status: `done`
+Priority: `P2`
+Type: `MVP`
 Primary roles: Product Owner, UI/UX Specialist, Frontend Engineer, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Reviewing main MVP flow feedback on dashboard, properties, leads, conversations, and appointments without changing the visual system.
+- 2026-05-03: Completed. Improved empty/filter states in main flow screens, added accessible transactional feedback, and added an empty message timeline state.
+
+Completed:
+
+- Added accessible `role` and `aria-live` semantics to shared action feedback.
+- Added `aria-busy` to shared submit buttons while forms are pending.
+- Added empty states for dashboard recent leads and recent conversations.
+- Made properties, leads, and appointments empty states distinguish between no data and no filtered results.
+- Added a clear empty state for conversation timelines with no persisted messages yet.
+- Preserved the existing visual system and layout patterns.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/prettier --write ...` completed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed: 9 files, 32 tests.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/next build --webpack` passed.
+
+Remaining risk:
+
+- Browser-based responsive smoke testing should be included in Task 011 release readiness.
 
 Problem:
 

@@ -316,22 +316,31 @@ export default async function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              {summary.recentLeads.map((lead) => (
-                <Link
-                  key={lead.id}
-                  href={`/dashboard/leads/${lead.id}`}
-                  className="border-border hover:border-primary/20 hover:bg-lightprimary/30 block rounded-xl border px-4 py-3 transition"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="font-medium">{lead.full_name}</p>
-                    <Badge variant="gray">{lead.qualification_status}</Badge>
-                  </div>
-                  <p className="text-muted-foreground text-sm">
-                    {lead.source ?? "sin fuente"} ·{" "}
-                    {formatDateTime(lead.created_at)}
-                  </p>
-                </Link>
-              ))}
+              {summary.recentLeads.length === 0 ? (
+                <EmptyState
+                  title="Sin actividad reciente"
+                  description="Los leads creados o ingresados por canales van a aparecer en esta lista."
+                  actionHref="/dashboard/leads"
+                  actionLabel="Ver leads"
+                />
+              ) : (
+                summary.recentLeads.map((lead) => (
+                  <Link
+                    key={lead.id}
+                    href={`/dashboard/leads/${lead.id}`}
+                    className="border-border hover:border-primary/20 hover:bg-lightprimary/30 block rounded-xl border px-4 py-3 transition"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="font-medium">{lead.full_name}</p>
+                      <Badge variant="gray">{lead.qualification_status}</Badge>
+                    </div>
+                    <p className="text-muted-foreground text-sm">
+                      {lead.source ?? "sin fuente"} ·{" "}
+                      {formatDateTime(lead.created_at)}
+                    </p>
+                  </Link>
+                ))
+              )}
             </CardContent>
           </CardBox>
         </div>
@@ -344,32 +353,41 @@ export default async function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              {summary.recentConversations.map((conversation) => (
-                <Link
-                  key={conversation.id}
-                  href={`/dashboard/conversations/${conversation.id}`}
-                  className="border-border hover:border-primary/20 hover:bg-lightprimary/30 block rounded-xl border px-4 py-3 transition"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="font-medium">
-                      {conversation.contact_display_name ??
-                        "Contacto sin nombre"}
+              {summary.recentConversations.length === 0 ? (
+                <EmptyState
+                  title="Sin conversaciones recientes"
+                  description="Los contactos entrantes por canales conectados van a aparecer acá."
+                  actionHref="/dashboard/conversations"
+                  actionLabel="Ver conversaciones"
+                />
+              ) : (
+                summary.recentConversations.map((conversation) => (
+                  <Link
+                    key={conversation.id}
+                    href={`/dashboard/conversations/${conversation.id}`}
+                    className="border-border hover:border-primary/20 hover:bg-lightprimary/30 block rounded-xl border px-4 py-3 transition"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="font-medium">
+                        {conversation.contact_display_name ??
+                          "Contacto sin nombre"}
+                      </p>
+                      <Badge
+                        variant={
+                          conversation.status === "pending_human"
+                            ? "lightWarning"
+                            : "gray"
+                        }
+                      >
+                        {conversation.status}
+                      </Badge>
+                    </div>
+                    <p className="text-muted-foreground text-sm">
+                      {formatDateTime(conversation.last_message_at)}
                     </p>
-                    <Badge
-                      variant={
-                        conversation.status === "pending_human"
-                          ? "lightWarning"
-                          : "gray"
-                      }
-                    >
-                      {conversation.status}
-                    </Badge>
-                  </div>
-                  <p className="text-muted-foreground text-sm">
-                    {formatDateTime(conversation.last_message_at)}
-                  </p>
-                </Link>
-              ))}
+                  </Link>
+                ))
+              )}
             </CardContent>
           </CardBox>
         </div>

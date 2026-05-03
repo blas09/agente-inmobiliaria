@@ -29,6 +29,7 @@ export default async function PropertiesPage({
   const { activeTenant, activeMembership } = await getActiveTenantContext();
   const canManagePropertyRecords = canManageProperties(activeMembership.role);
   const properties = await listProperties(activeTenant.id, params);
+  const hasActiveFilters = Boolean(params.q || params.status);
   const availableCount = properties.filter(
     (property) => property.status === "available",
   ).length;
@@ -42,9 +43,9 @@ export default async function PropertiesPage({
         title="Propiedades"
         action={
           canManagePropertyRecords ? (
-          <Link href="/dashboard/properties/new">
-            <Button>Nueva propiedad</Button>
-          </Link>
+            <Link href="/dashboard/properties/new">
+              <Button>Nueva propiedad</Button>
+            </Link>
           ) : null
         }
       />
@@ -72,12 +73,30 @@ export default async function PropertiesPage({
       />
       {properties.length === 0 ? (
         <EmptyState
-          title="No hay propiedades cargadas"
-          description="El MVP necesita este catálogo para responder FAQs y asociar leads a oferta real."
-          actionHref={
-            canManagePropertyRecords ? "/dashboard/properties/new" : undefined
+          title={
+            hasActiveFilters
+              ? "Sin propiedades para este filtro"
+              : "No hay propiedades cargadas"
           }
-          actionLabel={canManagePropertyRecords ? "Cargar propiedad" : undefined}
+          description={
+            hasActiveFilters
+              ? "Probá limpiar los filtros o buscar por otro dato de la ficha comercial."
+              : "El MVP necesita este catálogo para responder FAQs y asociar leads a oferta real."
+          }
+          actionHref={
+            hasActiveFilters
+              ? "/dashboard/properties"
+              : canManagePropertyRecords
+                ? "/dashboard/properties/new"
+                : undefined
+          }
+          actionLabel={
+            hasActiveFilters
+              ? "Limpiar filtros"
+              : canManagePropertyRecords
+                ? "Cargar propiedad"
+                : undefined
+          }
         />
       ) : (
         <CardBox className="overflow-hidden">
