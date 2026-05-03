@@ -6,7 +6,13 @@ import { INITIAL_ACTION_STATE, type ActionState } from "@/types/actions";
 
 import { ActionFeedback } from "@/components/shared/action-feedback";
 import { SubmitButton } from "@/components/shared/submit-button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { FormField } from "@/components/shared/form-field";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
@@ -68,6 +74,9 @@ export function ManualReplyForm({
     <Card>
       <CardHeader>
         <CardTitle>Respuesta manual</CardTitle>
+        <CardDescription>
+          Enviá una respuesta libre o una plantilla aprobada por WhatsApp.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-4">

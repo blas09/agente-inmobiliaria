@@ -37,9 +37,10 @@ import { getAssignableTenantUsers } from "@/server/queries/tenants";
 import { listLeads } from "@/server/queries/leads";
 import { listAvailablePropertiesForSelection } from "@/server/queries/properties";
 import { listActiveWhatsAppTemplates } from "@/server/queries/whatsapp-templates";
-import { formatDateTime } from "@/lib/utils";
+import { cn, formatDateTime } from "@/lib/utils";
 import {
   getConversationStatusLabel,
+  getMessageDirectionLabel,
   getMessageSenderTypeLabel,
   getMessageStatusLabel,
 } from "@/lib/ui-labels";
@@ -123,8 +124,113 @@ export default async function ConversationDetailPage({
           </CardContent>
         </Card>
       </section>
-      <div className="grid gap-6 xl:grid-cols-[0.88fr_1.12fr]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(360px,0.8fr)]">
         <div className="space-y-6">
+          {canOperate ? (
+            <ManualReplyForm
+              action={sendConversationReplyAction.bind(null, conversation.id)}
+              templates={templates.map((template) => ({
+                id: template.id,
+                name: template.name,
+                language: template.language,
+                category: template.category,
+                components: template.components,
+              }))}
+            />
+          ) : null}
+          <Card>
+            <CardHeader>
+              <CardTitle>Timeline de mensajes</CardTitle>
+              <CardDescription>
+                Historial inbound y outbound persistido por canal.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {messages.length === 0 ? (
+                <EmptyState
+                  title="Sin mensajes todavía"
+                  description="Cuando llegue un inbound o se envíe una respuesta manual, el historial va a quedar registrado acá."
+                />
+              ) : (
+                messages.map((message) => {
+                  const isOutbound = message.direction === "outbound";
+                  const isFailed = message.message_status === "failed";
+
+                  return (
+                    <div
+                      key={message.id}
+                      className={cn(
+                        "max-w-[94%] rounded-2xl px-4 py-3 text-sm sm:max-w-[86%]",
+                        isOutbound
+                          ? "bg-primary ml-auto text-white shadow-sm"
+                          : "border-border bg-muted text-foreground border",
+                        isFailed &&
+                          "border-error/30 bg-lighterror text-error ml-auto border",
+                      )}
+                    >
+                      <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
+                        <Badge
+                          variant={
+                            isFailed
+                              ? "lightError"
+                              : isOutbound
+                                ? "lightPrimary"
+                                : "gray"
+                          }
+                        >
+                          {getMessageDirectionLabel(message.direction)}
+                        </Badge>
+                        <span
+                          className={cn(
+                            isOutbound && !isFailed
+                              ? "text-white/80"
+                              : "text-muted-foreground",
+                            isFailed && "text-error",
+                          )}
+                        >
+                          {getMessageSenderTypeLabel(message.sender_type)} ·{" "}
+                          {formatDateTime(message.created_at)} ·{" "}
+                          {getMessageStatusLabel(message.message_status)}
+                        </span>
+                      </div>
+                      <p>
+                        {message.content ??
+                          "Mensaje sin contenido renderizable"}
+                      </p>
+                      {canOperate && isOutbound && isFailed ? (
+                        <div className="mt-3 space-y-3">
+                          {message.error_message ? (
+                            <p className="border-error/20 bg-background text-error rounded-xl border px-3 py-2 text-xs">
+                              Error: {message.error_message}
+                            </p>
+                          ) : null}
+                          <form
+                            action={retryConversationMessageAction}
+                            className="flex justify-end"
+                          >
+                            <input
+                              name="message_id"
+                              type="hidden"
+                              value={message.id}
+                            />
+                            <Button
+                              size="sm"
+                              variant="outlineerror"
+                              type="submit"
+                            >
+                              Reintentar
+                            </Button>
+                          </form>
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })
+              )}
+            </CardContent>
+          </Card>
+        </div>
+        <aside className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Contexto conversacional</CardTitle>
@@ -322,87 +428,7 @@ export default async function ConversationDetailPage({
               ) : null}
             </CardContent>
           </Card>
-        </div>
-        <div className="space-y-6">
-          {canOperate ? (
-            <ManualReplyForm
-              action={sendConversationReplyAction.bind(null, conversation.id)}
-              templates={templates.map((template) => ({
-                id: template.id,
-                name: template.name,
-                language: template.language,
-                category: template.category,
-                components: template.components,
-              }))}
-            />
-          ) : null}
-          <Card>
-            <CardHeader>
-              <CardTitle>Timeline de mensajes</CardTitle>
-              <CardDescription>
-                Historial inbound y outbound persistido por canal.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {messages.length === 0 ? (
-                <EmptyState
-                  title="Sin mensajes todavía"
-                  description="Cuando llegue un inbound o se envíe una respuesta manual, el historial va a quedar registrado acá."
-                />
-              ) : (
-                messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`max-w-[92%] rounded-2xl px-4 py-3 text-sm sm:max-w-[85%] ${
-                      message.direction === "outbound"
-                        ? "bg-primary ml-auto text-white shadow-sm"
-                        : "border-border bg-muted text-foreground border"
-                    }`}
-                  >
-                    <p>
-                      {message.content ?? "Mensaje sin contenido renderizable"}
-                    </p>
-                    <p
-                      className={`mt-2 text-xs ${
-                        message.direction === "outbound"
-                          ? "text-white/80"
-                          : "text-muted-foreground"
-                      }`}
-                    >
-                      {getMessageSenderTypeLabel(message.sender_type)} ·{" "}
-                      {formatDateTime(message.created_at)} ·{" "}
-                      {getMessageStatusLabel(message.message_status)}
-                    </p>
-                    {canOperate &&
-                    message.direction === "outbound" &&
-                    message.message_status === "failed" ? (
-                      <div className="mt-3 space-y-3">
-                        {message.error_message ? (
-                          <p className="rounded-xl border border-white/30 bg-white/10 px-3 py-2 text-xs text-white">
-                            Error: {message.error_message}
-                          </p>
-                        ) : null}
-                        <form
-                          action={retryConversationMessageAction}
-                          className="flex justify-end"
-                        >
-                          <input
-                            name="message_id"
-                            type="hidden"
-                            value={message.id}
-                          />
-                          <Button size="sm" variant="outline" type="submit">
-                            Reintentar
-                          </Button>
-                        </form>
-                      </div>
-                    ) : null}
-                  </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
-        </div>
+        </aside>
       </div>
     </div>
   );

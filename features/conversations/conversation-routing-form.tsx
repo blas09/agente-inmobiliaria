@@ -7,7 +7,13 @@ import { INITIAL_ACTION_STATE, type ActionState } from "@/types/actions";
 import { ActionFeedback } from "@/components/shared/action-feedback";
 import { FormField } from "@/components/shared/form-field";
 import { SubmitButton } from "@/components/shared/submit-button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { conversationStatusLabels, getTenantRoleLabel } from "@/lib/ui-labels";
@@ -34,6 +40,10 @@ export function ConversationRoutingForm({
     <Card>
       <CardHeader>
         <CardTitle>Routing y handoff</CardTitle>
+        <CardDescription>
+          Definí responsable, estado operativo y si la IA puede seguir
+          participando.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-4">

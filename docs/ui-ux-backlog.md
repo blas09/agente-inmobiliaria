@@ -235,10 +235,29 @@ Verification:
 
 ### UI-004 - Conversation Workspace Polish
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `UI/UX`
 Primary roles: Product Owner, UI/UX Specialist, Frontend Engineer, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Reviewing the conversation detail workspace to clarify context, reply, routing, linking, agenda, and message timeline.
+- 2026-05-03: Completed. Reorganized the conversation detail into a clearer reply/timeline workspace with an operational context column.
+
+Completed:
+
+- Reordered the conversation detail layout so manual reply and message timeline are the primary workspace.
+- Moved context, routing, linking, agenda, and lead-visit history into a separate operational column.
+- Improved message timeline readability with direction/status badges and clearer metadata.
+- Made failed outbound messages visually distinct and kept retry actions close to the failed message.
+- Added short descriptions to reply, routing, and linking forms.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
 
 Problem:
 
