@@ -18,6 +18,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  operationTypeLabels,
+  propertyStatusLabels,
+  propertyTypeLabels,
+} from "@/lib/ui-labels";
 
 interface PropertyFormProps {
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
@@ -64,12 +69,11 @@ export function PropertyForm({ action, initialValues }: PropertyFormProps) {
               id="status"
               name="status"
             >
-              <option value="draft">Borrador</option>
-              <option value="available">Disponible</option>
-              <option value="reserved">Reservada</option>
-              <option value="rented">Alquilada</option>
-              <option value="sold">Vendida</option>
-              <option value="inactive">Inactiva</option>
+              {Object.entries(propertyStatusLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
             </NativeSelect>
           </FormField>
           <FormField htmlFor="operation_type" label="Operación">
@@ -78,8 +82,11 @@ export function PropertyForm({ action, initialValues }: PropertyFormProps) {
               id="operation_type"
               name="operation_type"
             >
-              <option value="sale">Venta</option>
-              <option value="rent">Alquiler</option>
+              {Object.entries(operationTypeLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
             </NativeSelect>
           </FormField>
           <FormField htmlFor="property_type" label="Tipo">
@@ -88,15 +95,11 @@ export function PropertyForm({ action, initialValues }: PropertyFormProps) {
               id="property_type"
               name="property_type"
             >
-              <option value="apartment">Departamento</option>
-              <option value="house">Casa</option>
-              <option value="land">Terreno</option>
-              <option value="office">Oficina</option>
-              <option value="commercial">Local comercial</option>
-              <option value="warehouse">Depósito</option>
-              <option value="duplex">Dúplex</option>
-              <option value="condo">Condominio</option>
-              <option value="other">Otro</option>
+              {Object.entries(propertyTypeLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
             </NativeSelect>
           </FormField>
           <FormField htmlFor="price" label="Precio">

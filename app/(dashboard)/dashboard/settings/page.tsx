@@ -24,7 +24,6 @@ import {
 import { TenantForm } from "@/features/tenants/tenant-form";
 import {
   AddTenantUserForm,
-  getTenantRoleLabel,
   TenantUsersList,
 } from "@/features/tenants/tenant-user-form";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +33,7 @@ import {
   updatePipelineStageAction,
 } from "@/features/pipeline/actions";
 import { PipelineStageForm } from "@/features/pipeline/pipeline-stage-form";
+import { getPipelineCategoryLabel, getTenantRoleLabel } from "@/lib/ui-labels";
 
 export default async function SettingsPage() {
   const { activeTenant, activeMembership } = await getActiveTenantContext();
@@ -219,11 +219,12 @@ export default async function SettingsPage() {
                   <div>
                     <p className="font-medium">{stage.name}</p>
                     <p className="text-muted-foreground">
-                      Posición {stage.position} · {stage.category}
+                      Posición {stage.position} ·{" "}
+                      {getPipelineCategoryLabel(stage.category)}
                     </p>
                   </div>
                   {stage.is_default ? (
-                    <Badge variant="success">default</Badge>
+                    <Badge variant="success">Predeterminada</Badge>
                   ) : null}
                 </div>
               ))

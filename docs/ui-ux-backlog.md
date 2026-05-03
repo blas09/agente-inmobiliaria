@@ -103,10 +103,30 @@ Verification:
 
 ### UI-002 - Customer-Facing Spanish Labels
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `UI/UX`
 Primary roles: Product Owner, UI/UX Specialist, Frontend Engineer, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Auditing customer-facing enum/status output before adding shared Spanish label helpers.
+- 2026-05-03: Completed. Added shared Spanish UI label helpers and replaced raw customer-facing values across the critical MVP surfaces.
+
+Completed:
+
+- Added shared UI label helpers for properties, leads, conversations, channels, tenants, memberships, roles, FAQs, pipeline categories, WhatsApp templates, messages, and providers.
+- Replaced raw visible statuses and enum-like values in dashboard, properties, leads, conversations, appointments, channels, FAQs, settings, and platform tenant screens.
+- Updated form options so user-facing choices remain in Spanish while submitted values stay unchanged.
+- Updated WhatsApp template user-facing copy from raw "template" wording to Spanish "plantilla" where shown to users.
+- Added focused regression coverage for shared label helpers.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run tests/ui-labels.test.ts` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
 
 Problem:
 

@@ -19,32 +19,26 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
+import {
+  getMembershipStatusLabel,
+  membershipStatusLabels,
+  tenantRoleLabels,
+} from "@/lib/ui-labels";
 
 const roleOptions: Array<{ value: TenantRole; label: string }> = [
-  { value: "tenant_owner", label: "Propietario" },
-  { value: "tenant_admin", label: "Administrador" },
-  { value: "advisor", label: "Asesor" },
-  { value: "operator", label: "Operador" },
-  { value: "viewer", label: "Lectura" },
+  { value: "tenant_owner", label: tenantRoleLabels.tenant_owner },
+  { value: "tenant_admin", label: tenantRoleLabels.tenant_admin },
+  { value: "advisor", label: tenantRoleLabels.advisor },
+  { value: "operator", label: tenantRoleLabels.operator },
+  { value: "viewer", label: tenantRoleLabels.viewer },
 ];
 
 const statusOptions = [
-  { value: "invited", label: "Invitado" },
-  { value: "active", label: "Activo" },
-  { value: "suspended", label: "Suspendido" },
-  { value: "removed", label: "Removido" },
+  { value: "invited", label: membershipStatusLabels.invited },
+  { value: "active", label: membershipStatusLabels.active },
+  { value: "suspended", label: membershipStatusLabels.suspended },
+  { value: "removed", label: membershipStatusLabels.removed },
 ];
-
-const roleLabelByValue = new Map(
-  roleOptions.map((option) => [option.value, option.label]),
-);
-const statusLabelByValue = new Map(
-  statusOptions.map((option) => [option.value, option.label]),
-);
-
-export function getTenantRoleLabel(role: TenantRole) {
-  return roleLabelByValue.get(role) ?? role;
-}
 
 export function AddTenantUserForm({
   action,
@@ -150,7 +144,7 @@ function TenantUserRow({
               {user.user_profiles?.email ?? user.user_id}
             </p>
             <Badge className="w-fit" variant="lightPrimary">
-              {statusLabelByValue.get(user.status) ?? user.status}
+              {getMembershipStatusLabel(user.status)}
             </Badge>
           </div>
           <input

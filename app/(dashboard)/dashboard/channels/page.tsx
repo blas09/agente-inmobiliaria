@@ -24,6 +24,15 @@ import {
   createWhatsAppTemplateAction,
   updateWhatsAppTemplateStatusAction,
 } from "@/features/whatsapp-templates/actions";
+import {
+  getChannelProviderLabel,
+  getChannelEventTypeLabel,
+  getChannelStatusLabel,
+  getChannelTypeLabel,
+  getWhatsAppTemplateCategoryLabel,
+  getWhatsAppTemplateStatusLabel,
+  getWhatsAppWebhookStatusLabel,
+} from "@/lib/ui-labels";
 
 export default async function ChannelsPage() {
   const { activeTenant, activeMembership } = await getActiveTenantContext();
@@ -101,7 +110,7 @@ export default async function ChannelsPage() {
                 {health.outboundCount}
               </p>
               <p className="text-muted-foreground mt-1 text-sm">
-                {health.deliveredCount} delivered · {health.readCount} read
+                {health.deliveredCount} entregados · {health.readCount} leídos
               </p>
             </div>
             <div className="border-border bg-muted rounded-xl border p-4">
@@ -157,7 +166,9 @@ export default async function ChannelsPage() {
                     className="border-border bg-muted flex flex-col gap-2 rounded-xl border px-4 py-3 md:flex-row md:items-center md:justify-between"
                   >
                     <div>
-                      <p className="font-medium">{event.eventType}</p>
+                      <p className="font-medium">
+                        {getChannelEventTypeLabel(event.eventType)}
+                      </p>
                       <p className="text-muted-foreground text-xs">
                         {formatDateTime(event.createdAt)}
                       </p>
@@ -187,7 +198,8 @@ export default async function ChannelsPage() {
                   <div>
                     <CardTitle>{channel.display_name}</CardTitle>
                     <CardDescription className="mt-1">
-                      {channel.provider} · {channel.type}
+                      {getChannelProviderLabel(channel.provider)} ·{" "}
+                      {getChannelTypeLabel(channel.type)}
                     </CardDescription>
                   </div>
                   <Badge
@@ -197,7 +209,7 @@ export default async function ChannelsPage() {
                         : "outline"
                     }
                   >
-                    {channel.status}
+                    {getChannelStatusLabel(channel.status)}
                   </Badge>
                 </div>
               </CardHeader>
@@ -216,7 +228,10 @@ export default async function ChannelsPage() {
                         "Sin número visible"}
                     </p>
                     <p className="text-muted-foreground mt-2 text-xs tracking-[0.18em] uppercase">
-                      Webhook {whatsappAccount.webhook_status}
+                      Webhook{" "}
+                      {getWhatsAppWebhookStatusLabel(
+                        whatsappAccount.webhook_status,
+                      )}
                     </p>
                   </div>
                 ) : null}
@@ -229,15 +244,15 @@ export default async function ChannelsPage() {
         <WhatsAppTemplateForm action={createWhatsAppTemplateAction} />
         <CardBox>
           <CardHeader>
-            <CardTitle>Templates WhatsApp</CardTitle>
+            <CardTitle>Plantillas WhatsApp</CardTitle>
             <CardDescription>
-              Templates disponibles para el tenant activo.
+              Plantillas disponibles para el tenant activo.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             {templates.length === 0 ? (
               <p className="text-muted-foreground">
-                Todavía no hay templates cargados.
+                Todavía no hay plantillas cargadas.
               </p>
             ) : (
               <div className="space-y-3">
@@ -251,15 +266,19 @@ export default async function ChannelsPage() {
                         <p className="font-medium">{template.name}</p>
                         <p className="text-muted-foreground text-xs">
                           {template.language}{" "}
-                          {template.category ? `· ${template.category}` : ""}
+                          {template.category
+                            ? `· ${getWhatsAppTemplateCategoryLabel(
+                                template.category,
+                              )}`
+                            : ""}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
                         {!template.is_active ? (
-                          <Badge variant="outline">inactive</Badge>
+                          <Badge variant="outline">Inactivo</Badge>
                         ) : null}
                         <Badge variant={templateStatusVariant(template.status)}>
-                          {template.status ?? "unknown"}
+                          {getWhatsAppTemplateStatusLabel(template.status)}
                         </Badge>
                       </div>
                     </div>

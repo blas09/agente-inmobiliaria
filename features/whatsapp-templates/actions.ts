@@ -51,7 +51,7 @@ function parseTemplateFormData(formData: FormData) {
   if (componentErrors) {
     return {
       success: false as const,
-      errorMessage: "Hay campos inválidos en el template.",
+      errorMessage: "Hay campos inválidos en la plantilla.",
       fieldErrors: {
         components: componentErrors,
       },
@@ -61,7 +61,7 @@ function parseTemplateFormData(formData: FormData) {
   if (!result.success) {
     return {
       success: false as const,
-      errorMessage: "Hay campos inválidos en el template.",
+      errorMessage: "Hay campos inválidos en la plantilla.",
       fieldErrors: result.error.flatten().fieldErrors,
     };
   }
@@ -104,7 +104,7 @@ export async function createWhatsAppTemplateAction(
   }
 
   revalidatePath("/dashboard/channels");
-  return { status: "success", message: "Template creado." };
+  return { status: "success", message: "Plantilla creada." };
 }
 
 export async function updateWhatsAppTemplateAction(
@@ -132,10 +132,8 @@ export async function updateWhatsAppTemplateAction(
       components: toJson(result.data.components),
       status_updated_by: user.id,
       status_updated_at: auditNow,
-      approved_by:
-        result.data.status === "approved" ? user.id : undefined,
-      approved_at:
-        result.data.status === "approved" ? auditNow : undefined,
+      approved_by: result.data.status === "approved" ? user.id : undefined,
+      approved_at: result.data.status === "approved" ? auditNow : undefined,
     })
     .eq("tenant_id", activeTenant.id)
     .eq("id", templateId);
@@ -145,7 +143,7 @@ export async function updateWhatsAppTemplateAction(
   }
 
   revalidatePath("/dashboard/channels");
-  return { status: "success", message: "Template actualizado." };
+  return { status: "success", message: "Plantilla actualizada." };
 }
 
 export async function deleteWhatsAppTemplateAction(templateId: string) {
@@ -169,7 +167,7 @@ export async function updateWhatsAppTemplateStatusAction(formData: FormData) {
   const isActive = formData.get("is_active");
 
   if (!templateId) {
-    throw new Error("Falta el template.");
+    throw new Error("Falta la plantilla.");
   }
 
   const { data: currentTemplate, error: currentTemplateError } = await supabase
@@ -181,7 +179,7 @@ export async function updateWhatsAppTemplateStatusAction(formData: FormData) {
 
   if (currentTemplateError || !currentTemplate) {
     throw new Error(
-      currentTemplateError?.message ?? "No se encontró el template.",
+      currentTemplateError?.message ?? "No se encontró la plantilla.",
     );
   }
 

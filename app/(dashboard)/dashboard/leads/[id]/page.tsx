@@ -38,6 +38,16 @@ import {
   canManageLeads,
 } from "@/lib/permissions";
 import { formatDateTime } from "@/lib/utils";
+import {
+  getConversationStatusLabel,
+  getLeadInterestTypeLabel,
+  getLeadQualificationStatusLabel,
+  getLeadSourceLabel,
+} from "@/lib/ui-labels";
+import {
+  getAppointmentStatusLabel,
+  getAppointmentStatusTone,
+} from "@/features/appointments/status";
 
 export default async function LeadDetailPage({
   params,
@@ -115,7 +125,7 @@ export default async function LeadDetailPage({
                     : "lightPrimary"
                 }
               >
-                {lead.qualification_status}
+                {getLeadQualificationStatusLabel(lead.qualification_status)}
               </Badge>
               <span className="text-muted-foreground text-sm">
                 Score {lead.score ?? "-"}
@@ -161,7 +171,7 @@ export default async function LeadDetailPage({
           <CardContent className="space-y-4 text-sm">
             <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-muted-foreground">Interés</span>
-              <span>{lead.interest_type ?? "Sin definir"}</span>
+              <span>{getLeadInterestTypeLabel(lead.interest_type)}</span>
             </div>
             <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-muted-foreground">Score</span>
@@ -189,7 +199,7 @@ export default async function LeadDetailPage({
                   Fuente
                 </p>
                 <p className="mt-1 font-medium">
-                  {lead.source ?? "Sin fuente"}
+                  {getLeadSourceLabel(lead.source)}
                 </p>
               </div>
               <div>
@@ -294,7 +304,7 @@ export default async function LeadDetailPage({
                       "Conversación sin nombre"}
                   </p>
                   <p className="text-muted-foreground">
-                    {conversation.status} ·{" "}
+                    {getConversationStatusLabel(conversation.status)} ·{" "}
                     {formatDateTime(conversation.last_message_at)}
                   </p>
                   <p className="text-muted-foreground mt-1">
@@ -369,15 +379,9 @@ export default async function LeadDetailPage({
                       {formatDateTime(appointment.scheduled_at)}
                     </p>
                     <Badge
-                      variant={
-                        appointment.status === "confirmed"
-                          ? "success"
-                          : appointment.status === "canceled"
-                            ? "destructive"
-                            : "outline"
-                      }
+                      variant={getAppointmentStatusTone(appointment.status)}
                     >
-                      {appointment.status}
+                      {getAppointmentStatusLabel(appointment.status)}
                     </Badge>
                   </div>
                   <p className="text-muted-foreground mt-1">

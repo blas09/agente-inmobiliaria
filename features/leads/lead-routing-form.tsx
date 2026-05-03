@@ -9,6 +9,10 @@ import { FormField } from "@/components/shared/form-field";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NativeSelect } from "@/components/ui/native-select";
+import {
+  getTenantRoleLabel,
+  leadQualificationStatusLabels,
+} from "@/lib/ui-labels";
 
 interface LeadRoutingFormProps {
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
@@ -46,7 +50,7 @@ export function LeadRoutingForm({
               <option value="">Sin asignar</option>
               {advisorOptions.map((advisor) => (
                 <option key={advisor.id} value={advisor.id}>
-                  {advisor.label} · {advisor.role}
+                  {advisor.label} · {getTenantRoleLabel(advisor.role)}
                 </option>
               ))}
             </NativeSelect>
@@ -57,13 +61,13 @@ export function LeadRoutingForm({
               id="qualification_status"
               name="qualification_status"
             >
-              <option value="new">Nuevo</option>
-              <option value="contacted">Contactado</option>
-              <option value="qualified">Calificado</option>
-              <option value="unqualified">No calificado</option>
-              <option value="nurturing">Seguimiento</option>
-              <option value="won">Ganado</option>
-              <option value="lost">Perdido</option>
+              {Object.entries(leadQualificationStatusLabels).map(
+                ([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ),
+              )}
             </NativeSelect>
           </FormField>
           <FormField htmlFor="pipeline_stage_id" label="Etapa del pipeline">

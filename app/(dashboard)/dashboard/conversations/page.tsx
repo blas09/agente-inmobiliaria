@@ -14,6 +14,7 @@ import {
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { listConversations } from "@/server/queries/conversations";
 import { formatDateTime } from "@/lib/utils";
+import { getConversationStatusLabel } from "@/lib/ui-labels";
 
 export default async function ConversationsPage() {
   const { activeTenant } = await getActiveTenantContext();
@@ -81,7 +82,7 @@ export default async function ConversationsPage() {
                           : "outline"
                       }
                     >
-                      {conversation.status}
+                      {getConversationStatusLabel(conversation.status)}
                     </Badge>
                   </div>
                 </CardHeader>
@@ -106,7 +107,8 @@ export default async function ConversationsPage() {
                         conversation.ai_enabled ? "lightSuccess" : "gray"
                       }
                     >
-                      IA {conversation.ai_enabled ? "on" : "off"}
+                      IA{" "}
+                      {conversation.ai_enabled ? "habilitada" : "desactivada"}
                     </Badge>
                   </div>
                 </CardContent>

@@ -113,14 +113,14 @@ export async function sendConversationReplyAction(
       if (!template) {
         return {
           status: "error",
-          message: "El template seleccionado no existe.",
+          message: "La plantilla seleccionada no existe.",
         };
       }
 
       if (!template.is_active || template.status !== "approved") {
         return {
           status: "error",
-          message: "El template debe estar activo y aprobado.",
+          message: "La plantilla debe estar activa y aprobada.",
         };
       }
 
@@ -146,7 +146,7 @@ export async function sendConversationReplyAction(
           return {
             status: "error",
             message:
-              "Los componentes del template deben ser un JSON válido (array).",
+              "Los componentes de la plantilla deben ser un JSON válido (array).",
           };
         }
       }
@@ -167,7 +167,7 @@ export async function sendConversationReplyAction(
       userId: user.id,
       content:
         contentType === "template"
-          ? `Template: ${templateName ?? ""}`
+          ? `Plantilla: ${templateName ?? ""}`
           : content,
       contentType,
       metadata,

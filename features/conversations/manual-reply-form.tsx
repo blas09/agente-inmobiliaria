@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormField } from "@/components/shared/form-field";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
+import { getWhatsAppTemplateCategoryLabel } from "@/lib/ui-labels";
 import { Badge } from "@/components/ui/badge";
 import type { Json } from "@/types/database";
 
@@ -71,7 +72,7 @@ export function ManualReplyForm({
       <CardContent>
         <form action={formAction} className="space-y-4">
           {templates.length > 0 ? (
-            <FormField htmlFor="template_id" label="Template">
+            <FormField htmlFor="template_id" label="Plantilla">
               <NativeSelect
                 id="template_id"
                 name="template_id"
@@ -82,7 +83,7 @@ export function ManualReplyForm({
                   setTemplateComponents("");
                 }}
               >
-                <option value="">Sin template (texto libre)</option>
+                <option value="">Sin plantilla (texto libre)</option>
                 {templates.map((template) => (
                   <option key={template.id} value={template.id}>
                     {template.name} · {template.language}
@@ -99,14 +100,16 @@ export function ManualReplyForm({
                   <p className="text-muted-foreground text-xs">
                     {selectedTemplate.language}
                     {selectedTemplate.category
-                      ? ` · ${selectedTemplate.category}`
+                      ? ` · ${getWhatsAppTemplateCategoryLabel(
+                          selectedTemplate.category,
+                        )}`
                       : ""}
                   </p>
                 </div>
-                <Badge variant="lightPrimary">template</Badge>
+                <Badge variant="lightPrimary">Plantilla</Badge>
               </div>
               <p className="text-muted-foreground text-xs">
-                Podés usar los componentes por defecto del template o
+                Podés usar los componentes por defecto de la plantilla o
                 sobreescribirlos pegando un JSON válido abajo.
               </p>
             </div>
@@ -116,8 +119,8 @@ export function ManualReplyForm({
             label="Componentes (JSON)"
             description={
               selectedTemplate
-                ? "Si lo dejás vacío, se usan los componentes guardados en el template."
-                : "Opcional. Solo hace falta si vas a enviar un template."
+                ? "Si lo dejás vacío, se usan los componentes guardados en la plantilla."
+                : "Opcional. Solo hace falta si vas a enviar una plantilla."
             }
           >
             <Textarea
@@ -132,7 +135,7 @@ export function ManualReplyForm({
           {selectedTemplate && defaultTemplateComponents ? (
             <div className="border-border rounded-xl border p-4 text-sm">
               <p className="font-medium">Componentes por defecto</p>
-              <pre className="text-muted-foreground mt-2 overflow-x-auto whitespace-pre-wrap text-xs">
+              <pre className="text-muted-foreground mt-2 overflow-x-auto text-xs whitespace-pre-wrap">
                 {defaultTemplateComponents}
               </pre>
             </div>
@@ -146,7 +149,7 @@ export function ManualReplyForm({
                 </p>
               ) : parsedPreview.items.length === 0 ? (
                 <p className="text-muted-foreground mt-2 text-sm">
-                  Este template no tiene parámetros visibles configurados.
+                  Esta plantilla no tiene parámetros visibles configurados.
                 </p>
               ) : (
                 <div className="mt-3 space-y-2">
@@ -167,7 +170,7 @@ export function ManualReplyForm({
                         key={index}
                         className="border-border rounded-lg border px-3 py-2"
                       >
-                        <p className="text-foreground text-xs font-medium uppercase tracking-[0.18em]">
+                        <p className="text-foreground text-xs font-medium tracking-[0.18em] uppercase">
                           {component?.type ?? `Componente ${index + 1}`}
                         </p>
                         <p className="text-muted-foreground mt-1 text-xs">

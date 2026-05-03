@@ -19,6 +19,10 @@ import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { listLeads } from "@/server/queries/leads";
 import { formatDateTime } from "@/lib/utils";
 import { canManageLeads } from "@/lib/permissions";
+import {
+  getLeadQualificationStatusLabel,
+  getLeadSourceLabel,
+} from "@/lib/ui-labels";
 
 export default async function LeadsPage({
   searchParams,
@@ -120,7 +124,7 @@ export default async function LeadsPage({
                         {lead.email ?? lead.phone ?? "Sin contacto"}
                       </p>
                     </TableCell>
-                    <TableCell>{lead.source ?? "Sin fuente"}</TableCell>
+                    <TableCell>{getLeadSourceLabel(lead.source)}</TableCell>
                     <TableCell>
                       <Badge
                         variant={
@@ -129,7 +133,9 @@ export default async function LeadsPage({
                             : "outline"
                         }
                       >
-                        {lead.qualification_status}
+                        {getLeadQualificationStatusLabel(
+                          lead.qualification_status,
+                        )}
                       </Badge>
                     </TableCell>
                     <TableCell>{lead.score ?? "-"}</TableCell>

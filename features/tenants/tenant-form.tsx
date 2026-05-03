@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
+import { tenantStatusLabels } from "@/lib/ui-labels";
 
 interface TenantFormProps {
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
@@ -75,10 +76,11 @@ export function TenantForm({
                 id="status"
                 name="status"
               >
-                <option value="trial">Trial</option>
-                <option value="active">Activo</option>
-                <option value="suspended">Suspendido</option>
-                <option value="archived">Archivado</option>
+                {Object.entries(tenantStatusLabels).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
               </NativeSelect>
             </FormField>
           ) : (

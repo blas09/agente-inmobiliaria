@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
+import { pipelineCategoryLabels } from "@/lib/ui-labels";
 
 export function PipelineStageForm({
   action,
@@ -73,12 +74,11 @@ export function PipelineStageForm({
               id={`category-${title}`}
               name="category"
             >
-              <option value="inbox">Inbox</option>
-              <option value="qualified">Qualified</option>
-              <option value="visit">Visit</option>
-              <option value="negotiation">Negotiation</option>
-              <option value="won">Won</option>
-              <option value="lost">Lost</option>
+              {Object.entries(pipelineCategoryLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
             </NativeSelect>
           </FormField>
           <div className="flex items-end gap-3">
@@ -88,7 +88,7 @@ export function PipelineStageForm({
                 name="is_default"
                 type="checkbox"
               />
-              Default
+              Predeterminada
             </label>
             <SubmitButton
               label="Guardar"

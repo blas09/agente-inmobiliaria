@@ -19,6 +19,11 @@ import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { listProperties } from "@/server/queries/properties";
 import { formatCurrency } from "@/lib/utils";
 import { canManageProperties } from "@/lib/permissions";
+import {
+  getOperationTypeLabel,
+  getPropertyStatusLabel,
+  getPropertyTypeLabel,
+} from "@/lib/ui-labels";
 
 export default async function PropertiesPage({
   searchParams,
@@ -123,11 +128,11 @@ export default async function PropertiesPage({
                       </Link>
                       <p className="text-muted-foreground mt-1 text-xs">
                         {property.external_ref ?? "sin ref"} ·{" "}
-                        {property.property_type}
+                        {getPropertyTypeLabel(property.property_type)}
                       </p>
                     </TableCell>
-                    <TableCell className="capitalize">
-                      {property.operation_type}
+                    <TableCell>
+                      {getOperationTypeLabel(property.operation_type)}
                     </TableCell>
                     <TableCell>
                       {property.location_text ??
@@ -149,7 +154,7 @@ export default async function PropertiesPage({
                             : "outline"
                         }
                       >
-                        {property.status}
+                        {getPropertyStatusLabel(property.status)}
                       </Badge>
                     </TableCell>
                   </TableRow>

@@ -20,6 +20,11 @@ import { getDashboardSummary } from "@/server/queries/dashboard";
 import { getAppContext } from "@/server/auth/tenant-context";
 import { getPlatformSummary } from "@/server/queries/tenants";
 import { formatCompactNumber, formatDateTime } from "@/lib/utils";
+import {
+  getConversationStatusLabel,
+  getLeadQualificationStatusLabel,
+  getLeadSourceLabel,
+} from "@/lib/ui-labels";
 
 const metricCards = [
   {
@@ -146,8 +151,8 @@ export default async function DashboardPage() {
                     key={item.source}
                     className="border-border flex items-center justify-between rounded-xl border px-4 py-3"
                   >
-                    <p className="text-sm font-medium capitalize">
-                      {item.source}
+                    <p className="text-sm font-medium">
+                      {getLeadSourceLabel(item.source)}
                     </p>
                     <Badge variant="gray">{item.total}</Badge>
                   </div>
@@ -332,10 +337,14 @@ export default async function DashboardPage() {
                   >
                     <div className="flex items-center justify-between gap-3">
                       <p className="font-medium">{lead.full_name}</p>
-                      <Badge variant="gray">{lead.qualification_status}</Badge>
+                      <Badge variant="gray">
+                        {getLeadQualificationStatusLabel(
+                          lead.qualification_status,
+                        )}
+                      </Badge>
                     </div>
                     <p className="text-muted-foreground text-sm">
-                      {lead.source ?? "sin fuente"} ·{" "}
+                      {getLeadSourceLabel(lead.source)} ·{" "}
                       {formatDateTime(lead.created_at)}
                     </p>
                   </Link>
@@ -379,7 +388,7 @@ export default async function DashboardPage() {
                             : "gray"
                         }
                       >
-                        {conversation.status}
+                        {getConversationStatusLabel(conversation.status)}
                       </Badge>
                     </div>
                     <p className="text-muted-foreground text-sm">

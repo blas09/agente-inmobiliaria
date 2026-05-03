@@ -10,13 +10,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
+import { whatsappTemplateStatusLabels } from "@/lib/ui-labels";
 
-const statusOptions = [
-  { value: "approved", label: "Approved" },
-  { value: "pending", label: "Pending" },
-  { value: "rejected", label: "Rejected" },
-  { value: "paused", label: "Paused" },
-];
+const statusOptions = Object.entries(whatsappTemplateStatusLabels);
 
 const templateExamples = {
   simpleBody: JSON.stringify(
@@ -82,7 +78,7 @@ export function WhatsAppTemplateForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Nuevo template WhatsApp</CardTitle>
+        <CardTitle>Nueva plantilla WhatsApp</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <form action={formAction} className="space-y-4">
@@ -111,9 +107,9 @@ export function WhatsAppTemplateForm({
             </FormField>
             <FormField htmlFor="status" label="Estado">
               <NativeSelect id="status" name="status" defaultValue="approved">
-                {statusOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
+                {statusOptions.map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
                   </option>
                 ))}
               </NativeSelect>
@@ -122,7 +118,7 @@ export function WhatsAppTemplateForm({
           <FormField
             htmlFor="components"
             label="Componentes (JSON)"
-            description="Podés dejarlo vacío para templates simples o pegar un array JSON válido de Meta."
+            description="Podés dejarlo vacío para plantillas simples o pegar un array JSON válido de Meta."
           >
             <Textarea
               id="components"
@@ -157,7 +153,7 @@ export function WhatsAppTemplateForm({
               </p>
             ) : parsedPreview.items.length === 0 ? (
               <p className="text-muted-foreground mt-2 text-sm">
-                Sin componentes. El template se guardará sin parámetros
+                Sin componentes. La plantilla se guardará sin parámetros
                 preconfigurados.
               </p>
             ) : (
@@ -176,7 +172,7 @@ export function WhatsAppTemplateForm({
                       key={index}
                       className="border-border rounded-lg border px-3 py-2"
                     >
-                      <p className="text-foreground text-xs font-medium uppercase tracking-[0.18em]">
+                      <p className="text-foreground text-xs font-medium tracking-[0.18em] uppercase">
                         {component?.type ?? `Componente ${index + 1}`}
                       </p>
                       <p className="text-muted-foreground mt-1 text-xs">
@@ -194,7 +190,10 @@ export function WhatsAppTemplateForm({
             )}
           </div>
           <div className="flex items-center justify-end">
-            <SubmitButton label="Guardar template" pendingLabel="Guardando..." />
+            <SubmitButton
+              label="Guardar plantilla"
+              pendingLabel="Guardando..."
+            />
           </div>
         </form>
         {state.message ? (

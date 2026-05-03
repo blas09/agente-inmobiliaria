@@ -12,6 +12,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  getTenantRoleLabel,
+  leadInterestTypeLabels,
+  leadQualificationStatusLabels,
+} from "@/lib/ui-labels";
 
 interface LeadFormProps {
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
@@ -77,8 +82,11 @@ export function LeadForm({
               name="interest_type"
             >
               <option value="">Sin definir</option>
-              <option value="sale">Compra</option>
-              <option value="rent">Alquiler</option>
+              {Object.entries(leadInterestTypeLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
             </NativeSelect>
           </FormField>
           <FormField htmlFor="qualification_status" label="Estado comercial">
@@ -87,13 +95,13 @@ export function LeadForm({
               id="qualification_status"
               name="qualification_status"
             >
-              <option value="new">Nuevo</option>
-              <option value="contacted">Contactado</option>
-              <option value="qualified">Calificado</option>
-              <option value="unqualified">No calificado</option>
-              <option value="nurturing">Seguimiento</option>
-              <option value="won">Ganado</option>
-              <option value="lost">Perdido</option>
+              {Object.entries(leadQualificationStatusLabels).map(
+                ([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ),
+              )}
             </NativeSelect>
           </FormField>
           <FormField htmlFor="budget_min" label="Presupuesto mínimo">
@@ -151,7 +159,7 @@ export function LeadForm({
               <option value="">Sin asignar</option>
               {advisorOptions.map((advisor) => (
                 <option key={advisor.id} value={advisor.id}>
-                  {advisor.label} · {advisor.role}
+                  {advisor.label} · {getTenantRoleLabel(advisor.role)}
                 </option>
               ))}
             </NativeSelect>

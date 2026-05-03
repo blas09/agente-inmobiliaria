@@ -15,6 +15,7 @@ import {
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import { listFaqs } from "@/server/queries/faqs";
 import { canManageFaqs } from "@/lib/permissions";
+import { getFaqStatusLabel } from "@/lib/ui-labels";
 
 export default async function FaqsPage() {
   const { activeTenant, activeMembership } = await getActiveTenantContext();
@@ -28,9 +29,9 @@ export default async function FaqsPage() {
         title="FAQs"
         action={
           canManageTenantFaqs ? (
-          <Link href="/dashboard/faqs/new">
-            <Button>Nueva FAQ</Button>
-          </Link>
+            <Link href="/dashboard/faqs/new">
+              <Button>Nueva FAQ</Button>
+            </Link>
           ) : null
         }
       />
@@ -72,7 +73,9 @@ export default async function FaqsPage() {
                         </CardTitle>
                       </Link>
                     ) : (
-                      <CardTitle className="text-base">{faq.question}</CardTitle>
+                      <CardTitle className="text-base">
+                        {faq.question}
+                      </CardTitle>
                     )}
                     <CardDescription>
                       {faq.category ?? "Sin categoría"}
@@ -83,7 +86,7 @@ export default async function FaqsPage() {
                       faq.status === "active" ? "lightSuccess" : "outline"
                     }
                   >
-                    {faq.status}
+                    {getFaqStatusLabel(faq.status)}
                   </Badge>
                 </div>
               </CardHeader>

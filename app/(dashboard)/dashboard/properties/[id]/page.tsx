@@ -21,6 +21,12 @@ import {
 import { canDeleteProperties, canManageProperties } from "@/lib/permissions";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import {
+  getConversationStatusLabel,
+  getOperationTypeLabel,
+  getPropertyStatusLabel,
+  getPropertyTypeLabel,
+} from "@/lib/ui-labels";
+import {
   getAppointmentStatusLabel,
   getAppointmentStatusTone,
 } from "@/features/appointments/status";
@@ -79,7 +85,7 @@ export default async function PropertyDetailPage({
                     : "lightPrimary"
                 }
               >
-                {property.status}
+                {getPropertyStatusLabel(property.status)}
               </Badge>
             </div>
           </CardContent>
@@ -87,16 +93,16 @@ export default async function PropertyDetailPage({
         <Card>
           <CardContent>
             <p className="text-muted-foreground text-sm">Operación</p>
-            <p className="mt-3 text-lg font-semibold capitalize">
-              {property.operation_type}
+            <p className="mt-3 text-lg font-semibold">
+              {getOperationTypeLabel(property.operation_type)}
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent>
             <p className="text-muted-foreground text-sm">Tipo</p>
-            <p className="mt-3 text-lg font-semibold capitalize">
-              {property.property_type}
+            <p className="mt-3 text-lg font-semibold">
+              {getPropertyTypeLabel(property.property_type)}
             </p>
           </CardContent>
         </Card>
@@ -254,11 +260,13 @@ export default async function PropertyDetailPage({
                         "Conversación sin nombre"}
                     </Link>
                     <p className="text-muted-foreground mt-1">
-                      {conversation.status} ·{" "}
+                      {getConversationStatusLabel(conversation.status)} ·{" "}
                       {formatDateTime(conversation.last_message_at)}
                     </p>
                   </div>
-                  <Badge variant="outline">{conversation.status}</Badge>
+                  <Badge variant="outline">
+                    {getConversationStatusLabel(conversation.status)}
+                  </Badge>
                 </div>
                 <div className="text-muted-foreground mt-3">
                   Lead:{" "}

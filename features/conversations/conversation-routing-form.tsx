@@ -10,6 +10,7 @@ import { SubmitButton } from "@/components/shared/submit-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
+import { conversationStatusLabels, getTenantRoleLabel } from "@/lib/ui-labels";
 
 interface ConversationRoutingFormProps {
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
@@ -45,7 +46,7 @@ export function ConversationRoutingForm({
               <option value="">Sin asignar</option>
               {advisorOptions.map((advisor) => (
                 <option key={advisor.id} value={advisor.id}>
-                  {advisor.label} · {advisor.role}
+                  {advisor.label} · {getTenantRoleLabel(advisor.role)}
                 </option>
               ))}
             </NativeSelect>
@@ -56,10 +57,13 @@ export function ConversationRoutingForm({
               id="status"
               name="status"
             >
-              <option value="open">Abierta</option>
-              <option value="pending_human">Pendiente humano</option>
-              <option value="automated">Automatizada</option>
-              <option value="closed">Cerrada</option>
+              {Object.entries(conversationStatusLabels).map(
+                ([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ),
+              )}
             </NativeSelect>
           </FormField>
           <FormField htmlFor="handoff_reason" label="Motivo de handoff">

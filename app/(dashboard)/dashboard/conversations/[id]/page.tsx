@@ -6,6 +6,10 @@ import {
   getAppointmentRules,
   summarizeAppointmentRules,
 } from "@/features/appointments/rules";
+import {
+  getAppointmentStatusLabel,
+  getAppointmentStatusTone,
+} from "@/features/appointments/status";
 import { ConversationRoutingForm } from "@/features/conversations/conversation-routing-form";
 import {
   sendConversationReplyAction,
@@ -34,6 +38,11 @@ import { listLeads } from "@/server/queries/leads";
 import { listAvailablePropertiesForSelection } from "@/server/queries/properties";
 import { listActiveWhatsAppTemplates } from "@/server/queries/whatsapp-templates";
 import { formatDateTime } from "@/lib/utils";
+import {
+  getConversationStatusLabel,
+  getMessageSenderTypeLabel,
+  getMessageStatusLabel,
+} from "@/lib/ui-labels";
 import {
   canManageAppointments,
   canOperateConversations,
@@ -81,7 +90,7 @@ export default async function ConversationDetailPage({
                     : "lightPrimary"
                 }
               >
-                {conversation.status}
+                {getConversationStatusLabel(conversation.status)}
               </Badge>
             </div>
           </CardContent>
@@ -282,15 +291,9 @@ export default async function ConversationDetailPage({
                         {formatDateTime(appointment.scheduled_at)}
                       </p>
                       <Badge
-                        variant={
-                          appointment.status === "confirmed"
-                            ? "success"
-                            : appointment.status === "canceled"
-                              ? "destructive"
-                              : "outline"
-                        }
+                        variant={getAppointmentStatusTone(appointment.status)}
                       >
-                        {appointment.status}
+                        {getAppointmentStatusLabel(appointment.status)}
                       </Badge>
                     </div>
                     <p className="text-muted-foreground mt-1">
@@ -357,9 +360,9 @@ export default async function ConversationDetailPage({
                           : "text-muted-foreground"
                       }`}
                     >
-                      {message.sender_type} ·{" "}
+                      {getMessageSenderTypeLabel(message.sender_type)} ·{" "}
                       {formatDateTime(message.created_at)} ·{" "}
-                      {message.message_status}
+                      {getMessageStatusLabel(message.message_status)}
                     </p>
                     {canOperate &&
                     message.direction === "outbound" &&

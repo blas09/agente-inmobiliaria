@@ -19,6 +19,7 @@ import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDateTimeLocalInput } from "@/lib/utils";
 import { appointmentStatusLabels } from "@/features/appointments/status";
+import { getTenantRoleLabel } from "@/lib/ui-labels";
 
 interface AppointmentFormProps {
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
@@ -132,7 +133,7 @@ export function AppointmentForm({
               <option value="">Sin asignar</option>
               {advisorOptions.map((advisor) => (
                 <option key={advisor.id} value={advisor.id}>
-                  {advisor.label} · {advisor.role}
+                  {advisor.label} · {getTenantRoleLabel(advisor.role)}
                 </option>
               ))}
             </NativeSelect>
