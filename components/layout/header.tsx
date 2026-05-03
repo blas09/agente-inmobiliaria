@@ -10,7 +10,6 @@ import { signOutAction } from "@/features/auth/actions";
 import { FullLogo } from "@/components/layout/full-logo";
 import { MobileSidebarContent } from "@/components/layout/sidebar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import type { TenantRole } from "@/types/database";
 import { cn } from "@/lib/utils";
@@ -62,21 +61,7 @@ export function AppHeader({ isPlatformAdmin, activeRole }: AppHeaderProps) {
               <FullLogo />
             </Link>
           </div>
-          <div className="hidden flex-1 xl:flex xl:items-center xl:justify-between">
-            <div className="relative w-full max-w-xs">
-              <Icon
-                icon="solar:magnifer-linear"
-                width={18}
-                height={18}
-                className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
-              />
-              <Input
-                readOnly
-                aria-label="Buscar"
-                placeholder="Buscar..."
-                className="h-11 rounded-xl bg-transparent pl-10"
-              />
-            </div>
+          <div className="hidden flex-1 xl:flex xl:items-center xl:justify-end">
             <div className="flex items-center gap-1">
               <button
                 type="button"

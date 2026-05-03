@@ -178,10 +178,29 @@ Verification:
 
 ### UI-003 - Search And Filter Usability
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `UI/UX`
 Primary roles: Product Owner, UI/UX Specialist, Frontend Engineer, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Reviewing existing query-param filters and the read-only global header search before adding visible controls.
+- 2026-05-03: Completed. Added visible section-level filters and removed the inactive global search affordance.
+
+Completed:
+
+- Added visible search and status filters to the properties list using existing query parameters.
+- Added visible search and commercial-status filters to the leads list using existing query parameters.
+- Added a clear-filter action to the appointments filter bar.
+- Removed the read-only global search input from the dashboard header so users do not see a non-functional search control.
+- Kept active-filter empty states differentiated between no data and no matching results.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
 
 Problem:
 

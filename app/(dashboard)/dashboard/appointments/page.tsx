@@ -16,7 +16,7 @@ import {
 } from "@/features/appointments/status";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   CardContent,
   CardDescription,
@@ -106,7 +106,10 @@ export default async function AppointmentsPage({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form className="grid gap-4 md:grid-cols-[1fr_1fr_auto]" method="get">
+          <form
+            className="grid gap-4 md:grid-cols-[1fr_1fr_auto_auto]"
+            method="get"
+          >
             <NativeSelect
               aria-label="Filtrar por estado"
               defaultValue={params.status ?? "all"}
@@ -138,6 +141,14 @@ export default async function AppointmentsPage({
             <Button type="submit" variant="lightprimary">
               Aplicar
             </Button>
+            {hasActiveFilters ? (
+              <Link
+                className={buttonVariants({ variant: "outline" })}
+                href="/dashboard/appointments"
+              >
+                Limpiar
+              </Link>
+            ) : null}
           </form>
         </CardContent>
       </CardBox>

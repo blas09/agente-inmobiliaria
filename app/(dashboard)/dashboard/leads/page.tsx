@@ -4,9 +4,12 @@ import { CardBox } from "@/components/dashboard/card-box";
 import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { EmptyState } from "@/components/shared/empty-state";
+import { FilterCard } from "@/components/shared/filter-card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { NativeSelect } from "@/components/ui/native-select";
 import {
   Table,
   TableBody,
@@ -22,6 +25,7 @@ import { canManageLeads } from "@/lib/permissions";
 import {
   getLeadQualificationStatusLabel,
   getLeadSourceLabel,
+  leadQualificationStatusLabels,
 } from "@/lib/ui-labels";
 
 export default async function LeadsPage({
@@ -33,7 +37,9 @@ export default async function LeadsPage({
   const { activeTenant, activeMembership } = await getActiveTenantContext();
   const canManageLeadRecords = canManageLeads(activeMembership.role);
   const leads = await listLeads(activeTenant.id, params);
-  const hasActiveFilters = Boolean(params.q || params.status);
+  const hasActiveFilters = Boolean(
+    params.q || (params.status && params.status !== "all"),
+  );
   const qualifiedCount = leads.filter(
     (lead) => lead.qualification_status === "qualified",
   ).length;
@@ -71,6 +77,44 @@ export default async function LeadsPage({
           },
         ]}
       />
+      <FilterCard>
+        <form
+          className="grid gap-4 lg:grid-cols-[1fr_240px_auto_auto]"
+          method="get"
+        >
+          <Input
+            aria-label="Buscar leads"
+            defaultValue={params.q ?? ""}
+            name="q"
+            placeholder="Buscar por nombre, email o teléfono"
+          />
+          <NativeSelect
+            aria-label="Filtrar por estado comercial"
+            defaultValue={params.status ?? "all"}
+            name="status"
+          >
+            <option value="all">Todos los estados</option>
+            {Object.entries(leadQualificationStatusLabels).map(
+              ([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ),
+            )}
+          </NativeSelect>
+          <Button type="submit" variant="lightprimary">
+            Aplicar
+          </Button>
+          {hasActiveFilters ? (
+            <Link
+              className={buttonVariants({ variant: "outline" })}
+              href="/dashboard/leads"
+            >
+              Limpiar
+            </Link>
+          ) : null}
+        </form>
+      </FilterCard>
       {leads.length === 0 ? (
         <EmptyState
           title={

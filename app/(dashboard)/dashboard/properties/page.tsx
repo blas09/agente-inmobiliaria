@@ -4,9 +4,12 @@ import { CardBox } from "@/components/dashboard/card-box";
 import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { EmptyState } from "@/components/shared/empty-state";
+import { FilterCard } from "@/components/shared/filter-card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { NativeSelect } from "@/components/ui/native-select";
 import {
   Table,
   TableBody,
@@ -23,6 +26,7 @@ import {
   getOperationTypeLabel,
   getPropertyStatusLabel,
   getPropertyTypeLabel,
+  propertyStatusLabels,
 } from "@/lib/ui-labels";
 
 export default async function PropertiesPage({
@@ -34,7 +38,9 @@ export default async function PropertiesPage({
   const { activeTenant, activeMembership } = await getActiveTenantContext();
   const canManagePropertyRecords = canManageProperties(activeMembership.role);
   const properties = await listProperties(activeTenant.id, params);
-  const hasActiveFilters = Boolean(params.q || params.status);
+  const hasActiveFilters = Boolean(
+    params.q || (params.status && params.status !== "all"),
+  );
   const availableCount = properties.filter(
     (property) => property.status === "available",
   ).length;
@@ -77,6 +83,42 @@ export default async function PropertiesPage({
           },
         ]}
       />
+      <FilterCard>
+        <form
+          className="grid gap-4 lg:grid-cols-[1fr_240px_auto_auto]"
+          method="get"
+        >
+          <Input
+            aria-label="Buscar propiedades"
+            defaultValue={params.q ?? ""}
+            name="q"
+            placeholder="Buscar por título, ciudad o barrio"
+          />
+          <NativeSelect
+            aria-label="Filtrar por estado"
+            defaultValue={params.status ?? "all"}
+            name="status"
+          >
+            <option value="all">Todos los estados</option>
+            {Object.entries(propertyStatusLabels).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </NativeSelect>
+          <Button type="submit" variant="lightprimary">
+            Aplicar
+          </Button>
+          {hasActiveFilters ? (
+            <Link
+              className={buttonVariants({ variant: "outline" })}
+              href="/dashboard/properties"
+            >
+              Limpiar
+            </Link>
+          ) : null}
+        </form>
+      </FilterCard>
       {properties.length === 0 ? (
         <EmptyState
           title={
