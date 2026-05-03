@@ -31,7 +31,10 @@ export default async function ConversationsPage() {
 
   return (
     <div className="space-y-6">
-      <ProfileWelcome title="Conversaciones" />
+      <ProfileWelcome
+        title="Conversaciones"
+        description="Bandeja operativa para responder, asignar, vincular leads y avanzar hacia visitas."
+      />
       <DashboardTopCards
         items={[
           { key: "open", label: "Abiertas", value: openCount, tone: "primary" },

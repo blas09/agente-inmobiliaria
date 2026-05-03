@@ -45,6 +45,7 @@ export default async function LeadsPage({
     <div className="space-y-6">
       <ProfileWelcome
         title="Leads"
+        description="Contactos comerciales que se califican, asignan y conectan con conversaciones y visitas."
         action={
           canManageLeadRecords ? (
             <Link href="/dashboard/leads/new">

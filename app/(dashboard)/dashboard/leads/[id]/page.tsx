@@ -14,7 +14,7 @@ import { LeadRoutingForm } from "@/features/leads/lead-routing-form";
 import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -91,12 +91,13 @@ export default async function LeadDetailPage({
     <div className="space-y-6">
       <ProfileWelcome
         title={lead.full_name}
+        description="Perfil comercial para calificar, asignar, vincular conversaciones y agendar visitas."
         action={
           canEditLead || canDeleteLead ? (
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               {canEditLead ? (
                 <Link
-                  className="text-primary inline-flex items-center text-sm font-medium hover:underline"
+                  className={buttonVariants({ variant: "lightprimary" })}
                   href={`/dashboard/leads/${lead.id}/edit`}
                 >
                   Editar

@@ -27,6 +27,7 @@ export default async function FaqsPage() {
     <div className="space-y-6">
       <ProfileWelcome
         title="FAQs"
+        description="Respuestas base para sostener conversaciones consistentes con criterio comercial."
         action={
           canManageTenantFaqs ? (
             <Link href="/dashboard/faqs/new">

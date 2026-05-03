@@ -70,7 +70,10 @@ export default async function ChannelsPage() {
 
   return (
     <div className="space-y-6">
-      <ProfileWelcome title="Canales" />
+      <ProfileWelcome
+        title="Canales"
+        description="Conexión y operación supervisada de WhatsApp para conversaciones, plantillas y eventos."
+      />
       <DashboardTopCards
         items={[
           {

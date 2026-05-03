@@ -65,10 +65,28 @@ UI/UX Specialist decision:
 
 ### UI-001 - Critical Flow Orientation And Actions
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `UI/UX`
 Primary roles: Product Owner, UI/UX Specialist, Frontend Engineer, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Reviewing critical flow pages for clearer page purpose, next action, and related-record navigation.
+- 2026-05-03: Completed. Added clearer page context, more consistent primary edit actions, and small continuity links in the critical commercial flow.
+
+Completed:
+
+- Added concise page descriptions to dashboard, properties, leads, conversations, appointments, channels, FAQs, settings, create, edit, and detail screens.
+- Clarified the role of properties, leads, conversations, visits, and settings inside the MVP flow.
+- Standardized edit actions on property and lead detail pages to use button styling instead of plain text links.
+- Added continuity wording/links from appointments and conversations back to the related lead flow.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
 
 Problem:
 

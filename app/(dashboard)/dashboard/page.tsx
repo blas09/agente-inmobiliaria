@@ -117,7 +117,7 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <ProfileWelcome
         title={`Inmobiliaria ${activeTenant.name}`}
-        description="Base operativa del tenant activo: propiedades, leads, conversaciones y canales."
+        description="Seguimiento del flujo comercial: propiedades, leads, conversaciones, visitas y próximos seguimientos."
       />
       <DashboardTopCards
         items={metricCards.map((metric) => ({

@@ -25,7 +25,10 @@ export default async function EditLeadPage({
 
   return (
     <div className="space-y-6">
-      <ProfileWelcome title="Editar lead" />
+      <ProfileWelcome
+        title="Editar lead"
+        description="Actualizá datos comerciales, asignación y etapa para sostener el seguimiento."
+      />
       <LeadForm
         action={updateLeadAction.bind(null, lead.id)}
         initialValues={lead}

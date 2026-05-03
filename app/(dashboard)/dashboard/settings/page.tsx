@@ -51,7 +51,10 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <ProfileWelcome title="Configuración" />
+      <ProfileWelcome
+        title="Configuración"
+        description="Parámetros del tenant, equipo, agenda y pipeline que sostienen la operación comercial."
+      />
       <section className="grid gap-4 md:grid-cols-3">
         <MetricCard
           label="Workspace"

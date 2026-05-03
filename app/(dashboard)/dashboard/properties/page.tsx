@@ -46,6 +46,7 @@ export default async function PropertiesPage({
     <div className="space-y-6">
       <ProfileWelcome
         title="Propiedades"
+        description="Catálogo comercial que alimenta leads, conversaciones y visitas."
         action={
           canManagePropertyRecords ? (
             <Link href="/dashboard/properties/new">

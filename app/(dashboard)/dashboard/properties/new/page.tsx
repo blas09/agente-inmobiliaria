@@ -13,7 +13,10 @@ export default async function NewPropertyPage() {
 
   return (
     <div className="space-y-6">
-      <ProfileWelcome title="Nueva propiedad" />
+      <ProfileWelcome
+        title="Nueva propiedad"
+        description="Cargá la ficha base que después podrá asociarse a leads, conversaciones y visitas."
+      />
       <PropertyForm action={createPropertyAction} />
     </div>
   );

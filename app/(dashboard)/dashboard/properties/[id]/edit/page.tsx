@@ -7,21 +7,27 @@ import { canManageProperties } from "@/lib/permissions";
 import { redirect } from "next/navigation";
 
 export default async function EditPropertyPage({
-	params,
+  params,
 }: {
-	params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 }) {
-	const { id } = await params;
-	const { activeTenant, activeMembership } = await getActiveTenantContext();
-	if (!canManageProperties(activeMembership.role)) {
-		redirect("/dashboard/properties");
-	}
-	const property = await getPropertyById(activeTenant.id, id);
+  const { id } = await params;
+  const { activeTenant, activeMembership } = await getActiveTenantContext();
+  if (!canManageProperties(activeMembership.role)) {
+    redirect("/dashboard/properties");
+  }
+  const property = await getPropertyById(activeTenant.id, id);
 
-	return (
-		<div className="space-y-6">
-			<ProfileWelcome title="Editar propiedad" />
-			<PropertyForm action={updatePropertyAction.bind(null, property.id)} initialValues={property} />
-		</div>
-	);
+  return (
+    <div className="space-y-6">
+      <ProfileWelcome
+        title="Editar propiedad"
+        description="Actualizá la ficha comercial que usan leads, conversaciones y visitas relacionadas."
+      />
+      <PropertyForm
+        action={updatePropertyAction.bind(null, property.id)}
+        initialValues={property}
+      />
+    </div>
+  );
 }

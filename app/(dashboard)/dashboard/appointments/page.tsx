@@ -55,7 +55,10 @@ export default async function AppointmentsPage({
 
   return (
     <div className="space-y-6">
-      <ProfileWelcome title="Agenda" />
+      <ProfileWelcome
+        title="Agenda"
+        description="Visitas internas vinculadas a leads, propiedades y asesores."
+      />
       <DashboardTopCards
         items={[
           {
@@ -240,7 +243,7 @@ export default async function AppointmentsPage({
                       className="text-primary hover:underline"
                       href={`/dashboard/leads/${appointment.lead_id}`}
                     >
-                      Ver lead
+                      Ver flujo del lead
                     </Link>
                     {appointment.property_id ? (
                       <Link

@@ -77,6 +77,7 @@ export default async function ConversationDetailPage({
     <div className="space-y-6">
       <ProfileWelcome
         title={conversation.contact_display_name ?? "Conversación"}
+        description="Espacio para responder, asignar responsable, vincular contexto comercial y coordinar visitas."
       />
       <section className="grid gap-4 md:grid-cols-4">
         <Card>
@@ -311,6 +312,14 @@ export default async function ConversationDetailPage({
               >
                 Ir a la agenda completa
               </Link>
+              {conversation.lead_id ? (
+                <Link
+                  className="text-primary hover:underline"
+                  href={`/dashboard/leads/${conversation.lead_id}`}
+                >
+                  Ver flujo del lead
+                </Link>
+              ) : null}
             </CardContent>
           </Card>
         </div>

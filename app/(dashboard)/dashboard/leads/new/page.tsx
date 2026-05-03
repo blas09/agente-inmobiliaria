@@ -19,7 +19,10 @@ export default async function NewLeadPage() {
 
   return (
     <div className="space-y-6">
-      <ProfileWelcome title="Nuevo lead" />
+      <ProfileWelcome
+        title="Nuevo lead"
+        description="Registrá el contacto comercial para calificarlo, asignarlo y avanzar hacia conversación o visita."
+      />
       <LeadForm
         action={createLeadAction}
         advisorOptions={advisors.map((advisor) => ({

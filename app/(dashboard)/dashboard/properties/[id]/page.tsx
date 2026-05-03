@@ -4,7 +4,7 @@ import { deletePropertyAction } from "@/features/properties/actions";
 import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -51,12 +51,13 @@ export default async function PropertyDetailPage({
     <div className="space-y-6">
       <ProfileWelcome
         title={property.title}
+        description="Ficha comercial usada para responder consultas, asociar leads y coordinar visitas."
         action={
           canEditProperty || canDeleteProperty ? (
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               {canEditProperty ? (
                 <Link
-                  className="text-primary inline-flex items-center text-sm font-medium hover:underline"
+                  className={buttonVariants({ variant: "lightprimary" })}
                   href={`/dashboard/properties/${property.id}/edit`}
                 >
                   Editar
@@ -232,7 +233,7 @@ export default async function PropertyDetailPage({
         <CardHeader>
           <CardTitle>Contexto operativo</CardTitle>
           <CardDescription>
-            Conversaciones y leads vinculados a esta propiedad.
+            Conversaciones, leads y visitas vinculados a esta propiedad.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
