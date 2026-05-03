@@ -207,10 +207,48 @@ Expected verification:
 
 ### 003 - End-to-End Commercial Flow Audit
 
-Status: `todo`  
+Status: `done`  
 Priority: `P0`  
 Type: `MVP`  
 Primary roles: Product Owner, Project Manager, Commercial Domain, Project Leader / Technical Lead, UI/UX Specialist, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Auditing the main MVP flow through routes, server actions, detail screens, linking forms, appointment forms, and available automated checks.
+- 2026-05-03: Completed code-level and build-time flow audit. Authenticated UI walkthrough was not executed yet; local Supabase ports are defined in `supabase/config.toml`, and the API responds outside the sandbox on `55421`.
+
+Flow audit notes:
+
+- Property entry point exists through `/dashboard/properties`, `/dashboard/properties/new`, and property detail/edit routes.
+- Lead entry point exists through `/dashboard/leads/new`; lead detail includes routing, advisor assignment, pipeline/status update, associated conversations, appointment creation, appointment list, and pipeline history.
+- Conversation detail supports manual reply, routing, lead/property linking, and appointment creation once a lead is linked.
+- Conversation detail correctly blocks appointment creation until a lead is associated and explains the missing prerequisite.
+- Appointment creation from lead and conversation contexts pre-fills advisor/property where context exists.
+- Appointments page lists visits, shows lead/property/advisor context, links back to lead/property, and allows status/detail updates for operational roles.
+- Build output confirms all main MVP routes are present and compile: properties, leads, conversations, appointments, settings, channels, and platform tenants.
+
+Findings:
+
+- No P0 product blocker was found in the code-level audit.
+- The runtime authenticated walkthrough is still required before release readiness. Supabase is available locally, but the UI walkthrough was not part of this code/build audit.
+- Property detail does not currently provide a direct "create lead for this property" action. This is not a P0 blocker for the manual MVP flow, but it should be considered during Task 004 if linking context still feels unclear.
+- Follow-up state after a visit is represented by appointment status today. Richer follow-up workflow remains outside this audit and should be handled only if Task 005 or Task 006 exposes a concrete MVP blocker.
+
+Follow-up tasks:
+
+- Task 004 should focus on making lead/conversation/property relationships visible and stable where the audit identified possible friction.
+- Task 005 should validate appointment status transitions and visit visibility as the internal source of truth.
+- Task 011 must include the authenticated runtime walkthrough using local Supabase or a target test environment.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed: 6 files, 21 tests.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/next build --webpack` passed.
+- Supabase local config reviewed: `supabase/config.toml` defines API port `55421`, DB port `55422`, Studio port `55423`, and Inbucket port `55424`.
+- Supabase API check passed outside the sandbox: `curl -i http://127.0.0.1:55421/rest/v1/` returned `200 OK`.
+- Direct sandbox access to `127.0.0.1:55421` failed, so local Supabase checks that need localhost access may require running outside the sandbox.
 
 Problem:
 
