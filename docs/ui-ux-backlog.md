@@ -366,10 +366,29 @@ Verification:
 
 ### UI-005 - Appointment UX Polish
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `UI/UX`
 Primary roles: Product Owner, UI/UX Specialist, Frontend Engineer, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Reviewing appointment creation, update, rules, timezone, and list readability for the MVP polish pass.
+- 2026-05-03: Completed. Made the agenda list more compact, moved appointment editing into action sheets, and improved the appointment form hierarchy and helper text.
+
+Completed:
+
+- Reworked the agenda list into compact visit cards instead of rendering a full edit form beside each visit.
+- Moved appointment editing into an action sheet opened from each visit card.
+- Improved appointment form hierarchy with clearer active rules, timezone, date/status grouping, property/advisor grouping, and notes spacing.
+- Added field-level helper text for date constraints, status use, optional property, and assigned advisor.
+- Kept appointment status labels and tones consistent across the agenda flow.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
 
 Problem:
 

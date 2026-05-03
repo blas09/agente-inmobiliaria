@@ -61,85 +61,95 @@ export function AppointmentForm({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={formAction} className="space-y-4">
+        <form action={formAction} className="space-y-5">
           {rulesSummary ? (
-            <p className="border-border bg-lightprimary text-muted-foreground rounded-xl border px-4 py-3 text-sm">
-              Reglas activas: {rulesSummary}
-            </p>
+            <div className="border-border bg-lightprimary rounded-xl border px-4 py-3 text-sm">
+              <p className="text-foreground font-medium">Reglas activas</p>
+              <p className="text-muted-foreground mt-1">{rulesSummary}</p>
+              <p className="text-muted-foreground mt-1">Timezone: {timezone}</p>
+            </div>
           ) : null}
-          <FormField
-            htmlFor="scheduled_at"
-            label="Fecha y hora"
-            error={state.fieldErrors?.scheduled_at?.[0]}
-            description={`Se interpreta en la timezone del tenant: ${timezone}.`}
-          >
-            <Input
-              defaultValue={formatDateTimeLocalInput(
-                initialValues?.scheduled_at,
-                timezone,
-              )}
-              id="scheduled_at"
-              name="scheduled_at"
-              type="datetime-local"
-            />
-          </FormField>
-          <FormField
-            htmlFor="status"
-            label="Estado"
-            error={state.fieldErrors?.status?.[0]}
-          >
-            <NativeSelect
-              defaultValue={initialValues?.status ?? "scheduled"}
-              id="status"
-              name="status"
+          <div className="grid gap-4 md:grid-cols-2">
+            <FormField
+              htmlFor="scheduled_at"
+              label="Fecha y hora"
+              error={state.fieldErrors?.scheduled_at?.[0]}
+              description="Debe respetar días, horario, duración y buffer configurados."
             >
-              {Object.entries(appointmentStatusLabels).map(
-                ([status, label]) => (
-                  <option key={status} value={status}>
-                    {label}
+              <Input
+                defaultValue={formatDateTimeLocalInput(
+                  initialValues?.scheduled_at,
+                  timezone,
+                )}
+                id="scheduled_at"
+                name="scheduled_at"
+                type="datetime-local"
+              />
+            </FormField>
+            <FormField
+              htmlFor="status"
+              label="Estado"
+              error={state.fieldErrors?.status?.[0]}
+              description="Usalo para confirmar, cerrar o cancelar la visita."
+            >
+              <NativeSelect
+                defaultValue={initialValues?.status ?? "scheduled"}
+                id="status"
+                name="status"
+              >
+                {Object.entries(appointmentStatusLabels).map(
+                  ([status, label]) => (
+                    <option key={status} value={status}>
+                      {label}
+                    </option>
+                  ),
+                )}
+              </NativeSelect>
+            </FormField>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <FormField
+              htmlFor="property_id"
+              label="Propiedad"
+              error={state.fieldErrors?.property_id?.[0]}
+              description="Opcional si la visita todavía no tiene inmueble definido."
+            >
+              <NativeSelect
+                defaultValue={initialValues?.property_id ?? ""}
+                id="property_id"
+                name="property_id"
+              >
+                <option value="">Sin propiedad puntual</option>
+                {propertyOptions.map((property) => (
+                  <option key={property.id} value={property.id}>
+                    {property.label}
                   </option>
-                ),
-              )}
-            </NativeSelect>
-          </FormField>
-          <FormField
-            htmlFor="property_id"
-            label="Propiedad"
-            error={state.fieldErrors?.property_id?.[0]}
-          >
-            <NativeSelect
-              defaultValue={initialValues?.property_id ?? ""}
-              id="property_id"
-              name="property_id"
+                ))}
+              </NativeSelect>
+            </FormField>
+            <FormField
+              htmlFor="advisor_id"
+              label="Asesor"
+              error={state.fieldErrors?.advisor_id?.[0]}
+              description="Responsable interno de coordinar la visita."
             >
-              <option value="">Sin propiedad puntual</option>
-              {propertyOptions.map((property) => (
-                <option key={property.id} value={property.id}>
-                  {property.label}
-                </option>
-              ))}
-            </NativeSelect>
-          </FormField>
-          <FormField
-            htmlFor="advisor_id"
-            label="Asesor"
-            error={state.fieldErrors?.advisor_id?.[0]}
-          >
-            <NativeSelect
-              defaultValue={initialValues?.advisor_id ?? ""}
-              id="advisor_id"
-              name="advisor_id"
-            >
-              <option value="">Sin asignar</option>
-              {advisorOptions.map((advisor) => (
-                <option key={advisor.id} value={advisor.id}>
-                  {advisor.label} · {getTenantRoleLabel(advisor.role)}
-                </option>
-              ))}
-            </NativeSelect>
-          </FormField>
+              <NativeSelect
+                defaultValue={initialValues?.advisor_id ?? ""}
+                id="advisor_id"
+                name="advisor_id"
+              >
+                <option value="">Sin asignar</option>
+                {advisorOptions.map((advisor) => (
+                  <option key={advisor.id} value={advisor.id}>
+                    {advisor.label} · {getTenantRoleLabel(advisor.role)}
+                  </option>
+                ))}
+              </NativeSelect>
+            </FormField>
+          </div>
           <FormField htmlFor="notes" label="Notas">
             <Textarea
+              className="min-h-24"
               defaultValue={initialValues?.notes ?? ""}
               id="notes"
               name="notes"

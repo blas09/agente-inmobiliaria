@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CardBox } from "@/components/dashboard/card-box";
 import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { DashboardTopCards } from "@/components/dashboard/top-cards";
+import { ActionSheet } from "@/components/shared/action-sheet";
 import { AppointmentForm } from "@/features/appointments/appointment-form";
 import { updateAppointmentAction } from "@/features/appointments/actions";
 import {
@@ -181,124 +182,128 @@ export default async function AppointmentsPage({
           tone={hasActiveFilters ? "search" : "default"}
         />
       ) : (
-        <div className="grid gap-6">
+        <div className="grid gap-4 xl:grid-cols-2">
           {appointments.map((appointment) => (
-            <div
-              className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]"
-              key={appointment.id}
-            >
-              <CardBox>
-                <CardHeader>
-                  <CardTitle className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <span>
-                      {appointment.lead?.full_name ?? "Lead no disponible"}
-                    </span>
-                    <Badge
-                      variant={getAppointmentStatusTone(appointment.status)}
-                    >
-                      {getAppointmentStatusLabel(appointment.status)}
-                    </Badge>
-                  </CardTitle>
-                  <CardDescription>
-                    {appointment.lead?.phone ??
-                      appointment.lead?.email ??
-                      "Sin contacto"}{" "}
-                    ·{" "}
-                    {appointment.property?.title ??
-                      (appointment.property_id
-                        ? "Propiedad no disponible"
-                        : "Sin propiedad")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm">
-                  <div className="flex justify-between gap-3">
-                    <span className="text-muted-foreground">Fecha</span>
-                    <span>{formatDateTime(appointment.scheduled_at)}</span>
-                  </div>
-                  <div className="flex justify-between gap-3">
-                    <span className="text-muted-foreground">Asesor</span>
-                    <span>
-                      {appointment.advisor?.full_name ??
-                        appointment.advisor?.email ??
-                        "Sin asignar"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between gap-3">
-                    <span className="text-muted-foreground">Estado</span>
-                    <span>{getAppointmentStatusLabel(appointment.status)}</span>
-                  </div>
-                  <div className="flex justify-between gap-3">
-                    <span className="text-muted-foreground">Propiedad</span>
-                    <span>
+            <CardBox key={appointment.id}>
+              <CardHeader>
+                <CardTitle className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                  <span>
+                    {appointment.lead?.full_name ?? "Lead no disponible"}
+                  </span>
+                  <Badge variant={getAppointmentStatusTone(appointment.status)}>
+                    {getAppointmentStatusLabel(appointment.status)}
+                  </Badge>
+                </CardTitle>
+                <CardDescription>
+                  {formatDateTime(appointment.scheduled_at)}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 text-sm">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="border-border bg-muted rounded-xl border px-4 py-3">
+                    <p className="text-muted-foreground text-xs font-medium tracking-[0.16em] uppercase">
+                      Propiedad
+                    </p>
+                    <p className="mt-1 font-medium">
                       {appointment.property?.title ??
                         (appointment.property_id
                           ? "Propiedad no disponible"
                           : "Sin propiedad")}
-                    </span>
+                    </p>
                   </div>
-                  <div className="flex justify-between gap-3">
-                    <span className="text-muted-foreground">Contacto</span>
-                    <span>
+                  <div className="border-border bg-muted rounded-xl border px-4 py-3">
+                    <p className="text-muted-foreground text-xs font-medium tracking-[0.16em] uppercase">
+                      Asesor
+                    </p>
+                    <p className="mt-1 font-medium">
+                      {appointment.advisor?.full_name ??
+                        appointment.advisor?.email ??
+                        "Sin asignar"}
+                    </p>
+                  </div>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <p className="text-muted-foreground">Contacto</p>
+                    <p className="mt-1">
                       {appointment.lead?.phone ??
                         appointment.lead?.email ??
                         "Sin contacto"}
-                    </span>
+                    </p>
                   </div>
-                  {appointment.notes ? (
-                    <div className="border-border bg-lightprimary rounded-xl border p-4">
-                      <p className="text-muted-foreground">Notas</p>
-                      <p className="mt-1">{appointment.notes}</p>
+                  <div>
+                    <p className="text-muted-foreground">Estado</p>
+                    <p className="mt-1">
+                      {getAppointmentStatusLabel(appointment.status)}
+                    </p>
+                  </div>
+                </div>
+                {appointment.notes ? (
+                  <div className="border-border bg-lightprimary rounded-xl border p-4">
+                    <p className="text-muted-foreground">Notas</p>
+                    <p className="mt-1">{appointment.notes}</p>
+                  </div>
+                ) : null}
+                <div className="flex flex-col gap-2 pt-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+                  <Link
+                    className="text-primary text-sm font-medium hover:underline"
+                    href={`/dashboard/leads/${appointment.lead_id}`}
+                  >
+                    Ver flujo del lead
+                  </Link>
+                  {appointment.property_id ? (
+                    <Link
+                      className="text-primary text-sm font-medium hover:underline"
+                      href={`/dashboard/properties/${appointment.property_id}`}
+                    >
+                      Ver propiedad
+                    </Link>
+                  ) : null}
+                  {canEditAppointments ? (
+                    <div className="sm:ml-auto">
+                      <ActionSheet
+                        triggerLabel="Editar visita"
+                        title="Gestión de la visita"
+                        description="Actualizá fecha, responsable, estado, propiedad o notas internas."
+                      >
+                        <AppointmentForm
+                          action={updateAppointmentAction.bind(
+                            null,
+                            appointment.id,
+                            ["/dashboard/appointments"],
+                          )}
+                          advisorOptions={advisors.map((advisor) => ({
+                            id: advisor.user_id,
+                            label:
+                              advisor.user_profiles?.full_name ??
+                              advisor.user_profiles?.email ??
+                              advisor.user_id,
+                            role: advisor.role,
+                          }))}
+                          initialValues={{
+                            scheduled_at: appointment.scheduled_at,
+                            status: appointment.status,
+                            property_id: appointment.property_id,
+                            advisor_id: appointment.advisor_id,
+                            notes: appointment.notes,
+                          }}
+                          propertyOptions={properties.map((property) => ({
+                            id: property.id,
+                            label: `${property.title}${property.external_ref ? ` · ${property.external_ref}` : ""}`,
+                          }))}
+                          rulesSummary={summarizeAppointmentRules(
+                            appointmentRules,
+                          )}
+                          submitLabel="Actualizar visita"
+                          timezone={activeTenant.timezone}
+                          title="Gestión de la visita"
+                        />
+                      </ActionSheet>
                     </div>
                   ) : null}
-                  <div className="flex gap-3 text-sm">
-                    <Link
-                      className="text-primary hover:underline"
-                      href={`/dashboard/leads/${appointment.lead_id}`}
-                    >
-                      Ver flujo del lead
-                    </Link>
-                    {appointment.property_id ? (
-                      <Link
-                        className="text-primary hover:underline"
-                        href={`/dashboard/properties/${appointment.property_id}`}
-                      >
-                        Ver propiedad
-                      </Link>
-                    ) : null}
-                  </div>
-                </CardContent>
-              </CardBox>
-              {canEditAppointments ? (
-                <AppointmentForm
-                  action={updateAppointmentAction.bind(null, appointment.id, [
-                    "/dashboard/appointments",
-                  ])}
-                  advisorOptions={advisors.map((advisor) => ({
-                    id: advisor.user_id,
-                    label:
-                      advisor.user_profiles?.full_name ??
-                      advisor.user_profiles?.email ??
-                      advisor.user_id,
-                    role: advisor.role,
-                  }))}
-                  initialValues={{
-                    scheduled_at: appointment.scheduled_at,
-                    status: appointment.status,
-                    property_id: appointment.property_id,
-                    advisor_id: appointment.advisor_id,
-                    notes: appointment.notes,
-                  }}
-                  propertyOptions={properties.map((property) => ({
-                    id: property.id,
-                    label: `${property.title}${property.external_ref ? ` · ${property.external_ref}` : ""}`,
-                  }))}
-                  rulesSummary={summarizeAppointmentRules(appointmentRules)}
-                  submitLabel="Actualizar visita"
-                  timezone={activeTenant.timezone}
-                  title="Gestión de la visita"
-                />
-              ) : null}
-            </div>
+                </div>
+              </CardContent>
+            </CardBox>
           ))}
         </div>
       )}
