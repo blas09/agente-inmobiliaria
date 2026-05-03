@@ -188,6 +188,18 @@ Updates `README.md`, `docs/roadmap.md`, `docs/mvp-status.md`, `docs/pending.md`,
 5. Project Leader / Technical Lead only takes tasks ready for implementation, with clear scope and closure criteria.
 6. When a task closes, Project Manager updates documentation state when applicable.
 
+## Backlog Workflow
+
+- `docs/backlog.md` is the source of truth for day-to-day execution.
+- Work one backlog task at a time unless the user explicitly decides otherwise.
+- Before starting implementation, set the task status to `in_progress` and add a dated progress note.
+- If work is blocked, set the task status to `blocked` and document the blocker and needed decision.
+- When work is completed, set the task status to `done` and add completed work plus verification notes.
+- If new work is discovered, create a new numbered backlog task instead of burying it in notes.
+- If a task or idea is intentionally deferred, classify it as `post-MVP` or set status to `post_mvp`.
+- Update only `docs/backlog.md` for normal task execution updates.
+- Update `docs/pending.md`, `docs/roadmap.md`, and `docs/mvp-status.md` when the product state, MVP scope, or priority order changes.
+
 ## Bug Flow
 
 1. Reproduce or isolate the bug.
