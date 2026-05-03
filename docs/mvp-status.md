@@ -1,371 +1,402 @@
-# Estado Actual del MVP
+# Current MVP Status
 
-Fecha de corte: 2026-04-15
+Cutoff date: 2026-05-03
 
-Este documento resume:
+This document summarizes:
 
-1. Qué ya está suficientemente sólido.
-2. Qué falta para considerar el producto un primer MVP testeable.
-3. Qué falta para un MVP comercial más serio.
-4. Qué hace cada sección del sistema y cómo debería usarse.
+1. What is already solid enough.
+2. What is missing for a first testable MVP.
+3. What is missing for a more serious commercial MVP.
+4. What each product section does and how it should be used.
 
-## Estado actual
+## Current State
 
-El proyecto ya tiene una base operativa real:
+The project already has a real operational foundation:
 
-- multitenancy con RLS
-- autenticación y membresías
-- propiedades, leads y conversaciones
-- agenda interna básica
-- FAQs y canales
-- shell visual consistente y usable
-- WhatsApp bastante más endurecido que antes
-- templates por tenant con base backend, UI y auditoría
+- multitenancy with RLS
+- authentication and memberships
+- properties, leads, and conversations
+- basic internal appointments
+- FAQs and channels
+- consistent and usable visual shell
+- WhatsApp significantly hardened compared with the initial version
+- tenant templates with backend, UI, and audit foundation
 
-Conclusión práctica:
+Practical conclusion:
 
-- ya se puede empezar una ronda de pruebas funcionales internas
-- todavía no está listo para clientes reales sin supervisión
-- el mayor valor ahora está en probar flujo completo de operación y cerrar huecos de negocio, no en seguir puliendo foundation
+- the system can already start an internal functional testing round
+- it is not ready for unsupervised real customers yet
+- the highest-value work is now to test the complete operational flow and close business gaps, not to keep polishing foundation
 
-## Qué falta para un primer MVP testeable
+## Current MVP Cut
 
-Esto es lo mínimo razonable para empezar a usar el sistema en pruebas internas con disciplina.
+The active MVP target is a scoped commercial flow:
 
-### 1. Invitaciones y gestión de usuarios
+`property -> lead -> conversation -> visit -> follow-up`
 
-Falta:
+This cut is intentionally narrow. New work should be classified before implementation as `MVP`, `bug`, `technical debt`, `post-MVP`, or `exploration`.
 
-- endurecer permisos en server actions y cerrar mejor la gestión multi-tenant
+### MVP Must Have
 
-Ya existe base usable:
+1. Harden server-side permissions for tenant-scoped writes and role-sensitive actions.
+2. Close the invitation and membership workflow enough for real internal testing.
+3. Make the full property -> lead -> conversation -> visit flow usable without broken transitions.
+4. Make appointments operational enough for advisor assignment, status changes, and internal agenda visibility.
+5. Add minimal commercial reporting for advisor activity, pipeline/stage, response time, and visit outcomes.
+6. Keep WhatsApp reliable for supervised manual operation, including inbound, outbound, templates, retries, and error visibility.
+7. Add focused regression coverage for MVP-critical permissions, tenant scoping, WhatsApp payload handling, and business-state transitions.
 
-- desde `Settings` ya se puede sumar un usuario existente o invitar uno nuevo por email
-- si el email no existe, se envía invitación por Supabase y la membresía queda en `invited`
-- ya existe una primera capa de guards de UI por rol en sidebar, pantallas y rutas críticas
+### Explicitly Post-MVP
 
-Impacto:
+- Advanced AI.
+- Billing.
+- Full omnichannel support.
+- Google Calendar integration.
+- Rich branding customization.
+- Large architecture rewrites.
+- Self-service onboarding.
 
-- hoy podés operar con usuarios seed o cargados manualmente
-- para pruebas internas chicas alcanza
-- para pruebas con un equipo real, empieza a faltar rápido
+## Missing for a First Testable MVP
 
-### 2. Pipeline y agenda operativa
+This is the minimum reasonable scope to start using the system in disciplined internal tests.
 
-Falta:
+### 1. Invitations and User Management
 
-- historial de pipeline más consistente y auditable
-- disponibilidad real por asesor
-- agenda con ocupación real, no solo reglas estáticas por tenant
+Missing:
 
-Impacto:
+- harden server-action permissions and improve multi-tenant management
 
-- hoy se pueden registrar visitas y reglas
-- todavía no resuelve bien conflictos de disponibilidad
+Usable foundation:
 
-### 3. Leads más maduros
+- `Settings` can already add an existing user or invite a new one by email
+- if the email does not exist, Supabase sends an invitation and the membership remains `invited`
+- a first layer of role-based UI guards already exists in sidebar, screens, and critical routes
 
-Falta:
+Impact:
 
-- deduplicación / merge
-- búsqueda y filtros más potentes
-- mejor trazabilidad de evolución comercial
+- today the system can operate with seed users or manually loaded users
+- it is enough for small internal tests
+- for real team testing, the gaps appear quickly
 
-Impacto:
+### 2. Pipeline and Operational Appointments
 
-- para pruebas internas simples sirve
-- para volumen real, se empiezan a duplicar contactos y ruido comercial
+Missing:
 
-### 4. Reportes mínimos
+- more consistent and auditable pipeline history
+- real advisor availability expectations
+- appointment visibility as an operational workflow, not only static tenant rules
 
-Falta:
+Impact:
 
-- por asesor
-- por etapa
-- tiempo de respuesta
-- conversión
+- visits and rules can already be registered
+- the system does not yet handle availability/conflict expectations well enough
 
-Impacto:
+### 3. More Mature Leads
 
-- hoy el dashboard muestra métricas muy básicas
-- todavía no sirve para gestión comercial real
+Missing:
 
-### 5. Cierre de WhatsApp operativo
+- stronger search and filters only where they block internal tests
+- better commercial-evolution traceability
 
-Ya está bastante avanzada esta parte, pero todavía faltan piezas para darla por totalmente cerrada:
+Impact:
 
-- sincronización/aprobación real con Meta para templates
-- validación más fina de componentes por tipo de template si se quiere ir más allá
-- eventualmente métricas más ricas por template y por canal
+- current leads are enough for simple internal tests
+- deduplication/merge becomes important at real volume, but stays post-MVP unless it blocks a pilot
 
-Impacto:
+### 4. Minimal Reports
 
-- para pruebas internas ya empieza a servir
-- para operación seria todavía faltan controles y visibilidad
+Missing:
 
-## Qué falta para un MVP comercial serio
+- by advisor
+- by stage
+- response time
+- conversion
 
-Esto ya no es “para empezar a probar”, sino para venderlo con menos riesgo operativo.
+Impact:
 
-### Tenants y branding
+- today the dashboard shows very basic metrics
+- it is not enough yet for real commercial management
 
-Falta:
+### 5. Operational WhatsApp Closure
 
-- branding básico por tenant
-- selector multi-tenant robusto
-- mejores defaults por usuario
+This area is already quite advanced, but the MVP still needs:
 
-### Canales y credenciales
+- reliable supervised manual operation for inbound, outbound, templates, retries, and errors
+- enough operational metrics and visibility for internal testing
+- real Meta approval/sync stays post-MVP unless it blocks a pilot
 
-Falta:
+Impact:
 
-- conexión funcional de cuenta Meta desde UI
-- gestión segura y más completa de credenciales por tenant
-- alta de canal más guiada
+- it is already useful for internal testing
+- serious operation still needs more controls and visibility
 
-### Calidad técnica
+## Missing for a More Serious Commercial MVP
 
-Falta:
+This is not required just to start testing. It is required to sell with less operational risk.
 
-- tests de integración / e2e
-- logs más útiles y operables
-- rate limiting en endpoints sensibles
+### Tenants and Branding
 
-### Reportes y operación
+Missing:
 
-Falta:
+- basic tenant branding
+- robust multi-tenant selector
+- better per-user defaults
 
-- tablero comercial útil para seguimiento
-- métricas por asesor y por etapa
-- visibilidad de conversión y tiempos
+### Channels and Credentials
 
-## Orden recomendado para seguir
+Missing:
 
-Orden pragmático:
+- functional Meta account connection from UI
+- safer and more complete credential management per tenant
+- more guided channel creation
 
-1. usuarios / invitaciones / permisos finos
-2. pipeline + agenda operativa real
-3. reportes básicos
-4. cierre de WhatsApp con integración más real de templates
+### Technical Quality
 
-Si la prioridad es “empezar a probar cuanto antes”, entonces:
+Missing:
 
-1. estabilizar usuarios/roles
-2. probar flujo completo propiedad -> lead -> conversación -> visita
-3. cerrar los gaps encontrados
+- integration / end-to-end tests
+- more useful and operable logs
+- rate limiting on sensitive endpoints
 
-## Guía funcional por sección
+### Reports and Operations
 
-### Resumen
+Missing:
 
-Qué hace:
+- useful commercial management board
+- metrics by advisor and stage
+- conversion and response-time visibility
 
-- muestra el estado general del tenant
-- sirve como tablero de entrada
-- concentra métricas resumidas y actividad reciente
+## Recommended Order
 
-Cómo usarlo:
+Pragmatic order:
 
-- entrar para entender volumen actual de propiedades, leads y conversaciones
-- revisar actividad reciente
-- usarlo como punto de partida, no como herramienta de operación detallada
+1. fine-grained permissions and server actions
+2. invitations and user management
+3. property -> lead -> conversation -> visit flow
+4. real operational appointments
+5. basic reports
+6. WhatsApp hardening for supervised manual operation
 
-### Propiedades
+If the priority is to start testing as soon as possible:
 
-Qué hace:
+1. stabilize users/roles
+2. test the full property -> lead -> conversation -> visit flow
+3. close the gaps found during that test
 
-- mantiene el inventario estructurado del tenant
-- guarda datos comerciales clave de cada propiedad
-- actúa como source of truth para respuestas y matching comercial
+## Functional Guide by Section
 
-Cómo usarlo:
+### Summary
 
-- crear propiedades nuevas
-- completar datos relevantes para venta/alquiler
-- editar y consultar fichas
-- vincular después leads y conversaciones contra propiedades reales
+What it does:
 
-Limitaciones actuales:
+- shows the tenant's general state
+- acts as the entry dashboard
+- concentrates summarized metrics and recent activity
 
-- media/storage todavía no está cerrada
-- filtros avanzados todavía son básicos
+How to use it:
+
+- enter to understand current property, lead, and conversation volume
+- review recent activity
+- use it as a starting point, not as the detailed operational tool
+
+### Properties
+
+What it does:
+
+- maintains the tenant's structured inventory
+- stores key commercial data for each property
+- acts as the source of truth for answers and commercial matching
+
+How to use it:
+
+- create new properties
+- complete relevant sale/rental data
+- edit and inspect property records
+- later link leads and conversations to real properties
+
+Current limitations:
+
+- media/storage is not closed yet
+- advanced filters are still basic
+- media/storage and advanced filters are post-MVP unless they block a concrete test
 
 ### Leads
 
-Qué hace:
+What it does:
 
-- concentra consultas o interesados capturados por canales o carga manual
-- permite asignar estado comercial, pipeline y asesor
+- concentrates inquiries or interested contacts captured through channels or manual entry
+- allows commercial status, pipeline, and advisor assignment
 
-Cómo usarlo:
+How to use it:
 
-- crear lead manual si entra fuera del flujo automático
-- revisar detalle del lead
-- asignar asesor
-- mover por pipeline
-- agendar visitas desde el lead cuando corresponda
+- create a manual lead if it arrives outside the automatic flow
+- review lead detail
+- assign advisor
+- move through pipeline
+- schedule visits from the lead when appropriate
 
-Limitaciones actuales:
+Current limitations:
 
-- sin deduplicación/merge
-- filtros todavía limitados
+- no deduplication/merge
+- filters are still limited
+- deduplication/merge is post-MVP unless it becomes a real pilot blocker
 
-### Conversaciones
+### Conversations
 
-Qué hace:
+What it does:
 
-- centraliza la operación conversacional
-- muestra timeline de mensajes
-- permite respuesta manual
-- permite handoff humano y vínculo con lead/propiedad
+- centralizes conversational operations
+- shows message timeline
+- allows manual replies
+- allows human handoff and links to lead/property
 
-Cómo usarlo:
+How to use it:
 
-- revisar conversaciones abiertas
-- responder manualmente
-- derivar a humano
-- asignar asesor
-- vincular con un lead y una propiedad
-- usar templates aprobados cuando corresponda
+- review open conversations
+- reply manually
+- hand off to a human
+- assign advisor
+- link to a lead and property
+- use approved templates when applicable
 
-Limitaciones actuales:
+Current limitations:
 
-- la UX del uso de templates todavía puede mejorar
-- sigue siendo una operación de WhatsApp-first
+- template usage UX can still improve
+- it remains a WhatsApp-first operation
 
-### Agenda
+### Appointments
 
-Qué hace:
+What it does:
 
-- registra visitas internas del sistema
-- aplica reglas de agenda por tenant
-- muestra citas y estado operativo básico
+- registers internal visits
+- applies tenant appointment rules
+- shows appointments and basic operational state
 
-Cómo usarlo:
+How to use it:
 
-- crear visitas desde lead o conversación vinculada
-- confirmar/cancelar
-- revisar reglas activas
+- create visits from linked lead or conversation context
+- confirm/cancel visits
+- review active rules
 
-Limitaciones actuales:
+Current limitations:
 
-- no hay disponibilidad real por asesor
-- no hay Google Calendar todavía
+- no real advisor availability yet
+- no Google Calendar yet
 
 ### FAQs
 
-Qué hace:
+What it does:
 
-- permite guardar respuestas frecuentes estructuradas por tenant
-- sirve como base de conocimiento comercial
+- stores structured tenant FAQ answers
+- acts as a commercial knowledge base
 
-Cómo usarlo:
+How to use it:
 
-- crear preguntas frecuentes
-- mantener activas/inactivas
-- reutilizarlas como base de respuestas del negocio
+- create frequent questions
+- keep them active/inactive
+- reuse them as business answer material
 
-Limitaciones actuales:
+Current limitations:
 
-- categorías y búsqueda todavía básicas
+- categories and search are still basic
 
-### Canales
+### Channels
 
-Qué hace:
+What it does:
 
-- concentra el estado operativo de canales
-- hoy enfocado en WhatsApp
-- muestra templates, auditoría y métricas operativas básicas
+- concentrates channel operational state
+- currently focuses on WhatsApp
+- shows templates, audit trail, and basic operational metrics
 
-Cómo usarlo:
+How to use it:
 
-- revisar si el canal está conectado
-- administrar templates del tenant
-- aprobar/pausar/rechazar templates localmente
-- revisar métricas e incidentes recientes
+- check whether the channel is connected
+- manage tenant templates
+- approve/pause/reject templates locally
+- review recent metrics and incidents
 
-Limitaciones actuales:
+Current limitations:
 
-- falta aprobación/sync real con Meta
-- falta alta guiada de canal desde UI
+- real Meta approval/sync is missing
+- guided channel creation from UI is missing
 
-### Configuración
+### Settings
 
-Qué hace:
+What it does:
 
-- concentra configuración operativa del tenant
-- incluye miembros y reglas generales
+- concentrates tenant operational settings
+- includes members and general rules
 
-Cómo usarlo:
+How to use it:
 
-- revisar y administrar usuarios internos del tenant
-- ajustar parámetros globales
-- revisar reglas de agenda interna
+- review and manage tenant internal users
+- adjust global settings
+- review internal appointment rules
 
-Limitaciones actuales:
+Current limitations:
 
-- todavía faltan invitaciones por email
-- roles/guards pueden endurecerse más
+- email invitation acceptance needs tighter closure
+- roles/guards can be hardened further
 
 ### Platform / Tenants
 
-Qué hace:
+What it does:
 
-- sección de administración global para platform admins
-- permite crear y editar tenants
+- global administration section for platform admins
+- allows tenant creation and editing
 
-Cómo usarlo:
+How to use it:
 
-- crear tenants nuevos
-- editar metadata general
-- operar como administración de plataforma, no como usuario comercial del tenant
+- create new tenants
+- edit general metadata
+- operate as platform administration, not as a commercial tenant user
 
-## Qué ya se puede probar hoy
+## What Can Be Tested Today
 
-Flujos recomendados para prueba interna:
+Recommended internal test flows:
 
-### Flujo 1
+### Flow 1
 
-- crear propiedad
-- crear lead
-- vincular conversación al lead
-- responder manualmente
-- mover estado/pipeline
-- agendar visita
+- create property
+- create lead
+- link conversation to lead
+- reply manually
+- move status/pipeline
+- schedule visit
 
-### Flujo 2
+### Flow 2
 
-- crear FAQ
-- crear template WhatsApp
-- aprobarlo localmente
-- usarlo desde conversación manual
+- create FAQ
+- create WhatsApp template
+- approve it locally
+- use it from manual conversation
 
-### Flujo 3
+### Flow 3
 
-- gestionar miembros del tenant
-- verificar visibilidad por rol
-- revisar dashboard y listados principales
+- manage tenant members
+- verify visibility by role
+- review dashboard and main lists
 
-## Criterio de salida para “primera ronda de pruebas”
+## Exit Criteria for First Testing Round
 
-Yo daría el sistema como listo para una primera ronda seria de pruebas internas cuando:
+The system is ready for a serious first internal testing round when:
 
-- el flujo propiedad -> lead -> conversación -> visita funcione sin fricción fuerte
-- la gestión de usuarios no dependa de carga manual torpe
-- no aparezcan errores runtime en páginas principales
-- WhatsApp permita al menos operación manual y templates básicos sin romperse
+- the property -> lead -> conversation -> visit flow works without major friction
+- user management does not depend on awkward manual loading
+- no runtime errors appear in main pages
+- WhatsApp supports at least manual operation and basic templates without breaking
 
-## Recomendación final
+## Final Recommendation
 
-El producto ya no está en etapa de “foundation”. Ya está en etapa de:
+The product is no longer in the foundation stage. It is now in the stage of:
 
-- probar flujo real
-- detectar bloqueos de operación
-- cerrar UX de negocio
+- testing real flow
+- detecting operational blockers
+- closing business UX gaps
 
-La prioridad correcta ahora no es más diseño base ni más infraestructura, sino:
+The correct priority now is:
 
-1. usuarios y permisos
-2. pipeline y agenda
-3. reportes básicos
-4. cierre operativo de WhatsApp
+1. users and permissions
+2. pipeline and appointments
+3. basic reports
+4. operational WhatsApp closure

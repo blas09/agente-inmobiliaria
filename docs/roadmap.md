@@ -1,417 +1,475 @@
-# Hoja de Ruta del Proyecto
+# Project Roadmap
 
-Estado general:
+Status legend:
 
-- `[x]` Hecho
-- `[~]` Parcial / base implementada
-- `[ ]` Pendiente
+- `[x]` Done
+- `[~]` Partial / foundation implemented
+- `[ ]` Pending
 
-## Norte del producto
+## Current MVP Cut - 2026-05-03
 
-- `[x]` Definir el objetivo del SaaS: centralizar propiedades, leads, conversaciones y operación comercial por tenant.
-- `[x]` Definir que cada inmobiliaria es un tenant aislado.
-- `[x]` Definir que los canales son propiedad del cliente y la plataforma solo aporta la capa SaaS.
-- `[x]` Definir foco inicial en WhatsApp con expansión futura a otros canales.
-- `[x]` Definir principio de source of truth estructurado.
-- `[x]` Definir que la IA no decide verdad de negocio.
+The scoped MVP should validate one complete commercial operation for a real estate agency:
 
-## Fase 0 · Foundation / Setup
+`property -> lead -> conversation -> visit -> follow-up`
 
-### Arquitectura y decisiones base
+The goal is not to keep expanding features. The goal is to make this flow reliable enough for disciplined internal testing and a first supervised commercial pilot.
 
-- `[x]` Definir arquitectura general del proyecto.
-- `[x]` Definir bounded contexts principales.
-- `[x]` Definir estrategia multitenant desde día 1.
-- `[x]` Definir separación entre UI, dominio, acceso a datos e integraciones.
-- `[x]` Definir estrategia de adapters para canales e IA.
-- `[x]` Documentar estructura de carpetas.
-- `[x]` Documentar modelo de datos refinado.
+### Must Have
 
-### Proyecto base
+1. `[MVP]` Harden tenant user permissions in server actions and feature-level mutations.
+   - Done when critical writes validate authenticated user, active tenant, and role on the server.
+   - Verification: role-based negative cases for settings, channels, properties, leads, conversations, appointments, FAQs, and tenant users.
+2. `[MVP]` Close the invitation and membership workflow enough for real internal testing.
+   - Done when inviting, accepting, suspending/removing, and role changes are clear and do not depend on manual database work for normal cases.
+   - Verification: owner/admin/advisor flows with at least one invited user.
+3. `[MVP]` Make the commercial flow frictionless from property to visit.
+   - Done when a user can create/select a property, create or receive a lead, link a conversation, reply, move pipeline/status, and schedule a visit without broken transitions.
+   - Verification: full manual walkthrough with seeded tenant data.
+4. `[MVP]` Make appointments operational enough for internal use.
+   - Done when appointments have clear visibility, advisor assignment, status changes, and basic conflict/availability expectations within the internal agenda.
+   - Verification: create, confirm, cancel, and review appointments by advisor.
+5. `[MVP]` Add minimal commercial reporting.
+   - Done when the dashboard or reports expose activity by advisor, pipeline/stage, response time, and visit outcomes at a basic level.
+   - Verification: metrics match seeded/test data.
+6. `[MVP]` Keep WhatsApp reliable for manual supervised operation.
+   - Done when inbound, outbound, template usage, event tracking, retries/manual retry, and error visibility are sufficient for internal tests.
+   - Verification: webhook rejection, inbound message, manual outbound, template send, and retry/error cases.
+7. `[technical debt]` Add focused regression coverage for MVP-critical logic.
+   - Done when critical permissions, tenant scoping, WhatsApp payload handling, and business-state transitions have tests where practical.
+   - Verification: `pnpm test`, plus targeted tests for touched areas.
 
-- `[x]` Inicializar proyecto Next.js con App Router.
-- `[x]` Configurar TypeScript estricto.
-- `[x]` Configurar Tailwind CSS.
-- `[x]` Preparar base compatible con shadcn/ui.
-- `[x]` Configurar ESLint.
-- `[x]` Configurar Prettier.
-- `[x]` Configurar testing base con Vitest.
-- `[x]` Configurar scripts de desarrollo, build, lint y test.
-- `[x]` Documentar variables de entorno.
-- `[x]` Configurar puertos locales dedicados para Supabase en este repo.
-- `[x]` Configurar captura local de emails de Supabase Auth para desarrollo.
-- `[x]` Fijar el frontend local del repo en `127.0.0.1:3003`.
-- `[x]` Reservar también puertos dedicados para analytics/vector del stack local de Supabase.
+### Should Have
 
-### Supabase y base de datos
+- `[MVP]` Improve lead pipeline history visibility and auditability.
+- `[MVP]` Improve lead search/filtering where it blocks internal testing.
+- `[technical debt]` Add structured logs for sensitive operations and external integrations.
+- `[technical debt]` Add basic rate limiting/hardening for public endpoints.
+- `[MVP]` Refine UI empty/error/loading states in the main commercial flow.
 
-- `[x]` Crear estructura `supabase/`.
-- `[x]` Crear migración SQL inicial.
-- `[x]` Crear enums base de dominio.
-- `[x]` Crear tablas de identidad y acceso.
-- `[x]` Crear tablas de tenants y membresías.
-- `[x]` Crear tablas de propiedades.
-- `[x]` Crear tablas de leads.
-- `[x]` Crear tablas de conversaciones y mensajes.
-- `[x]` Crear tablas de canales y WhatsApp.
-- `[x]` Crear tablas de FAQs.
-- `[x]` Crear tablas de pipeline y appointments.
-- `[x]` Crear tablas de audit logs y channel events.
-- `[x]` Crear índices principales.
-- `[x]` Crear trigger genérico de `updated_at`.
-- `[x]` Crear sync inicial de `auth.users` a `user_profiles`.
-- `[x]` Crear seed de desarrollo.
-- `[x]` Completar seed de Auth local con `auth.identities` para login email/password.
-- `[x]` Alinear seed de `auth.users` con el shape esperado por GoTrue local actual.
-- `[x]` Ajustar seed de Auth para columnas no insertables en el esquema local actual.
-- `[x]` Crear configuración base de Supabase local.
+### Post-MVP
 
-### Seguridad y multi-tenancy
+- Branding customization by tenant.
+- Rich property media with Supabase Storage.
+- Lead deduplication/merge beyond basic internal hygiene.
+- Advanced filters and pagination.
+- Real Meta approval/sync workflow for templates.
+- Guided channel onboarding from UI.
+- Advanced reports and management dashboards.
 
-- `[x]` Definir `tenant_id` obligatorio en entidades de negocio.
-- `[x]` Implementar RLS inicial.
-- `[x]` Implementar helper SQL `is_platform_admin`.
-- `[x]` Implementar helper SQL `is_tenant_member`.
-- `[x]` Implementar helper SQL `has_tenant_role`.
-- `[x]` Implementar helper SQL `shares_tenant_with_user`.
-- `[x]` Forzar RLS en tablas críticas.
-- `[~]` Endurecer permisos finos por caso de uso de aplicación.
-- `[ ]` Revisar políticas para operaciones machine-to-machine de webhooks y jobs.
+### Do Not Touch Yet
 
-### Auth y contexto de tenant
+- Advanced AI.
+- Billing.
+- Full omnichannel support.
+- Google Calendar integration.
+- Large architecture rewrites.
 
-- `[x]` Configurar Supabase SSR server client.
-- `[x]` Configurar browser client.
-- `[x]` Configurar admin client.
-- `[x]` Implementar protección de rutas.
-- `[x]` Implementar login.
-- `[x]` Implementar logout.
-- `[x]` Resolver usuario autenticado en servidor.
-- `[x]` Resolver membresías activas del usuario.
-- `[x]` Resolver tenant activo por cookie.
-- `[x]` Permitir cambio de tenant activo en UI.
-- `[~]` Preparar soporte robusto para usuarios con múltiples tenants y defaults persistentes por usuario.
+## Product North Star
 
-### UI inicial
+- `[x]` Define the SaaS goal: centralize properties, leads, conversations, and commercial operations per tenant.
+- `[x]` Define each real estate agency as an isolated tenant.
+- `[x]` Define channels as customer-owned, with the platform providing the SaaS layer.
+- `[x]` Define WhatsApp as the initial channel focus, with future channel expansion.
+- `[x]` Define structured data as the source of truth.
+- `[x]` Define that AI must not decide business truth.
 
-- `[x]` Crear layout autenticado.
-- `[x]` Crear sidebar de navegación.
-- `[x]` Crear header con tenant activo y logout.
-- `[x]` Crear dashboard base autenticado.
-- `[x]` Mostrar indicadores mínimos.
-- `[x]` Crear componentes UI reutilizables base.
-- `[x]` Resolver diseño desktop-first responsive básico.
-- `[x]` Soportar dashboard para `platform_admin` sin tenant activo.
-- `[~]` Mejorar estados vacíos, errores y feedback transaccional de forma más consistente.
-  Ya existe un patrón compartido para feedback de formularios y vacíos más accionables en dashboard, leads, propiedades, conversaciones, agenda y tenants.
-- `[~]` Elevar la calidad visual general del producto: tipografía, color, espaciado, jerarquía y consistencia.
-  Shell, login, dashboard, propiedades, leads, conversaciones, settings, appointments y platform/tenants ya fueron refrescados; falta cerrar consistencia total y feedback transaccional.
-- `[x]` Definir una dirección visual más intencional para el dashboard SaaS.
-- `[~]` Revisar fuentes, tokens de color y estados de componentes base.
-  La base visual nueva ya está aplicada y ya se alinearon `Button`, `Card`, `Input`, `Textarea`, `Badge`, `Table`, `Sheet` y `Select` del template; además el shell ya soporta `light/dark mode` con `next-themes` y ahora usa `defaultTheme="system"` como el template original. Resta extender mejor el dark mode a más detalles finos y a alerts, vacíos, estados de carga y detalles complejos.
+## Phase 0 - Foundation / Setup
 
-### Documentación
+### Architecture and Base Decisions
 
-- `[x]` Crear README inicial.
-- `[x]` Documentar setup local.
-- `[x]` Documentar credenciales seed.
-- `[x]` Documentar arquitectura.
-- `[x]` Documentar modelo.
-- `[ ]` Documentar estrategia de despliegue Vercel + Supabase.
-- `[ ]` Documentar convenciones de desarrollo y criterios de PR.
+- `[x]` Define the general project architecture.
+- `[x]` Define the main bounded contexts.
+- `[x]` Define the multitenant strategy from day one.
+- `[x]` Define separation between UI, domain, data access, and integrations.
+- `[x]` Define adapter strategy for channels and AI.
+- `[x]` Document folder structure.
+- `[x]` Document the refined data model.
 
-## Fase 1 · MVP comercial operativo
+### Base Project
 
-### UX / UI comercial
+- `[x]` Initialize Next.js with App Router.
+- `[x]` Configure strict TypeScript.
+- `[x]` Configure Tailwind CSS.
+- `[x]` Prepare a shadcn/ui-compatible foundation.
+- `[x]` Configure ESLint.
+- `[x]` Configure Prettier.
+- `[x]` Configure base testing with Vitest.
+- `[x]` Configure development, build, lint, and test scripts.
+- `[x]` Document environment variables.
+- `[x]` Configure dedicated local Supabase ports for this repo.
+- `[x]` Configure local Supabase Auth email capture.
+- `[x]` Pin local frontend to `127.0.0.1:3003`.
+- `[x]` Reserve dedicated analytics/vector ports for the local Supabase stack.
 
-- `[~]` Rehacer la dirección visual tomando TailwindAdmin Next.js como referencia de shell y componentes.
-  La adopción será parcial: tokens, layout, navegación, tablas y formularios; no se migra la arquitectura ni se injerta el template completo.
-  Ya se migró la base a Tailwind 4 y ahora también se adoptó el shell real del template como nueva base: `Header`, `Sidebar` y `AppShell` quedaron rearmados sobre el patrón original, se incorporaron `tailwind-sidebar`, `simplebar-react` y `@iconify/react`, y se mantuvo `next-themes` con `defaultTheme="system"`. El selector de tenant se removió temporalmente para simplificar el header y más adelante se rediseñará si sigue haciendo falta. En esta etapa también se estabilizó el shell para evitar HTML inválido e hidratación rota, dejando `FullLogo` como componente visual puro y delegando el link al contenedor. Además, se corrigió un desvío importante de tokens respecto del template: `--dark` volvió a comportarse como color de shell y el header dejó de alternar entre `sticky` y `fixed`, eliminando el scroll jump y la franja blanca incorrecta. Después de eso, el header se volvió a simplificar para quedar más literal al template: sin shadow ni backdrop agregados, con fondo estable del sistema de tema, search visual, toggle y logout mínimos. El bloque actual ya empezó a reemplazar composición propia por piezas del template en vez de seguir refinando wrappers: se introdujeron `CardBox`, `ProfileWelcome` y `TopCards` adaptado al dominio, y el `dashboard` dejó de depender de `MetricCard` para pasar a una composición más fiel al grid y a las top cards del template. `PageHeader`, `FilterCard` y `MetricCard` quedaron fuera de las páginas principales de operación: `properties`, `leads`, `conversations`, `appointments`, `faqs` y `channels` ya pasaron al mismo patrón del dashboard, con introducción simple, `TopCards` del template adaptado, `CardBox` para contenido y `EmptyState` también montado sobre `CardBox`. También se corrigió el token dark de `lightsecondary` para que el panel de bienvenida del dashboard vuelva al azul grisáceo del template en vez del celeste lavado que teníamos por desvío de mezcla, se eliminó el override local que lo apagaba todavía más en dark, el banner se compactó y se quitaron sus íconos decorativos, y `ProfileWelcome` pasó a funcionar como panel reusable del template para secciones operativas: ahora `properties`, `leads`, `conversations`, `appointments`, `faqs` y `channels` usan un bloque superior más liviano, sin descripción, sin imagen y con acción principal embebida cuando aplica. Ese mismo panel superior ya se propagó a páginas intermedias y de detalle (`new`, `edit`, `settings`, `platform/tenants`, detalles de propiedades, leads y conversaciones), eliminando `PageHeader` de esas rutas. El header pasó a usar el mismo fondo del shell para perderse mejor con el background, el borde inferior del header ahora aparece recién después de un pequeño umbral de scroll para que se note la superposición real y la paleta dark base (`background`, `card`, `popover`, `muted`, `border`, `sidebar` y light variants) se realineó a los valores del template. Las primitives centrales del template (`Button`, `Card`, `Input`, `Textarea`, `Badge`, `Table`, `Select`) ya están copiadas dentro del proyecto y `NativeSelect` sigue cubriendo formularios que todavía dependen de `<select>` nativo. `dashboard`, `properties`, `leads`, `conversations`, `appointments`, `settings`, `login`, `faqs`, `channels`, `platform/tenants` y los detalles principales ya fueron remaquetados sobre esa base. Además, por decisión de producto/UX, se eliminaron temporalmente los paneles de filtros visibles de los listados operativos principales (`properties`, `leads` y `appointments`) para simplificar la interfaz; por ahora se conserva la lectura de `searchParams` para no romper filtros por URL/manuales.
-- `[~]` Refinar look & feel del dashboard para una estética más profesional y distintiva.
-- `[~]` Mejorar tablas, formularios y cards con mejor jerarquía visual.
-- `[~]` Migrar formularios internos y pantallas secundarias al mismo sistema visual.
-  FAQs, canales, tenants de plataforma, reglas de agenda, tenant forms, tenant users y pipeline stage forms ya fueron alineados; falta revisar residuales menores y después limpiar componentes/estilos viejos.
-- `[~]` Terminar la sustitución de wrappers visuales propios por componentes copiados del template.
-  La base ya fue copiada al proyecto y la carpeta temporal del template ya se eliminó; resta solo seguir refinando wrappers menores si hace falta.
-- `[~]` Consolidar y limpiar residuales del sistema visual anterior.
-  Ya se limpiaron la mayoría de colores/clases legacy y se remigraron pantallas secundarias; también se eliminaron las referencias de tooling y se borró la carpeta temporal del template. Falta una pasada final de refinamiento visual menor y cleanup de componentes/estilos residuales si aparecieran.
-- `[~]` Alinear tipografía, cards, badges y headings con más fidelidad al template.
-  Ya se activó `DM Sans` real vía paquete local, se quitó la sombra visible de `Card`, se ajustaron `PageHeader` y el dashboard para reducir diferencias perceptibles con el original y los `Badge` se realinearon nuevamente al archivo real del template, recuperando el patrón light (`bg-light* + text-*`) con más parecido al look original en tablas/estados. Además se hizo un pass global de densidad: `Card`, `PageHeader`, `FilterCard`, `AppShell`, `Table`, `Input`, `Button` y `NativeSelect` quedaron más compactos, y se creó `MetricCard` como patrón reusable para las top cards de dashboard, propiedades, leads, conversaciones, agenda, settings, channels, FAQs y platform/tenants. Ese patrón ya fue realineado a una variante más fiel al template: fondo tonal, composición centrada con ícono opcional y visual más cercana al bloque de métricas ilustrado del original. Después se afinó el contraste del contenido usando tonos más enfáticos sin blanquear el fondo, se redujo su padding para bajar tamaño visual y el radio base de `Card` se alineó a `7px` para acercarse más al template.
-- `[~]` Revisar navegación, densidad de información y legibilidad en desktop.
-- `[~]` Resolver mejor responsive en vistas clave del CRM.
-  Ya se trabajó específicamente sobre leads, conversaciones, propiedades, agenda, settings, login y tenants; todavía falta ajustar pantallas secundarias y algunos detalles finos en tablet/mobile.
-- `[~]` Hacer que filtros, vacíos y acciones principales sean más claros y utilizables.
-  Leads, propiedades y agenda ya usan formularios GET reales y estados vacíos accionables; falta extender el patrón a más pantallas secundarias.
+### Supabase and Database
 
-### Tenant management
+- `[x]` Create `supabase/` structure.
+- `[x]` Create initial SQL migration.
+- `[x]` Create base domain enums.
+- `[x]` Create identity and access tables.
+- `[x]` Create tenants and memberships tables.
+- `[x]` Create property tables.
+- `[x]` Create lead tables.
+- `[x]` Create conversation and message tables.
+- `[x]` Create channel and WhatsApp tables.
+- `[x]` Create FAQ tables.
+- `[x]` Create pipeline and appointment tables.
+- `[x]` Create audit log and channel event tables.
+- `[x]` Create primary indexes.
+- `[x]` Create generic `updated_at` trigger.
+- `[x]` Create initial sync from `auth.users` to `user_profiles`.
+- `[x]` Create development seed.
+- `[x]` Complete local Auth seed with `auth.identities` for email/password login.
+- `[x]` Align `auth.users` seed with the current local GoTrue shape.
+- `[x]` Adjust Auth seed for non-insertable columns in the current local schema.
+- `[x]` Create base local Supabase config.
 
-- `[~]` Modelo de tenants implementado.
-- `[~]` Modelo de roles implementado.
-- `[~]` CRUD de tenants desde UI para `platform_admin`.
-- `[~]` Pantalla de detalle de tenant.
-- `[x]` Cambio de estado de tenant.
-- `[x]` Configuración general editable por tenant.
-- `[ ]` Branding básico editable.
-- `[~]` Selector más completo para usuarios multi-tenant.
+### Security and Multitenancy
 
-### Usuarios y permisos
+- `[x]` Define mandatory `tenant_id` for business entities.
+- `[x]` Implement initial RLS.
+- `[x]` Implement SQL helper `is_platform_admin`.
+- `[x]` Implement SQL helper `is_tenant_member`.
+- `[x]` Implement SQL helper `has_tenant_role`.
+- `[x]` Implement SQL helper `shares_tenant_with_user`.
+- `[x]` Force RLS on critical tables.
+- `[~]` Harden fine-grained permissions by application use case.
+- `[ ]` Review policies for machine-to-machine webhook and job operations.
 
-- `[~]` Tablas y roles implementados.
-- `[~]` CRUD de usuarios internos del tenant.
-- `[~]` Invitar usuario por email.
-  Ya existe un primer flujo usable desde `Settings`: si el email no existe, Supabase envía invitación y la membresía queda en estado `invited`. Falta cierre más fino de onboarding, aceptación y UX de multi-tenant.
-- `[x]` Alta de membresía a tenant.
-- `[x]` Cambio de rol por tenant.
-- `[x]` Suspender o remover miembro.
-- `[x]` Pantalla de gestión de accesos.
-- `[~]` Guards de UI por rol.
-  Primera capa cerrada: sidebar filtrado por rol, acceso bloqueado a `settings` y `channels` para no-admins, y guards visibles en crear/editar/operar propiedades, leads, FAQs, agenda y conversaciones. Falta endurecer server actions y granularidad fina por feature.
-- `[~]` Policies aplicadas desde acciones/servicios de aplicación.
+### Auth and Tenant Context
 
-### Propiedades
+- `[x]` Configure Supabase SSR server client.
+- `[x]` Configure browser client.
+- `[x]` Configure admin client.
+- `[x]` Protect routes.
+- `[x]` Implement login.
+- `[x]` Implement logout.
+- `[x]` Resolve authenticated user on the server.
+- `[x]` Resolve active user memberships.
+- `[x]` Resolve active tenant from cookie.
+- `[x]` Allow active tenant switching in UI.
+- `[~]` Prepare robust support for multi-tenant users and persistent user defaults.
 
-- `[x]` Listado de propiedades.
-- `[x]` Creación de propiedad.
-- `[x]` Edición de propiedad.
-- `[x]` Detalle de propiedad.
-- `[x]` Borrado de propiedad.
-- `[x]` Filtros básicos.
-- `[~]` Formularios estructurados para datos principales.
-- `[ ]` Asignación de asesor en UI.
-- `[ ]` Media real con Supabase Storage.
-- `[ ]` Carga de features más rica.
-- `[ ]` Paginación y filtros avanzados.
-- `[ ]` Importación desde sistemas externos.
+### Initial UI
+
+- `[x]` Create authenticated layout.
+- `[x]` Create sidebar navigation.
+- `[x]` Create header with active tenant and logout.
+- `[x]` Create base authenticated dashboard.
+- `[x]` Show minimal indicators.
+- `[x]` Create base reusable UI components.
+- `[x]` Resolve basic desktop-first responsive behavior.
+- `[x]` Support `platform_admin` dashboard without active tenant.
+- `[~]` Improve empty states, errors, and transactional feedback consistently.
+  A shared feedback pattern already exists for forms and actionable empty states in dashboard, leads, properties, conversations, appointments, and tenants.
+- `[~]` Improve the overall product visual quality: typography, color, spacing, hierarchy, and consistency.
+  Shell, login, dashboard, properties, leads, conversations, settings, appointments, and platform/tenants have already been refreshed. Full consistency and transactional feedback still need final review.
+- `[x]` Define a more intentional visual direction for the SaaS dashboard.
+- `[~]` Review fonts, color tokens, and base component states.
+  The new visual foundation is applied, core components are aligned, and the shell supports light/dark mode with `next-themes`. More dark-mode detail is still needed for alerts, empty states, loading states, and complex details.
+
+### Documentation
+
+- `[x]` Create initial README.
+- `[x]` Document local setup.
+- `[x]` Document seed credentials.
+- `[x]` Document architecture.
+- `[x]` Document data model.
+- `[~]` Document development conventions and agent workflow in `AGENTS.md`.
+- `[ ]` Document Vercel + Supabase deployment strategy.
+- `[ ]` Document PR criteria.
+
+## Phase 1 - Operational Commercial MVP
+
+### Commercial UX / UI
+
+- `[~]` Rework visual direction using TailwindAdmin Next.js as a shell and component reference.
+  Adoption is partial: tokens, layout, navigation, tables, and forms. The app architecture was not migrated and the full template was not injected.
+  The base was migrated to Tailwind 4, the real template shell pattern was adopted, and the main operational pages now use the same dashboard-style structure with `CardBox`, `ProfileWelcome`, and adapted `TopCards`.
+- `[~]` Refine dashboard look and feel for a more professional and distinctive appearance.
+- `[~]` Improve tables, forms, and cards with stronger visual hierarchy.
+- `[~]` Migrate internal forms and secondary screens to the same visual system.
+  FAQs, channels, platform tenants, appointment rules, tenant forms, tenant users, and pipeline stage forms are already aligned. Minor residual cleanup remains.
+- `[~]` Finish replacing custom visual wrappers with copied template components.
+- `[~]` Consolidate and clean up old visual-system remnants.
+- `[~]` Align typography, cards, badges, and headings more closely with the template.
+- `[~]` Review navigation, information density, and desktop readability.
+- `[~]` Improve responsive behavior in key CRM views.
+  Leads, conversations, properties, appointments, settings, login, and tenants have been reviewed; secondary screens and tablet/mobile details still need attention.
+- `[~]` Make filters, empty states, and primary actions clearer and more usable.
+  Leads, properties, and appointments already use real GET filters and actionable empty states. Extend the pattern only where it blocks MVP flow.
+
+### Tenant Management
+
+- `[~]` Tenant model implemented.
+- `[~]` Role model implemented.
+- `[~]` Tenant CRUD from UI for `platform_admin`.
+- `[~]` Tenant detail page.
+- `[x]` Tenant status changes.
+- `[x]` Editable general tenant settings.
+- `[ ]` Basic tenant branding. Post-MVP unless a pilot explicitly needs it.
+- `[~]` More complete selector for multi-tenant users.
+
+### Users and Permissions
+
+- `[~]` Tables and roles implemented.
+- `[~]` Tenant internal user CRUD.
+- `[~]` Invite user by email.
+  A first usable flow exists in `Settings`: if the email does not exist, Supabase sends an invitation and the membership remains `invited`. Onboarding acceptance and multi-tenant UX need tightening.
+- `[x]` Add membership to tenant.
+- `[x]` Change tenant role.
+- `[x]` Suspend or remove member.
+- `[x]` Access-management screen.
+- `[~]` UI guards by role.
+  First layer is done: sidebar filtered by role, `settings` and `channels` blocked for non-admins, and visible guards in properties, leads, FAQs, appointments, and conversations. Server actions and fine-grained feature permissions still need hardening.
+- `[~]` Policies applied from application actions/services.
+
+### Properties
+
+- `[x]` Property list.
+- `[x]` Create property.
+- `[x]` Edit property.
+- `[x]` Property detail.
+- `[x]` Delete property.
+- `[x]` Basic filters.
+- `[~]` Structured forms for main data.
+- `[ ]` Advisor assignment in UI.
+- `[ ]` Real media with Supabase Storage. Post-MVP unless a pilot explicitly needs it.
+- `[ ]` Richer feature loading. Post-MVP.
+- `[ ]` Pagination and advanced filters. Post-MVP unless internal tests require it.
+- `[ ]` Import from external systems. Post-MVP.
 
 ### Leads
 
-- `[x]` Listado de leads.
-- `[x]` Creación manual de lead.
-- `[x]` Edición de lead.
-- `[x]` Detalle de lead.
-- `[x]` Borrado de lead.
-- `[x]` Estado comercial básico.
-- `[x]` Selección de etapa pipeline.
-- `[x]` Asignación real a asesor desde UI.
-- `[~]` Historial de cambios de etapa visible.
-- `[ ]` Merge/deduplicación de leads.
-- `[ ]` Búsqueda y filtros más completos.
+- `[x]` Lead list.
+- `[x]` Manual lead creation.
+- `[x]` Edit lead.
+- `[x]` Lead detail.
+- `[x]` Delete lead.
+- `[x]` Basic commercial status.
+- `[x]` Pipeline stage selection.
+- `[x]` Real advisor assignment from UI.
+- `[~]` Visible stage-change history.
+- `[ ]` Lead merge/deduplication. Post-MVP unless it blocks a pilot.
+- `[ ]` More complete search and filters. MVP only where it blocks internal testing.
 
-### Conversaciones y mensajes
+### Conversations and Messages
 
-- `[x]` Modelo base de conversaciones.
-- `[x]` Modelo base de mensajes.
-- `[x]` Listado de conversaciones.
-- `[x]` Detalle de conversación con timeline.
-- `[~]` Asociación conceptual a lead y propiedad.
-- `[~]` Asociación y edición real desde UI.
-- `[x]` Derivación humana accionable desde UI.
-- `[x]` Asignación de conversación a asesor.
-- `[x]` Respuesta manual desde la plataforma.
-- `[~]` Estados operativos más completos.
+- `[x]` Base conversation model.
+- `[x]` Base message model.
+- `[x]` Conversation list.
+- `[x]` Conversation detail with timeline.
+- `[~]` Conceptual association to lead and property.
+- `[~]` Real association and editing from UI.
+- `[x]` Actionable human handoff from UI.
+- `[x]` Assign conversation to advisor.
+- `[x]` Manual reply from the platform.
+- `[~]` More complete operational statuses.
 
 ### FAQs
 
-- `[x]` Listado de FAQs.
-- `[x]` Alta de FAQ.
-- `[x]` Edición de FAQ.
-- `[x]` Borrado de FAQ.
-- `[x]` Estado activo/inactivo.
-- `[ ]` Búsqueda y categorías más completas.
+- `[x]` FAQ list.
+- `[x]` Create FAQ.
+- `[x]` Edit FAQ.
+- `[x]` Delete FAQ.
+- `[x]` Active/inactive status.
+- `[ ]` More complete search and categories. Post-MVP unless internal testing needs it.
 
-### Canales
+### Channels
 
-- `[x]` Modelo general de canales.
-- `[x]` Modelo específico para cuentas de WhatsApp.
-- `[x]` Página básica de canales.
-- `[x]` Webhook base de WhatsApp.
-- `[ ]` Alta de canal desde UI.
-- `[ ]` Conexión funcional de cuenta Meta por tenant.
-- `[ ]` Gestión de estados y validaciones de canal.
-- `[ ]` Manejo seguro de credenciales por tenant.
-- `[ ]` Plantillas por tenant.
+- `[x]` General channel model.
+- `[x]` WhatsApp account-specific model.
+- `[x]` Basic channels page.
+- `[x]` Base WhatsApp webhook.
+- `[ ]` Create channel from UI. Post-MVP unless a pilot needs it.
+- `[ ]` Functional Meta account connection per tenant. Post-MVP unless it blocks a pilot.
+- `[ ]` Channel state management and validations.
+- `[ ]` Secure credential management per tenant.
+- `[~]` Templates per tenant.
 
-### Reportes básicos
+### Basic Reports
 
-- `[x]` Métricas mínimas en dashboard.
-- `[x]` Leads por fuente.
-- `[x]` Propiedades activas.
-- `[x]` Conversaciones abiertas.
-- `[ ]` Reporte por asesor.
-- `[ ]` Reporte por etapa.
-- `[ ]` Reporte de tiempos de respuesta.
+- `[x]` Minimal dashboard metrics.
+- `[x]` Leads by source.
+- `[x]` Active properties.
+- `[x]` Open conversations.
+- `[ ]` Report by advisor.
+- `[ ]` Report by stage.
+- `[ ]` Response-time report.
 
-## Fase 2 · Automatización inicial
+## Phase 2 - Initial Automation
 
-### Calificación y operación
+### Qualification and Operations
 
-- `[~]` Campo `score` modelado.
-- `[~]` Campo `qualification_status` modelado.
-- `[ ]` Reglas automáticas de score.
-- `[ ]` Reglas automáticas de calificación.
-- `[ ]` Etiquetas de leads.
-- `[x]` Pipeline editable desde UI.
-- `[ ]` Historial de pipeline consistente.
+- `[~]` `score` field modeled.
+- `[~]` `qualification_status` field modeled.
+- `[ ]` Automatic score rules. Post-MVP.
+- `[ ]` Automatic qualification rules. Post-MVP.
+- `[ ]` Lead tags. Post-MVP.
+- `[x]` Editable pipeline from UI.
+- `[ ]` Consistent pipeline history.
 
-### Follow-up y plantillas
+### Follow-Up and Templates
 
-- `[~]` Modelo de `automation_rules` listo.
-- `[ ]` Motor simple de reglas.
-- `[ ]` Triggers iniciales por evento.
-- `[ ]` Follow-up automático por inactividad.
-- `[ ]` Plantillas de mensajes.
-- `[ ]` Desactivación/pausa de automatizaciones.
+- `[~]` `automation_rules` model ready.
+- `[ ]` Simple rules engine. Post-MVP.
+- `[ ]` Initial event triggers. Post-MVP.
+- `[ ]` Automatic inactivity follow-up. Post-MVP.
+- `[~]` Message templates foundation.
+- `[ ]` Automation pause/disable controls. Post-MVP.
 
-### Agenda y visitas
+### Appointments and Visits
 
-- Decisión vigente:
-  - la agenda interna del sistema es la source of truth de negocio para visitas
-  - Google Calendar queda planificado como integración posterior para disponibilidad y sincronización, no como reemplazo de `appointments`
-- `[x]` Modelo de `appointments` listo.
-- `[x]` UI de agenda básica.
-- `[~]` Crear visita desde lead o propiedad.
-- `[x]` Confirmar/cancelar visita.
-- `[x]` Vista simple por asesor.
-- `[x]` Reglas de agenda interna por tenant: timezone, duración por defecto, buffers y horarios de atención.
-- `[~]` Timeline y auditoría básica de cambios de visita.
-- `[ ]` Integración Google Calendar modo `agenda interna + disponibilidad`.
-- `[ ]` Conexión OAuth de Google Calendar por tenant o por usuario.
-- `[ ]` Consulta de disponibilidad con `freeBusy`.
-- `[ ]` Creación de evento externo al confirmar una visita interna.
-- `[ ]` Estado de sincronización entre `appointments` y eventos externos.
-- `[ ]` Reprogramación/cancelación con estrategia inicial `sistema -> Google`.
+Current decision:
 
-### Reportes iniciales
+- The internal agenda is the business source of truth for visits.
+- Google Calendar is planned as a future availability/sync integration, not a replacement for `appointments`.
 
-- `[ ]` Dashboard comercial expandido.
-- `[ ]` Conversión por etapa.
-- `[ ]` Visitas agendadas/completadas.
-- `[ ]` Leads calificados vs no calificados.
+- `[x]` `appointments` model ready.
+- `[x]` Basic appointments UI.
+- `[~]` Create visit from lead or property.
+- `[x]` Confirm/cancel visit.
+- `[x]` Simple advisor view.
+- `[x]` Internal appointment rules by tenant: timezone, default duration, buffers, and working hours.
+- `[~]` Basic visit-change timeline and audit trail.
+- `[ ]` Google Calendar integration mode: `internal agenda + availability`. Post-MVP.
+- `[ ]` Google Calendar OAuth connection by tenant or user. Post-MVP.
+- `[ ]` Availability lookup with `freeBusy`. Post-MVP.
+- `[ ]` External event creation on internal visit confirmation. Post-MVP.
+- `[ ]` Sync state between `appointments` and external events. Post-MVP.
+- `[ ]` Reschedule/cancel strategy from system to Google. Post-MVP.
 
-## Fase 3 · IA más avanzada
+### Initial Reports
 
-### Capa AI
+- `[ ]` Expanded commercial dashboard.
+- `[ ]` Conversion by stage.
+- `[ ]` Scheduled/completed visits.
+- `[ ]` Qualified vs unqualified leads.
 
-- `[x]` Contrato base de provider AI.
-- `[x]` Separación conceptual entre retrieval, business rules y generation.
-- `[ ]` Integrar provider AI real.
-- `[ ]` Configuración por entorno para provider AI.
-- `[ ]` Observabilidad específica de requests AI.
+## Phase 3 - Advanced AI
 
-### Inteligencia conversacional
+### AI Layer
 
-- `[ ]` Interpretación de intención.
-- `[ ]` Extracción estructurada de datos desde mensajes.
-- `[ ]` Resumen automático de conversaciones.
-- `[ ]` Sugerencias para asesores.
-- `[ ]` Matching con propiedades similares.
-- `[ ]` Respuestas naturales basadas en facts reales.
-- `[ ]` Fallback explícito cuando falta información.
-- `[ ]` Reglas para evitar alucinaciones.
+- `[x]` Base AI provider contract.
+- `[x]` Conceptual separation between retrieval, business rules, and generation.
+- `[ ]` Integrate real AI provider. Post-MVP.
+- `[ ]` Environment-based AI provider config. Post-MVP.
+- `[ ]` AI request observability. Post-MVP.
 
-### Retrieval y grounding
+### Conversational Intelligence
 
-- `[ ]` Servicio de retrieval de propiedades por tenant.
-- `[ ]` Servicio de retrieval de FAQs por tenant.
-- `[ ]` Construcción de contexto grounded para respuestas.
-- `[ ]` Priorización de reglas de negocio sobre output del modelo.
+- `[ ]` Intent interpretation.
+- `[ ]` Structured extraction from messages.
+- `[ ]` Automatic conversation summaries.
+- `[ ]` Suggestions for advisors.
+- `[ ]` Matching with similar properties.
+- `[ ]` Natural replies based on real facts.
+- `[ ]` Explicit fallback when information is missing.
+- `[ ]` Anti-hallucination rules.
 
-## Fase 4 · Omnicanal y self-service
+### Retrieval and Grounding
 
-### Onboarding self-service
+- `[ ]` Tenant-scoped property retrieval service.
+- `[ ]` Tenant-scoped FAQ retrieval service.
+- `[ ]` Grounded context construction for replies.
+- `[ ]` Prioritize business rules over model output.
 
-- `[ ]` Registro self-service de tenant.
-- `[ ]` Wizard inicial de onboarding.
-- `[ ]` Configuración inicial de branding y datos comerciales.
-- `[ ]` Invitación de equipo durante onboarding.
+## Phase 4 - Omnichannel and Self-Service
 
-### Canales adicionales
+### Self-Service Onboarding
 
-- `[ ]` Email provider real.
-- `[ ]` Inbox de email.
-- `[ ]` Web widget básico.
+- `[ ]` Self-service tenant signup.
+- `[ ]` Initial onboarding wizard.
+- `[ ]` Initial branding and commercial data setup.
+- `[ ]` Team invitation during onboarding.
+
+### Additional Channels
+
+- `[ ]` Real email provider.
+- `[ ]` Email inbox.
+- `[ ]` Basic web widget.
 - `[ ]` Instagram.
 - `[ ]` Facebook leads.
-- `[ ]` Facebook Messenger si aplica.
+- `[ ]` Facebook Messenger if applicable.
 
-### SaaS platform
+### SaaS Platform
 
 - `[ ]` Billing.
-- `[ ]` Planes y límites.
-- `[ ]` Restricciones por suscripción.
-- `[ ]` Observabilidad y métricas de plataforma.
-- `[ ]` Centro de auditoría para platform admin.
-- `[ ]` Backoffice de soporte.
+- `[ ]` Plans and limits.
+- `[ ]` Subscription restrictions.
+- `[ ]` Platform observability and metrics.
+- `[ ]` Audit center for platform admin.
+- `[ ]` Support backoffice.
 
-## Integración WhatsApp · Hoja específica
+## WhatsApp Integration - Specific Track
 
-### Base ya hecha
+### Foundation Done
 
-- `[x]` Definir que cada tenant conecta su propia cuenta.
-- `[x]` Modelar cuenta WhatsApp por tenant.
-- `[x]` Modelar canal por tenant.
-- `[x]` Modelar eventos inbound/outbound.
-- `[x]` Dejar webhook base.
-- `[x]` Dejar adapter base.
+- `[x]` Define that each tenant connects its own account.
+- `[x]` Model WhatsApp account per tenant.
+- `[x]` Model channel per tenant.
+- `[x]` Model inbound/outbound events.
+- `[x]` Provide base webhook.
+- `[x]` Provide base adapter.
 
-### Pendiente para operación real
+### Pending for Real Operation
 
-- `[x]` Validación real de webhook Meta.
-  Verifica `x-hub-signature-256` con `WHATSAPP_APP_SECRET`, rechaza firma faltante/inválida, valida JSON y esquema del payload con Zod y registra rechazos en `channel_events`.
-- `[x]` Parsing del payload de mensajes.
-- `[x]` Idempotencia por `external_event_id`.
-- `[x]` Lookup de canal por cuenta o número.
-- `[x]` Creación o vínculo de conversación.
-- `[x]` Creación o vínculo de lead.
-- `[x]` Persistencia de mensajes inbound.
-- `[x]` Envío outbound real.
-- `[x]` Persistencia de estados sent/delivered/read.
-- `[~]` Manejo de errores y retries.
-  Outbound ahora tiene timeout y retries para fallos transitorios (`429` y `5xx`); reintento manual desde conversaciones listo y la pantalla de Canales ya muestra volumen, fallos, retries y rechazos de webhook. Falta observabilidad más fina por intento y alertas.
-- `[~]` Templates y aprobaciones por tenant.
-  Base creada: tabla + policies + actions + queries + UI básica + envío manual desde conversaciones + controles de estado básicos. Ya guarda quién y cuándo cambió/aprobó el template y lo muestra en Canales; además la UX de creación y uso ya tiene preview y validación amigable de componentes. Falta flujo de aprobación real con Meta y validación avanzada por tipo de componente.
+- `[x]` Real Meta webhook validation.
+  Validates `x-hub-signature-256` with `WHATSAPP_APP_SECRET`, rejects missing/invalid signatures, validates JSON and payload schema with Zod, and records rejections in `channel_events`.
+- `[x]` Message payload parsing.
+- `[x]` Idempotency by `external_event_id`.
+- `[x]` Channel lookup by account or number.
+- `[x]` Conversation creation or linking.
+- `[x]` Lead creation or linking.
+- `[x]` Inbound message persistence.
+- `[x]` Real outbound send.
+- `[x]` Persistence for sent/delivered/read statuses.
+- `[~]` Error handling and retries.
+  Outbound has timeout and retries for transient failures (`429` and `5xx`), manual retry from conversations is ready, and the Channels screen shows volume, failures, retries, and webhook rejections. More detailed per-attempt observability and alerts remain.
+- `[~]` Templates and approvals per tenant.
+  Foundation exists: table, policies, actions, queries, basic UI, manual send from conversations, and basic status controls. It stores who changed/approved a template and when, and shows it in Channels. Creation and usage UX already include preview and friendly component validation. Real Meta approval flow and advanced validation by component type remain post-MVP unless they block a pilot.
 
-## Calidad técnica y operación
+## Technical Quality and Operations
 
-### Hecho
+### Done
 
-- `[x]` TypeScript estricto.
-- `[x]` Validación con Zod en formularios principales.
-- `[x]` Separación de queries del lado servidor.
-- `[x]` Componentes pequeños reutilizables base.
-- `[x]` Scripts de lint, test y build.
-- `[x]` Verificación de lint.
-- `[x]` Verificación de test.
-- `[x]` Verificación de typecheck.
-- `[x]` Verificación de build.
+- `[x]` Strict TypeScript.
+- `[x]` Zod validation in main forms.
+- `[x]` Server-side query separation.
+- `[x]` Small reusable base components.
+- `[x]` Lint, test, and build scripts.
+- `[x]` Lint verification.
+- `[x]` Test verification.
+- `[x]` Typecheck verification.
+- `[x]` Build verification.
 
-### Pendiente
+### Pending
 
-- `[ ]` Tests de integración.
-- `[ ]` Tests end-to-end.
-- `[ ]` Logs estructurados centralizados.
-- `[ ]` Error boundaries más completas.
-- `[ ]` Trazabilidad de acciones desde servicios.
-- `[ ]` Observabilidad de integraciones externas.
-- `[ ]` Rate limiting o hardening de endpoints públicos.
+- `[ ]` Integration tests.
+- `[ ]` End-to-end tests.
+- `[ ]` Centralized structured logs.
+- `[ ]` More complete error boundaries.
+- `[ ]` Action traceability from services.
+- `[ ]` External integration observability.
+- `[ ]` Rate limiting or hardening for public endpoints.
 
-## Backlog de cierre de base antes de escalar features
+## Base Closure Backlog Before Scaling Features
 
-- `[ ]` CRUD de tenants desde UI.
-- `[x]` CRUD de tenant users desde UI.
-- `[x]` Asignación de asesores real.
-- `[x]` Handoff humano accionable.
-- `[x]` WhatsApp inbound funcional.
-- `[x]` WhatsApp outbound funcional.
-- `[~]` Vínculo operativo lead/conversation/property.
-- `[x]` Pipeline editable.
-- `[ ]` Appointments básicos.
-- `[ ]` Storage de media.
+- `[~]` Tenant CRUD from UI.
+- `[x]` Tenant user CRUD from UI.
+- `[x]` Real advisor assignment.
+- `[x]` Actionable human handoff.
+- `[x]` Functional WhatsApp inbound.
+- `[x]` Functional WhatsApp outbound.
+- `[~]` Operational lead/conversation/property linking.
+- `[x]` Editable pipeline.
+- `[~]` Basic appointments.
+- `[ ]` Media storage. Post-MVP unless a pilot explicitly needs it.
 
-## Estado resumido por etapa
+## Summary by Stage
 
-- `Fase 0`: mayormente hecha.
-- `Fase 1`: parcialmente hecha; base del dominio ya implementada, operación real todavía pendiente.
-- `Fase 2`: casi toda pendiente, aunque el modelo base ya existe.
-- `Fase 3`: solo la abstracción está hecha.
-- `Fase 4`: pendiente.
+- `Phase 0`: mostly done.
+- `Phase 1`: partially done; the domain foundation is implemented, but real operation is still pending.
+- `Phase 2`: mostly pending, although the base model exists.
+- `Phase 3`: only the abstraction is done.
+- `Phase 4`: pending.
