@@ -555,10 +555,15 @@ Verification:
 
 ### PPP-008 - Richer Demo Seed Dataset
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `technical debt`
 Primary roles: Commercial Domain, Project Leader / Technical Lead, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-04: Started deterministic seed enrichment for realistic demo density.
+- 2026-05-04: Completed richer deterministic seed dataset for the demo tenant.
 
 Problem:
 
@@ -595,6 +600,15 @@ Verification:
 - Run seed UUID tests.
 - Reset local database when practical.
 - Manual review target pages with richer data.
+
+Completion notes:
+
+- Added more demo properties across sale/rent, property types, statuses, neighborhoods, prices, features, and advisors.
+- Added more leads across qualification statuses, pipeline stages, sources, assignments, budgets, and handoff states.
+- Added more conversations, messages, failed outbound examples, lead/property interests, appointments, stage history, FAQs, WhatsApp templates, and channel events.
+- Kept data fake, deterministic, tenant-scoped, and credential-free.
+- Verification run: `pnpm test -- tests/seed-uuids.test.ts tests/channel-health.test.ts`, `pnpm lint`, `pnpm typecheck`.
+- Local database reset was not run automatically because it is destructive to the local database state.
 
 ### PPP-009 - Focused QA And Manual Review
 
