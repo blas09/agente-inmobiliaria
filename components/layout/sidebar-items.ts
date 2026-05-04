@@ -37,7 +37,7 @@ export function getSidebarItems(
       children: [
         {
           id: "dashboard",
-          name: "Resumen",
+          name: "Dashboard",
           icon: "solar:widget-2-linear",
           url: "/dashboard",
         },
