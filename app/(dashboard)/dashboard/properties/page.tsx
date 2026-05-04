@@ -4,6 +4,8 @@ import { CardBox } from "@/components/dashboard/card-box";
 import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { EmptyState } from "@/components/shared/empty-state";
+import { PaginationControls } from "@/components/shared/pagination-controls";
+import { SortableHeader } from "@/components/shared/sortable-header";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
@@ -17,7 +19,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
-import { listProperties } from "@/server/queries/properties";
+import {
+  getPropertyListStats,
+  listPropertiesPaginated,
+  type PropertyListSort,
+} from "@/server/queries/properties";
+import {
+  buildSearchHref,
+  resolvePagination,
+  resolveSort,
+} from "@/lib/pagination";
 import { formatCurrency } from "@/lib/utils";
 import { canManageProperties } from "@/lib/permissions";
 import {
@@ -35,47 +46,71 @@ const propertyStatusTabs = [
   })),
 ];
 
-function getPropertyTabHref(status: string, query: string | undefined) {
-  const params = new URLSearchParams();
-  const normalizedQuery = query?.trim();
-
-  if (status !== "all") {
-    params.set("status", status);
-  }
-
-  if (normalizedQuery) {
-    params.set("q", normalizedQuery);
-  }
-
-  const search = params.toString();
-  return search ? `/dashboard/properties?${search}` : "/dashboard/properties";
+function getPropertyTabHref(
+  status: string,
+  query: string | undefined,
+  sort: string,
+  direction: string,
+) {
+  return buildSearchHref(
+    "/dashboard/properties",
+    { q: query, sort, direction },
+    { status: status === "all" ? null : status, page: 1 },
+  );
 }
 
 function resolvePropertyStatus(status: string | undefined) {
   return status && status in propertyStatusLabels ? status : "all";
 }
 
+const propertySorts = [
+  "created",
+  "published",
+  "title",
+  "price",
+  "status",
+] as const satisfies readonly PropertyListSort[];
+
 export default async function PropertiesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    status?: string;
+    page?: string;
+    pageSize?: string;
+    sort?: string;
+    direction?: string;
+  }>;
 }) {
   const params = await searchParams;
   const { activeTenant, activeMembership } = await getActiveTenantContext();
   const canManagePropertyRecords = canManageProperties(activeMembership.role);
   const activeStatus = resolvePropertyStatus(params.status);
   const searchQuery = params.q?.trim();
-  const properties = await listProperties(activeTenant.id, {
+  const pagination = resolvePagination(params, 20);
+  const sorting = resolveSort(params, propertySorts, {
+    sort: "created",
+    direction: "desc",
+  });
+  const listFilters = {
     q: searchQuery,
     status: activeStatus,
-  });
+  };
+  const [propertyResult, propertyStats] = await Promise.all([
+    listPropertiesPaginated(activeTenant.id, listFilters, pagination, sorting),
+    getPropertyListStats(activeTenant.id, listFilters),
+  ]);
+  const properties = propertyResult.items;
+  const listParams = {
+    q: searchQuery,
+    status: activeStatus === "all" ? undefined : activeStatus,
+    page: pagination.page,
+    pageSize: pagination.pageSize,
+    sort: sorting.sort,
+    direction: sorting.direction,
+  };
   const hasActiveFilters = Boolean(searchQuery || activeStatus !== "all");
-  const availableCount = properties.filter(
-    (property) => property.status === "available",
-  ).length;
-  const draftCount = properties.filter(
-    (property) => property.status === "draft",
-  ).length;
 
   return (
     <div className="space-y-6">
@@ -95,19 +130,19 @@ export default async function PropertiesPage({
           {
             key: "total",
             label: "Total propiedades",
-            value: properties.length,
+            value: propertyResult.total,
             tone: "primary",
           },
           {
             key: "available",
             label: "Disponibles",
-            value: availableCount,
+            value: propertyStats.available,
             tone: "success",
           },
           {
             key: "draft",
             label: "Borradores",
-            value: draftCount,
+            value: propertyStats.draft,
             tone: "warning",
           },
         ]}
@@ -128,7 +163,12 @@ export default async function PropertiesPage({
                   ? "border-primary text-primary border-b-2 px-4 py-3 text-sm font-semibold whitespace-nowrap"
                   : "text-muted-foreground hover:text-foreground px-4 py-3 text-sm font-medium whitespace-nowrap"
               }
-              href={getPropertyTabHref(tab.id, searchQuery)}
+              href={getPropertyTabHref(
+                tab.id,
+                searchQuery,
+                sorting.sort,
+                sorting.direction,
+              )}
               key={tab.id}
             >
               {tab.label}
@@ -142,6 +182,8 @@ export default async function PropertiesPage({
           {activeStatus !== "all" ? (
             <input name="status" type="hidden" value={activeStatus} />
           ) : null}
+          <input name="sort" type="hidden" value={sorting.sort} />
+          <input name="direction" type="hidden" value={sorting.direction} />
           <Input
             aria-label="Buscar propiedades"
             defaultValue={searchQuery ?? ""}
@@ -198,11 +240,38 @@ export default async function PropertiesPage({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="px-6">Propiedad</TableHead>
+                  <TableHead className="px-6">
+                    <SortableHeader
+                      activeSort={sorting.sort}
+                      direction={sorting.direction}
+                      label="Propiedad"
+                      params={listParams}
+                      pathname="/dashboard/properties"
+                      sortKey="title"
+                    />
+                  </TableHead>
                   <TableHead>Operación</TableHead>
                   <TableHead>Ubicación</TableHead>
-                  <TableHead>Precio</TableHead>
-                  <TableHead className="pr-6">Estado</TableHead>
+                  <TableHead>
+                    <SortableHeader
+                      activeSort={sorting.sort}
+                      direction={sorting.direction}
+                      label="Precio"
+                      params={listParams}
+                      pathname="/dashboard/properties"
+                      sortKey="price"
+                    />
+                  </TableHead>
+                  <TableHead className="pr-6">
+                    <SortableHeader
+                      activeSort={sorting.sort}
+                      direction={sorting.direction}
+                      label="Estado"
+                      params={listParams}
+                      pathname="/dashboard/properties"
+                      sortKey="status"
+                    />
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -250,6 +319,15 @@ export default async function PropertiesPage({
                 ))}
               </TableBody>
             </Table>
+            <div className="px-6 pb-5">
+              <PaginationControls
+                page={pagination.page}
+                pageSize={pagination.pageSize}
+                params={listParams}
+                pathname="/dashboard/properties"
+                total={propertyResult.total}
+              />
+            </div>
           </CardContent>
         </CardBox>
       )}

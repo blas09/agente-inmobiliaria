@@ -1,4 +1,9 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type {
+  PaginatedResult,
+  PaginationState,
+  SortDirection,
+} from "@/lib/pagination";
 
 export interface ChannelHealthMetrics {
   since: string;
@@ -25,6 +30,14 @@ export interface ChannelHealthEventRow {
   error_message: string | null;
   created_at: string;
 }
+
+export type ChannelIncidentListSort = "created" | "event_type" | "status";
+
+const channelIncidentSortColumns: Record<ChannelIncidentListSort, string> = {
+  created: "created_at",
+  event_type: "event_type",
+  status: "processing_status",
+};
 
 export function buildChannelHealthMetrics(
   rows: ChannelHealthEventRow[],
@@ -94,4 +107,53 @@ export async function getChannelHealthMetrics(
 
   const rows = data ?? [];
   return buildChannelHealthMetrics(rows, since);
+}
+
+export async function listChannelIncidentsPaginated(
+  tenantId: string,
+  pagination: PaginationState,
+  sorting: { sort: ChannelIncidentListSort; direction: SortDirection },
+  days = 7,
+): Promise<
+  PaginatedResult<{
+    id: string;
+    eventType: string;
+    processingStatus: string;
+    createdAt: string;
+    errorMessage: string | null;
+  }>
+> {
+  const supabase = await createSupabaseServerClient();
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+
+  const { data, error, count } = await supabase
+    .from("channel_events")
+    .select("id, event_type, processing_status, error_message, created_at", {
+      count: "exact",
+    })
+    .eq("tenant_id", tenantId)
+    .gte("created_at", since)
+    .or(
+      "event_type.ilike.%failed%,event_type.eq.webhook.rejected,processing_status.eq.failed,processing_status.eq.rejected",
+    )
+    .order(channelIncidentSortColumns[sorting.sort], {
+      ascending: sorting.direction === "asc",
+      nullsFirst: false,
+    })
+    .range(pagination.from, pagination.to);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return {
+    items: (data ?? []).map((event) => ({
+      id: event.id,
+      eventType: event.event_type,
+      processingStatus: event.processing_status,
+      createdAt: event.created_at,
+      errorMessage: event.error_message,
+    })),
+    total: count ?? 0,
+  };
 }

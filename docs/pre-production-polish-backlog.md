@@ -302,10 +302,15 @@ Implementation guidance:
 
 ### PPP-010 - Server-Side Pagination And Sorting For Dense Operational Lists
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `MVP`
 Primary roles: Project Leader / Technical Lead, Backend / Security, Frontend Engineer, UI/UX Specialist, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-04: Started implementation of server-side pagination and allowlisted sorting for dense operational lists.
+- 2026-05-04: Completed server-side pagination and sorting across dense operational lists.
 
 Problem:
 
@@ -369,6 +374,16 @@ Verification:
 - Run lint, typecheck, and focused tests.
 - Add tests for pagination/sorting param parsing and allowlist behavior if implemented as shared helpers.
 - Manually review dense seeded data for properties, leads, conversations, appointments, FAQs, channel templates, and channel incidents.
+
+Completion notes:
+
+- Added shared pagination and sorting helpers with safe URL param defaults and allowlisted sort keys.
+- Added reusable pagination controls and sortable header links.
+- Updated dense list queries to use server-side `count`, `order`, and `range`.
+- Added paginated, sorted views for properties, leads, conversations, appointments, FAQs, channel templates, channel incidents, and platform tenants.
+- Kept filters, tabs, search, page, sort, and direction in URL state.
+- Added tests for pagination/sorting helpers.
+- Verification run: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `git diff --check`.
 
 ### PPP-002 - Lead Detail Page Density Reduction
 

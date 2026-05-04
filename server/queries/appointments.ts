@@ -1,4 +1,9 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type {
+  PaginatedResult,
+  PaginationState,
+  SortDirection,
+} from "@/lib/pagination";
 import type { AppointmentStatus, Tables } from "@/types/database";
 
 export interface AppointmentWithRelations extends Tables<"appointments"> {
@@ -129,6 +134,96 @@ export async function listAppointments(
   }
 
   return enrichAppointments(data ?? []);
+}
+
+export type AppointmentListSort = "scheduled" | "status";
+
+const appointmentSortColumns: Record<AppointmentListSort, string> = {
+  scheduled: "scheduled_at",
+  status: "status",
+};
+
+export async function listAppointmentsPaginated(
+  tenantId: string,
+  filters: { status?: string; advisorId?: string },
+  pagination: PaginationState,
+  sorting: { sort: AppointmentListSort; direction: SortDirection },
+): Promise<PaginatedResult<AppointmentWithRelations>> {
+  const supabase = await createSupabaseServerClient();
+  let query = supabase
+    .from("appointments")
+    .select("*", { count: "exact" })
+    .eq("tenant_id", tenantId);
+
+  if (
+    filters.status &&
+    filters.status !== "all" &&
+    appointmentStatuses.has(filters.status as AppointmentStatus)
+  ) {
+    query = query.eq("status", filters.status as AppointmentStatus);
+  }
+
+  if (filters.advisorId && filters.advisorId !== "all") {
+    query = query.eq("advisor_id", filters.advisorId);
+  }
+
+  const { data, error, count } = await query
+    .order(appointmentSortColumns[sorting.sort], {
+      ascending: sorting.direction === "asc",
+      nullsFirst: false,
+    })
+    .range(pagination.from, pagination.to);
+
+  if (error) {
+    throw new Error(`Failed to load paginated appointments: ${error.message}`);
+  }
+
+  return {
+    items: await enrichAppointments(data ?? []),
+    total: count ?? 0,
+  };
+}
+
+async function countAppointments(
+  tenantId: string,
+  filters?: { status?: string; advisorId?: string },
+) {
+  const supabase = await createSupabaseServerClient();
+  let query = supabase
+    .from("appointments")
+    .select("*", { count: "exact", head: true })
+    .eq("tenant_id", tenantId);
+
+  if (
+    filters?.status &&
+    filters.status !== "all" &&
+    appointmentStatuses.has(filters.status as AppointmentStatus)
+  ) {
+    query = query.eq("status", filters.status as AppointmentStatus);
+  }
+
+  if (filters?.advisorId && filters.advisorId !== "all") {
+    query = query.eq("advisor_id", filters.advisorId);
+  }
+
+  const { error, count } = await query;
+  if (error) {
+    throw new Error(`Failed to count appointments: ${error.message}`);
+  }
+
+  return count ?? 0;
+}
+
+export async function getAppointmentListStats(
+  tenantId: string,
+  filters: { advisorId?: string },
+) {
+  const [confirmed, scheduled] = await Promise.all([
+    countAppointments(tenantId, { ...filters, status: "confirmed" }),
+    countAppointments(tenantId, { ...filters, status: "scheduled" }),
+  ]);
+
+  return { confirmed, scheduled };
 }
 
 export async function getLeadAppointments(tenantId: string, leadId: string) {

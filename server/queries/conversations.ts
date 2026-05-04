@@ -1,4 +1,10 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type {
+  PaginatedResult,
+  PaginationState,
+  SortDirection,
+} from "@/lib/pagination";
+import type { ConversationStatus } from "@/types/database";
 
 export interface ConversationListItem {
   id: string;
@@ -41,6 +47,79 @@ export async function listConversations(
   }
 
   return (data ?? []) as unknown as ConversationListItem[];
+}
+
+export type ConversationListSort = "last_message" | "status" | "contact";
+
+const conversationSortColumns: Record<ConversationListSort, string> = {
+  last_message: "last_message_at",
+  status: "status",
+  contact: "contact_display_name",
+};
+
+export async function listConversationsPaginated(
+  tenantId: string,
+  pagination: PaginationState,
+  sorting: { sort: ConversationListSort; direction: SortDirection },
+): Promise<PaginatedResult<ConversationListItem>> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error, count } = await supabase
+    .from("conversations")
+    .select(
+      "id, channel_id, status, contact_display_name, contact_identifier, last_message_at, ai_enabled, lead_id, property_id, channels(display_name, type, provider, credentials_ref)",
+      { count: "exact" },
+    )
+    .eq("tenant_id", tenantId)
+    .order(conversationSortColumns[sorting.sort], {
+      ascending: sorting.direction === "asc",
+      nullsFirst: false,
+    })
+    .range(pagination.from, pagination.to);
+
+  if (error) {
+    throw new Error(`Failed to load paginated conversations: ${error.message}`);
+  }
+
+  return {
+    items: (data ?? []) as unknown as ConversationListItem[],
+    total: count ?? 0,
+  };
+}
+
+async function countConversations(
+  tenantId: string,
+  filters?: { status?: string; aiEnabled?: boolean },
+) {
+  const supabase = await createSupabaseServerClient();
+  let query = supabase
+    .from("conversations")
+    .select("*", { count: "exact", head: true })
+    .eq("tenant_id", tenantId);
+
+  if (filters?.status) {
+    query = query.eq("status", filters.status as ConversationStatus);
+  }
+
+  if (typeof filters?.aiEnabled === "boolean") {
+    query = query.eq("ai_enabled", filters.aiEnabled);
+  }
+
+  const { error, count } = await query;
+  if (error) {
+    throw new Error(`Failed to count conversations: ${error.message}`);
+  }
+
+  return count ?? 0;
+}
+
+export async function getConversationListStats(tenantId: string) {
+  const [open, handoff, aiEnabled] = await Promise.all([
+    countConversations(tenantId, { status: "open" }),
+    countConversations(tenantId, { status: "pending_human" }),
+    countConversations(tenantId, { aiEnabled: true }),
+  ]);
+
+  return { open, handoff, aiEnabled };
 }
 
 export async function getConversationDetail(

@@ -4,6 +4,8 @@ import { CardBox } from "@/components/dashboard/card-box";
 import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { ActionSheet } from "@/components/shared/action-sheet";
+import { PaginationControls } from "@/components/shared/pagination-controls";
+import { SortableHeader } from "@/components/shared/sortable-header";
 import { AppointmentForm } from "@/features/appointments/appointment-form";
 import { updateAppointmentAction } from "@/features/appointments/actions";
 import {
@@ -26,11 +28,20 @@ import {
 } from "@/components/ui/card";
 import { NativeSelect } from "@/components/ui/native-select";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
-import { listAppointments } from "@/server/queries/appointments";
+import {
+  getAppointmentListStats,
+  listAppointmentsPaginated,
+  type AppointmentListSort,
+} from "@/server/queries/appointments";
 import { listAvailablePropertiesForSelection } from "@/server/queries/properties";
 import { getAssignableTenantUsers } from "@/server/queries/tenants";
 import { formatDateTime } from "@/lib/utils";
 import { canManageAppointments } from "@/lib/permissions";
+import {
+  buildSearchHref,
+  resolvePagination,
+  resolveSort,
+} from "@/lib/pagination";
 
 const appointmentStatusTabs = [
   { id: "all", label: "Todas" },
@@ -40,46 +51,84 @@ const appointmentStatusTabs = [
   })),
 ];
 
-function getAppointmentTabHref(status: string, advisor: string | undefined) {
-  const params = new URLSearchParams();
-
-  if (status !== "all") {
-    params.set("status", status);
-  }
-
-  if (advisor && advisor !== "all") {
-    params.set("advisor", advisor);
-  }
-
-  const query = params.toString();
-  return query ? `/dashboard/appointments?${query}` : "/dashboard/appointments";
+function getAppointmentTabHref(
+  status: string,
+  advisor: string | undefined,
+  sort: string,
+  direction: string,
+) {
+  return buildSearchHref(
+    "/dashboard/appointments",
+    {
+      advisor: advisor && advisor !== "all" ? advisor : undefined,
+      sort,
+      direction,
+    },
+    { status: status === "all" ? null : status, page: 1 },
+  );
 }
 
 function resolveAppointmentStatus(status: string | undefined) {
   return status && status in appointmentStatusLabels ? status : "all";
 }
 
+const appointmentSorts = [
+  "scheduled",
+  "status",
+] as const satisfies readonly AppointmentListSort[];
+
 export default async function AppointmentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; advisor?: string }>;
+  searchParams: Promise<{
+    status?: string;
+    advisor?: string;
+    page?: string;
+    pageSize?: string;
+    sort?: string;
+    direction?: string;
+  }>;
 }) {
   const params = await searchParams;
   const { activeTenant, activeMembership } = await getActiveTenantContext();
   const canEditAppointments = canManageAppointments(activeMembership.role);
   const appointmentRules = getAppointmentRules(activeTenant.settings);
   const activeStatus = resolveAppointmentStatus(params.status);
+  const pagination = resolvePagination(params, 10);
+  const sorting = resolveSort(params, appointmentSorts, {
+    sort: "scheduled",
+    direction: "asc",
+  });
   const hasActiveFilters = Boolean(
     activeStatus !== "all" || (params.advisor && params.advisor !== "all"),
   );
-  const [appointments, advisors, properties] = await Promise.all([
-    listAppointments(activeTenant.id, {
-      status: activeStatus,
-      advisorId: params.advisor,
-    }),
-    getAssignableTenantUsers(activeTenant.id),
-    listAvailablePropertiesForSelection(activeTenant.id),
-  ]);
+  const [appointmentResult, appointmentStats, advisors, properties] =
+    await Promise.all([
+      listAppointmentsPaginated(
+        activeTenant.id,
+        {
+          status: activeStatus,
+          advisorId: params.advisor,
+        },
+        pagination,
+        sorting,
+      ),
+      getAppointmentListStats(activeTenant.id, {
+        advisorId: params.advisor,
+      }),
+      getAssignableTenantUsers(activeTenant.id),
+      listAvailablePropertiesForSelection(activeTenant.id),
+    ]);
+  const appointments = appointmentResult.items;
+  const listParams = {
+    status: activeStatus === "all" ? undefined : activeStatus,
+    advisor:
+      params.advisor && params.advisor !== "all" ? params.advisor : undefined,
+    page: pagination.page,
+    pageSize: pagination.pageSize,
+    sort: sorting.sort,
+    direction: sorting.direction,
+  };
 
   return (
     <div className="space-y-6">
@@ -92,23 +141,19 @@ export default async function AppointmentsPage({
           {
             key: "total",
             label: "Visitas",
-            value: appointments.length,
+            value: appointmentResult.total,
             tone: "primary",
           },
           {
             key: "confirmed",
             label: "Confirmadas",
-            value: appointments.filter(
-              (appointment) => appointment.status === "confirmed",
-            ).length,
+            value: appointmentStats.confirmed,
             tone: "success",
           },
           {
             key: "scheduled",
             label: "Pendientes",
-            value: appointments.filter(
-              (appointment) => appointment.status === "scheduled",
-            ).length,
+            value: appointmentStats.scheduled,
             tone: "warning",
           },
         ]}
@@ -142,7 +187,12 @@ export default async function AppointmentsPage({
                   ? "border-primary text-primary border-b-2 px-4 py-3 text-sm font-semibold whitespace-nowrap"
                   : "text-muted-foreground hover:text-foreground px-4 py-3 text-sm font-medium whitespace-nowrap"
               }
-              href={getAppointmentTabHref(tab.id, params.advisor)}
+              href={getAppointmentTabHref(
+                tab.id,
+                params.advisor,
+                sorting.sort,
+                sorting.direction,
+              )}
               key={tab.id}
             >
               {tab.label}
@@ -156,6 +206,8 @@ export default async function AppointmentsPage({
           {activeStatus !== "all" ? (
             <input name="status" type="hidden" value={activeStatus} />
           ) : null}
+          <input name="sort" type="hidden" value={sorting.sort} />
+          <input name="direction" type="hidden" value={sorting.direction} />
           <NativeSelect
             aria-label="Filtrar por asesor"
             defaultValue={params.advisor ?? "all"}
@@ -216,6 +268,24 @@ export default async function AppointmentsPage({
         />
       ) : (
         <div className="grid gap-4 xl:grid-cols-2">
+          <section className="flex flex-wrap gap-3 border-b pb-4 text-sm xl:col-span-2">
+            <SortableHeader
+              activeSort={sorting.sort}
+              direction={sorting.direction}
+              label="Fecha"
+              params={listParams}
+              pathname="/dashboard/appointments"
+              sortKey="scheduled"
+            />
+            <SortableHeader
+              activeSort={sorting.sort}
+              direction={sorting.direction}
+              label="Estado"
+              params={listParams}
+              pathname="/dashboard/appointments"
+              sortKey="status"
+            />
+          </section>
           {appointments.map((appointment) => (
             <CardBox key={appointment.id}>
               <CardHeader>
@@ -338,6 +408,15 @@ export default async function AppointmentsPage({
               </CardContent>
             </CardBox>
           ))}
+          <div className="xl:col-span-2">
+            <PaginationControls
+              page={pagination.page}
+              pageSize={pagination.pageSize}
+              params={listParams}
+              pathname="/dashboard/appointments"
+              total={appointmentResult.total}
+            />
+          </div>
         </div>
       )}
     </div>

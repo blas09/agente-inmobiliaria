@@ -1,4 +1,9 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type {
+  PaginatedResult,
+  PaginationState,
+  SortDirection,
+} from "@/lib/pagination";
 import type { LeadQualificationStatus, Tables } from "@/types/database";
 
 const leadStatuses = new Set<LeadQualificationStatus>([
@@ -46,6 +51,125 @@ export async function listLeads(
   }
 
   return data ?? [];
+}
+
+export type LeadListSort = "created" | "name" | "status" | "score";
+
+const leadSortColumns: Record<LeadListSort, string> = {
+  created: "created_at",
+  name: "full_name",
+  status: "qualification_status",
+  score: "score",
+};
+
+export async function listLeadsPaginated(
+  tenantId: string,
+  filters: { q?: string; status?: string },
+  pagination: PaginationState,
+  sorting: { sort: LeadListSort; direction: SortDirection },
+): Promise<
+  PaginatedResult<
+    Pick<
+      Tables<"leads">,
+      | "id"
+      | "full_name"
+      | "email"
+      | "phone"
+      | "source"
+      | "qualification_status"
+      | "score"
+      | "created_at"
+      | "assigned_to"
+      | "pipeline_stage_id"
+    >
+  >
+> {
+  const supabase = await createSupabaseServerClient();
+  let query = supabase
+    .from("leads")
+    .select(
+      "id, full_name, email, phone, source, qualification_status, score, created_at, assigned_to, pipeline_stage_id",
+      { count: "exact" },
+    )
+    .eq("tenant_id", tenantId);
+
+  if (filters.q) {
+    query = query.or(
+      `full_name.ilike.%${filters.q}%,email.ilike.%${filters.q}%,phone.ilike.%${filters.q}%`,
+    );
+  }
+
+  if (
+    filters.status &&
+    leadStatuses.has(filters.status as LeadQualificationStatus)
+  ) {
+    query = query.eq(
+      "qualification_status",
+      filters.status as LeadQualificationStatus,
+    );
+  }
+
+  const { data, error, count } = await query
+    .order(leadSortColumns[sorting.sort], {
+      ascending: sorting.direction === "asc",
+      nullsFirst: false,
+    })
+    .range(pagination.from, pagination.to);
+
+  if (error) {
+    throw new Error(`Failed to load paginated leads: ${error.message}`);
+  }
+
+  return {
+    items: data ?? [],
+    total: count ?? 0,
+  };
+}
+
+async function countLeads(
+  tenantId: string,
+  filters: { q?: string; status?: string },
+) {
+  const supabase = await createSupabaseServerClient();
+  let query = supabase
+    .from("leads")
+    .select("*", { count: "exact", head: true })
+    .eq("tenant_id", tenantId);
+
+  if (filters.q) {
+    query = query.or(
+      `full_name.ilike.%${filters.q}%,email.ilike.%${filters.q}%,phone.ilike.%${filters.q}%`,
+    );
+  }
+
+  if (
+    filters.status &&
+    leadStatuses.has(filters.status as LeadQualificationStatus)
+  ) {
+    query = query.eq(
+      "qualification_status",
+      filters.status as LeadQualificationStatus,
+    );
+  }
+
+  const { error, count } = await query;
+  if (error) {
+    throw new Error(`Failed to count leads: ${error.message}`);
+  }
+
+  return count ?? 0;
+}
+
+export async function getLeadListStats(
+  tenantId: string,
+  filters: { q?: string; status?: string },
+) {
+  const [newCount, qualified] = await Promise.all([
+    countLeads(tenantId, { ...filters, status: "new" }),
+    countLeads(tenantId, { ...filters, status: "qualified" }),
+  ]);
+
+  return { new: newCount, qualified };
 }
 
 export async function getLeadById(

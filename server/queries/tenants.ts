@@ -1,4 +1,9 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type {
+  PaginatedResult,
+  PaginationState,
+  SortDirection,
+} from "@/lib/pagination";
 import type { Tables, TenantRole } from "@/types/database";
 
 export interface TenantUserSummary {
@@ -31,6 +36,45 @@ export async function listAllTenants() {
   }
 
   return data ?? [];
+}
+
+export type PlatformTenantListSort =
+  | "created"
+  | "name"
+  | "slug"
+  | "status"
+  | "timezone";
+
+const platformTenantSortColumns: Record<PlatformTenantListSort, string> = {
+  created: "created_at",
+  name: "name",
+  slug: "slug",
+  status: "status",
+  timezone: "timezone",
+};
+
+export async function listAllTenantsPaginated(
+  pagination: PaginationState,
+  sorting: { sort: PlatformTenantListSort; direction: SortDirection },
+): Promise<PaginatedResult<Tables<"tenants">>> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error, count } = await supabase
+    .from("tenants")
+    .select("*", { count: "exact" })
+    .order(platformTenantSortColumns[sorting.sort], {
+      ascending: sorting.direction === "asc",
+      nullsFirst: false,
+    })
+    .range(pagination.from, pagination.to);
+
+  if (error) {
+    throw new Error(`Failed to load paginated tenants: ${error.message}`);
+  }
+
+  return {
+    items: data ?? [],
+    total: count ?? 0,
+  };
 }
 
 export async function getTenantById(

@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { EmptyState } from "@/components/shared/empty-state";
 import { MetricCard } from "@/components/shared/metric-card";
+import { PaginationControls } from "@/components/shared/pagination-controls";
+import { SortableHeader } from "@/components/shared/sortable-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,15 +17,50 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { requirePlatformAdmin } from "@/server/auth/tenant-context";
-import { listAllTenants } from "@/server/queries/tenants";
+import {
+  getPlatformSummary,
+  listAllTenantsPaginated,
+  type PlatformTenantListSort,
+} from "@/server/queries/tenants";
+import { resolvePagination, resolveSort } from "@/lib/pagination";
 import { getTenantStatusLabel } from "@/lib/ui-labels";
 
-export default async function PlatformTenantsPage() {
+const platformTenantSorts = [
+  "created",
+  "name",
+  "slug",
+  "status",
+  "timezone",
+] as const satisfies readonly PlatformTenantListSort[];
+
+export default async function PlatformTenantsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    page?: string;
+    pageSize?: string;
+    sort?: string;
+    direction?: string;
+  }>;
+}) {
+  const params = await searchParams;
   await requirePlatformAdmin();
-  const tenants = await listAllTenants();
-  const activeTenants = tenants.filter(
-    (tenant) => tenant.status === "active",
-  ).length;
+  const pagination = resolvePagination(params, 20);
+  const sorting = resolveSort(params, platformTenantSorts, {
+    sort: "created",
+    direction: "desc",
+  });
+  const [tenantResult, platformSummary] = await Promise.all([
+    listAllTenantsPaginated(pagination, sorting),
+    getPlatformSummary(),
+  ]);
+  const tenants = tenantResult.items;
+  const listParams = {
+    page: pagination.page,
+    pageSize: pagination.pageSize,
+    sort: sorting.sort,
+    direction: sorting.direction,
+  };
 
   return (
     <div className="space-y-6">
@@ -37,12 +74,16 @@ export default async function PlatformTenantsPage() {
         }
       />
       <section className="grid gap-4 md:grid-cols-3">
-        <MetricCard label="Tenants" tone="primary" value={tenants.length} />
-        <MetricCard label="Activos" tone="success" value={activeTenants} />
+        <MetricCard label="Tenants" tone="primary" value={tenantResult.total} />
+        <MetricCard
+          label="Activos"
+          tone="success"
+          value={platformSummary.activeTenants}
+        />
         <MetricCard
           label="No activos"
           tone="warning"
-          value={tenants.length - activeTenants}
+          value={platformSummary.totalTenants - platformSummary.activeTenants}
         />
       </section>
       {tenants.length === 0 ? (
@@ -58,11 +99,47 @@ export default async function PlatformTenantsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Tenant</TableHead>
-                  <TableHead>Slug</TableHead>
+                  <TableHead>
+                    <SortableHeader
+                      activeSort={sorting.sort}
+                      direction={sorting.direction}
+                      label="Tenant"
+                      params={listParams}
+                      pathname="/dashboard/platform/tenants"
+                      sortKey="name"
+                    />
+                  </TableHead>
+                  <TableHead>
+                    <SortableHeader
+                      activeSort={sorting.sort}
+                      direction={sorting.direction}
+                      label="Slug"
+                      params={listParams}
+                      pathname="/dashboard/platform/tenants"
+                      sortKey="slug"
+                    />
+                  </TableHead>
                   <TableHead>Moneda</TableHead>
-                  <TableHead>Timezone</TableHead>
-                  <TableHead>Estado</TableHead>
+                  <TableHead>
+                    <SortableHeader
+                      activeSort={sorting.sort}
+                      direction={sorting.direction}
+                      label="Timezone"
+                      params={listParams}
+                      pathname="/dashboard/platform/tenants"
+                      sortKey="timezone"
+                    />
+                  </TableHead>
+                  <TableHead>
+                    <SortableHeader
+                      activeSort={sorting.sort}
+                      direction={sorting.direction}
+                      label="Estado"
+                      params={listParams}
+                      pathname="/dashboard/platform/tenants"
+                      sortKey="status"
+                    />
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -96,6 +173,15 @@ export default async function PlatformTenantsPage() {
                 ))}
               </TableBody>
             </Table>
+            <div className="px-6 pb-5">
+              <PaginationControls
+                page={pagination.page}
+                pageSize={pagination.pageSize}
+                params={listParams}
+                pathname="/dashboard/platform/tenants"
+                total={tenantResult.total}
+              />
+            </div>
           </CardContent>
         </Card>
       )}

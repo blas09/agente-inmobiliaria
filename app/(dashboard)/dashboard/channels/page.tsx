@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { DashboardTopCards } from "@/components/dashboard/top-cards";
+import { PaginationControls } from "@/components/shared/pagination-controls";
+import { SortableHeader } from "@/components/shared/sortable-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
@@ -9,11 +11,18 @@ import { requireTenantAdminContext } from "@/server/auth/tenant-context";
 import { canManageChannels } from "@/lib/permissions";
 import { listChannels } from "@/server/queries/channels";
 import { formatDateTime } from "@/lib/utils";
-import { getChannelHealthMetrics } from "@/server/queries/channel-events";
 import {
+  getChannelHealthMetrics,
+  listChannelIncidentsPaginated,
+  type ChannelIncidentListSort,
+} from "@/server/queries/channel-events";
+import {
+  getWhatsAppTemplateStats,
   listUserProfilesMap,
-  listWhatsAppTemplates,
+  listWhatsAppTemplatesPaginated,
+  type WhatsAppTemplateListSort,
 } from "@/server/queries/whatsapp-templates";
+import { resolvePagination, resolveSort } from "@/lib/pagination";
 import { WhatsAppTemplateForm } from "@/features/whatsapp-templates/template-form";
 import {
   createWhatsAppTemplateAction,
@@ -38,6 +47,19 @@ const channelTabs = [
 
 type ChannelTabId = (typeof channelTabs)[number]["id"];
 
+const templateSorts = [
+  "created",
+  "name",
+  "status",
+  "updated",
+] as const satisfies readonly WhatsAppTemplateListSort[];
+
+const incidentSorts = [
+  "created",
+  "event_type",
+  "status",
+] as const satisfies readonly ChannelIncidentListSort[];
+
 function resolveChannelTab(tab: string | string[] | undefined): ChannelTabId {
   const value = Array.isArray(tab) ? tab[0] : tab;
 
@@ -49,24 +71,67 @@ function resolveChannelTab(tab: string | string[] | undefined): ChannelTabId {
 export default async function ChannelsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string | string[] }>;
+  searchParams: Promise<{
+    tab?: string | string[];
+    page?: string;
+    pageSize?: string;
+    sort?: string;
+    direction?: string;
+  }>;
 }) {
-  const { tab } = await searchParams;
-  const activeTab = resolveChannelTab(tab);
+  const params = await searchParams;
+  const activeTab = resolveChannelTab(params.tab);
+  const pagination = resolvePagination(
+    params,
+    activeTab === "templates" ? 12 : 10,
+  );
+  const templateSorting = resolveSort(params, templateSorts, {
+    sort: "created",
+    direction: "desc",
+  });
+  const incidentSorting = resolveSort(params, incidentSorts, {
+    sort: "created",
+    direction: "desc",
+  });
   const { activeTenant, activeMembership } = await getActiveTenantContext();
   if (!canManageChannels(activeMembership.role)) {
     await requireTenantAdminContext();
   }
-  const [channels, templates, health] = await Promise.all([
-    listChannels(activeTenant.id),
-    listWhatsAppTemplates(activeTenant.id),
-    getChannelHealthMetrics(activeTenant.id),
-  ]);
+  const [channels, templateStats, templateResult, incidentResult, health] =
+    await Promise.all([
+      listChannels(activeTenant.id),
+      getWhatsAppTemplateStats(activeTenant.id),
+      listWhatsAppTemplatesPaginated(
+        activeTenant.id,
+        pagination,
+        templateSorting,
+      ),
+      listChannelIncidentsPaginated(
+        activeTenant.id,
+        pagination,
+        incidentSorting,
+      ),
+      getChannelHealthMetrics(activeTenant.id),
+    ]);
   const actorProfiles = await listUserProfilesMap(
-    templates.flatMap((template) =>
+    templateResult.items.flatMap((template) =>
       [template.status_updated_by, template.approved_by].filter(Boolean),
     ) as string[],
   );
+  const templateListParams = {
+    tab: "templates",
+    page: pagination.page,
+    pageSize: pagination.pageSize,
+    sort: templateSorting.sort,
+    direction: templateSorting.direction,
+  };
+  const incidentListParams = {
+    tab: "incidents",
+    page: pagination.page,
+    pageSize: pagination.pageSize,
+    sort: incidentSorting.sort,
+    direction: incidentSorting.direction,
+  };
   const connectedCount = channels.filter(
     (channel) => channel.status === "connected",
   ).length;
@@ -78,12 +143,8 @@ export default async function ChannelsPage({
 
     return Boolean(account);
   }).length;
-  const approvedTemplateCount = templates.filter(
-    (template) => template.status === "approved" && template.is_active,
-  ).length;
-  const pendingTemplateCount = templates.filter(
-    (template) => template.status === "pending",
-  ).length;
+  const approvedTemplateCount = templateStats.approvedActive;
+  const pendingTemplateCount = templateStats.pending;
   const providerState =
     connectedCount > 0 && whatsappAccountCount > 0
       ? {
@@ -341,14 +402,48 @@ export default async function ChannelsPage({
                 Plantillas disponibles para respuestas y acciones operativas.
               </p>
             </div>
+            <div className="flex flex-wrap gap-3 border-b pb-4 text-sm">
+              <SortableHeader
+                activeSort={templateSorting.sort}
+                direction={templateSorting.direction}
+                label="Creada"
+                params={templateListParams}
+                pathname="/dashboard/channels"
+                sortKey="created"
+              />
+              <SortableHeader
+                activeSort={templateSorting.sort}
+                direction={templateSorting.direction}
+                label="Nombre"
+                params={templateListParams}
+                pathname="/dashboard/channels"
+                sortKey="name"
+              />
+              <SortableHeader
+                activeSort={templateSorting.sort}
+                direction={templateSorting.direction}
+                label="Estado"
+                params={templateListParams}
+                pathname="/dashboard/channels"
+                sortKey="status"
+              />
+              <SortableHeader
+                activeSort={templateSorting.sort}
+                direction={templateSorting.direction}
+                label="Actualizada"
+                params={templateListParams}
+                pathname="/dashboard/channels"
+                sortKey="updated"
+              />
+            </div>
             <div className="space-y-3 text-sm">
-              {templates.length === 0 ? (
+              {templateResult.items.length === 0 ? (
                 <p className="text-muted-foreground">
                   Todavía no hay plantillas cargadas.
                 </p>
               ) : (
                 <div className="space-y-3">
-                  {templates.map((template) => (
+                  {templateResult.items.map((template) => (
                     <div
                       key={template.id}
                       className="border-border bg-muted flex flex-col gap-4 rounded-xl border px-4 py-3"
@@ -465,6 +560,13 @@ export default async function ChannelsPage({
                       </div>
                     </div>
                   ))}
+                  <PaginationControls
+                    page={pagination.page}
+                    pageSize={pagination.pageSize}
+                    params={templateListParams}
+                    pathname="/dashboard/channels"
+                    total={templateResult.total}
+                  />
                 </div>
               )}
             </div>
@@ -492,21 +594,45 @@ export default async function ChannelsPage({
               </div>
               <Badge
                 variant={
-                  health.recentFailures.length > 0
-                    ? "lightError"
-                    : "lightSuccess"
+                  incidentResult.total > 0 ? "lightError" : "lightSuccess"
                 }
               >
-                {health.recentFailures.length}
+                {incidentResult.total}
               </Badge>
             </div>
-            {health.recentFailures.length === 0 ? (
+            <div className="flex flex-wrap gap-3 border-b pb-4 text-sm">
+              <SortableHeader
+                activeSort={incidentSorting.sort}
+                direction={incidentSorting.direction}
+                label="Creado"
+                params={incidentListParams}
+                pathname="/dashboard/channels"
+                sortKey="created"
+              />
+              <SortableHeader
+                activeSort={incidentSorting.sort}
+                direction={incidentSorting.direction}
+                label="Evento"
+                params={incidentListParams}
+                pathname="/dashboard/channels"
+                sortKey="event_type"
+              />
+              <SortableHeader
+                activeSort={incidentSorting.sort}
+                direction={incidentSorting.direction}
+                label="Estado"
+                params={incidentListParams}
+                pathname="/dashboard/channels"
+                sortKey="status"
+              />
+            </div>
+            {incidentResult.items.length === 0 ? (
               <p className="text-muted-foreground text-sm">
                 No hay incidentes recientes registrados.
               </p>
             ) : (
               <div className="divide-border divide-y">
-                {health.recentFailures.map((event) => (
+                {incidentResult.items.map((event) => (
                   <div
                     key={event.id}
                     className="grid gap-3 py-4 md:grid-cols-[1fr_1fr]"
@@ -524,6 +650,13 @@ export default async function ChannelsPage({
                     </p>
                   </div>
                 ))}
+                <PaginationControls
+                  page={pagination.page}
+                  pageSize={pagination.pageSize}
+                  params={incidentListParams}
+                  pathname="/dashboard/channels"
+                  total={incidentResult.total}
+                />
               </div>
             )}
           </section>

@@ -4,6 +4,8 @@ import { CardBox } from "@/components/dashboard/card-box";
 import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { EmptyState } from "@/components/shared/empty-state";
+import { PaginationControls } from "@/components/shared/pagination-controls";
+import { SortableHeader } from "@/components/shared/sortable-header";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
@@ -17,7 +19,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
-import { listLeads } from "@/server/queries/leads";
+import {
+  getLeadListStats,
+  listLeadsPaginated,
+  type LeadListSort,
+} from "@/server/queries/leads";
+import {
+  buildSearchHref,
+  resolvePagination,
+  resolveSort,
+} from "@/lib/pagination";
 import { formatDateTime } from "@/lib/utils";
 import { canManageLeads } from "@/lib/permissions";
 import {
@@ -34,47 +45,70 @@ const leadStatusTabs = [
   })),
 ];
 
-function getLeadTabHref(status: string, query: string | undefined) {
-  const params = new URLSearchParams();
-  const normalizedQuery = query?.trim();
-
-  if (status !== "all") {
-    params.set("status", status);
-  }
-
-  if (normalizedQuery) {
-    params.set("q", normalizedQuery);
-  }
-
-  const search = params.toString();
-  return search ? `/dashboard/leads?${search}` : "/dashboard/leads";
+function getLeadTabHref(
+  status: string,
+  query: string | undefined,
+  sort: string,
+  direction: string,
+) {
+  return buildSearchHref(
+    "/dashboard/leads",
+    { q: query, sort, direction },
+    { status: status === "all" ? null : status, page: 1 },
+  );
 }
 
 function resolveLeadStatus(status: string | undefined) {
   return status && status in leadQualificationStatusLabels ? status : "all";
 }
 
+const leadSorts = [
+  "created",
+  "name",
+  "status",
+  "score",
+] as const satisfies readonly LeadListSort[];
+
 export default async function LeadsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    status?: string;
+    page?: string;
+    pageSize?: string;
+    sort?: string;
+    direction?: string;
+  }>;
 }) {
   const params = await searchParams;
   const { activeTenant, activeMembership } = await getActiveTenantContext();
   const canManageLeadRecords = canManageLeads(activeMembership.role);
   const activeStatus = resolveLeadStatus(params.status);
   const searchQuery = params.q?.trim();
-  const leads = await listLeads(activeTenant.id, {
+  const pagination = resolvePagination(params, 20);
+  const sorting = resolveSort(params, leadSorts, {
+    sort: "created",
+    direction: "desc",
+  });
+  const listFilters = {
     q: searchQuery,
     status: activeStatus,
-  });
+  };
+  const [leadResult, leadStats] = await Promise.all([
+    listLeadsPaginated(activeTenant.id, listFilters, pagination, sorting),
+    getLeadListStats(activeTenant.id, listFilters),
+  ]);
+  const leads = leadResult.items;
+  const listParams = {
+    q: searchQuery,
+    status: activeStatus === "all" ? undefined : activeStatus,
+    page: pagination.page,
+    pageSize: pagination.pageSize,
+    sort: sorting.sort,
+    direction: sorting.direction,
+  };
   const hasActiveFilters = Boolean(searchQuery || activeStatus !== "all");
-  const qualifiedCount = leads.filter(
-    (lead) => lead.qualification_status === "qualified",
-  ).length;
-  const newCount = leads.filter(
-    (lead) => lead.qualification_status === "new",
-  ).length;
 
   return (
     <div className="space-y-6">
@@ -94,14 +128,19 @@ export default async function LeadsPage({
           {
             key: "total",
             label: "Total leads",
-            value: leads.length,
+            value: leadResult.total,
             tone: "primary",
           },
-          { key: "new", label: "Nuevos", value: newCount, tone: "warning" },
+          {
+            key: "new",
+            label: "Nuevos",
+            value: leadStats.new,
+            tone: "warning",
+          },
           {
             key: "qualified",
             label: "Calificados",
-            value: qualifiedCount,
+            value: leadStats.qualified,
             tone: "success",
           },
         ]}
@@ -122,7 +161,12 @@ export default async function LeadsPage({
                   ? "border-primary text-primary border-b-2 px-4 py-3 text-sm font-semibold whitespace-nowrap"
                   : "text-muted-foreground hover:text-foreground px-4 py-3 text-sm font-medium whitespace-nowrap"
               }
-              href={getLeadTabHref(tab.id, searchQuery)}
+              href={getLeadTabHref(
+                tab.id,
+                searchQuery,
+                sorting.sort,
+                sorting.direction,
+              )}
               key={tab.id}
             >
               {tab.label}
@@ -136,6 +180,8 @@ export default async function LeadsPage({
           {activeStatus !== "all" ? (
             <input name="status" type="hidden" value={activeStatus} />
           ) : null}
+          <input name="sort" type="hidden" value={sorting.sort} />
+          <input name="direction" type="hidden" value={sorting.direction} />
           <Input
             aria-label="Buscar leads"
             defaultValue={searchQuery ?? ""}
@@ -192,11 +238,47 @@ export default async function LeadsPage({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="px-6">Lead</TableHead>
+                  <TableHead className="px-6">
+                    <SortableHeader
+                      activeSort={sorting.sort}
+                      direction={sorting.direction}
+                      label="Lead"
+                      params={listParams}
+                      pathname="/dashboard/leads"
+                      sortKey="name"
+                    />
+                  </TableHead>
                   <TableHead>Fuente</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Score</TableHead>
-                  <TableHead className="pr-6">Creado</TableHead>
+                  <TableHead>
+                    <SortableHeader
+                      activeSort={sorting.sort}
+                      direction={sorting.direction}
+                      label="Estado"
+                      params={listParams}
+                      pathname="/dashboard/leads"
+                      sortKey="status"
+                    />
+                  </TableHead>
+                  <TableHead>
+                    <SortableHeader
+                      activeSort={sorting.sort}
+                      direction={sorting.direction}
+                      label="Score"
+                      params={listParams}
+                      pathname="/dashboard/leads"
+                      sortKey="score"
+                    />
+                  </TableHead>
+                  <TableHead className="pr-6">
+                    <SortableHeader
+                      activeSort={sorting.sort}
+                      direction={sorting.direction}
+                      label="Creado"
+                      params={listParams}
+                      pathname="/dashboard/leads"
+                      sortKey="created"
+                    />
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -235,6 +317,15 @@ export default async function LeadsPage({
                 ))}
               </TableBody>
             </Table>
+            <div className="px-6 pb-5">
+              <PaginationControls
+                page={pagination.page}
+                pageSize={pagination.pageSize}
+                params={listParams}
+                pathname="/dashboard/leads"
+                total={leadResult.total}
+              />
+            </div>
           </CardContent>
         </CardBox>
       )}

@@ -4,6 +4,8 @@ import { CardBox } from "@/components/dashboard/card-box";
 import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { EmptyState } from "@/components/shared/empty-state";
+import { PaginationControls } from "@/components/shared/pagination-controls";
+import { SortableHeader } from "@/components/shared/sortable-header";
 import { Badge } from "@/components/ui/badge";
 import {
   CardContent,
@@ -12,22 +14,49 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
-import { listConversations } from "@/server/queries/conversations";
+import {
+  getConversationListStats,
+  listConversationsPaginated,
+  type ConversationListSort,
+} from "@/server/queries/conversations";
+import { resolvePagination, resolveSort } from "@/lib/pagination";
 import { formatDateTime } from "@/lib/utils";
 import { getConversationStatusLabel } from "@/lib/ui-labels";
 
-export default async function ConversationsPage() {
+const conversationSorts = [
+  "last_message",
+  "status",
+  "contact",
+] as const satisfies readonly ConversationListSort[];
+
+export default async function ConversationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    page?: string;
+    pageSize?: string;
+    sort?: string;
+    direction?: string;
+  }>;
+}) {
+  const params = await searchParams;
   const { activeTenant } = await getActiveTenantContext();
-  const conversations = await listConversations(activeTenant.id);
-  const openCount = conversations.filter(
-    (conversation) => conversation.status === "open",
-  ).length;
-  const handoffCount = conversations.filter(
-    (conversation) => conversation.status === "pending_human",
-  ).length;
-  const aiEnabledCount = conversations.filter(
-    (conversation) => conversation.ai_enabled,
-  ).length;
+  const pagination = resolvePagination(params, 10);
+  const sorting = resolveSort(params, conversationSorts, {
+    sort: "last_message",
+    direction: "desc",
+  });
+  const [conversationResult, conversationStats] = await Promise.all([
+    listConversationsPaginated(activeTenant.id, pagination, sorting),
+    getConversationListStats(activeTenant.id),
+  ]);
+  const conversations = conversationResult.items;
+  const listParams = {
+    page: pagination.page,
+    pageSize: pagination.pageSize,
+    sort: sorting.sort,
+    direction: sorting.direction,
+  };
 
   return (
     <div className="space-y-6">
@@ -37,21 +66,61 @@ export default async function ConversationsPage() {
       />
       <DashboardTopCards
         items={[
-          { key: "open", label: "Abiertas", value: openCount, tone: "primary" },
+          {
+            key: "open",
+            label: "Abiertas",
+            value: conversationStats.open,
+            tone: "primary",
+          },
           {
             key: "handoff",
             label: "Pendiente humano",
-            value: handoffCount,
+            value: conversationStats.handoff,
             tone: "warning",
           },
           {
             key: "ai",
             label: "IA habilitada",
-            value: aiEnabledCount,
+            value: conversationStats.aiEnabled,
             tone: "success",
           },
         ]}
       />
+      <section className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold">Bandeja</h2>
+          <p className="text-muted-foreground mt-2">
+            Ordená la bandeja completa sin cargar todas las conversaciones en
+            pantalla.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-3 text-sm">
+          <SortableHeader
+            activeSort={sorting.sort}
+            direction={sorting.direction}
+            label="Último mensaje"
+            params={listParams}
+            pathname="/dashboard/conversations"
+            sortKey="last_message"
+          />
+          <SortableHeader
+            activeSort={sorting.sort}
+            direction={sorting.direction}
+            label="Contacto"
+            params={listParams}
+            pathname="/dashboard/conversations"
+            sortKey="contact"
+          />
+          <SortableHeader
+            activeSort={sorting.sort}
+            direction={sorting.direction}
+            label="Estado"
+            params={listParams}
+            pathname="/dashboard/conversations"
+            sortKey="status"
+          />
+        </div>
+      </section>
       {conversations.length === 0 ? (
         <EmptyState
           title="No hay conversaciones"
@@ -118,6 +187,13 @@ export default async function ConversationsPage() {
               </CardBox>
             </Link>
           ))}
+          <PaginationControls
+            page={pagination.page}
+            pageSize={pagination.pageSize}
+            params={listParams}
+            pathname="/dashboard/conversations"
+            total={conversationResult.total}
+          />
         </div>
       )}
     </div>
