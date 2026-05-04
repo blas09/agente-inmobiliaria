@@ -2,7 +2,7 @@
 
 Date: 2026-05-04
 
-Status: proposed for review.
+Status: completed.
 
 This grooming covers the next project stage defined in [MVP Path To Customer Use](./mvp-path.md): `Operational MVP Readiness`.
 
@@ -48,9 +48,36 @@ Out of scope for this stage:
 
 ## Tasks
 
+## Block Completion Summary
+
+Completed on 2026-05-04 as one operational documentation block.
+
+Output:
+
+- [Supervised Pilot Operations Runbook](./pilot-operations-runbook.md)
+- updated [Current Pending Work](./pending.md)
+- updated [Current MVP Status](./mvp-status.md)
+
+Task mapping:
+
+- `OR-001` covered by [Pilot Tenant Setup](./pilot-operations-runbook.md#1-pilot-tenant-setup).
+- `OR-002` covered by [Customer Data Preparation](./pilot-operations-runbook.md#2-customer-data-preparation).
+- `OR-003` covered by [Known Limitations And Pilot Caveats](./pilot-operations-runbook.md#3-known-limitations-and-pilot-caveats).
+- `OR-004` covered by [Support And Issue Classification](./pilot-operations-runbook.md#4-support-and-issue-classification).
+- `OR-005` covered by [Environment And Deployment Readiness](./pilot-operations-runbook.md#5-environment-and-deployment-readiness).
+- `OR-006` covered by [Observability And Error Review](./pilot-operations-runbook.md#6-observability-and-error-review).
+- `OR-007` covered by [Pilot Dry Run](./pilot-operations-runbook.md#7-pilot-dry-run).
+
+Verification:
+
+- Reviewed against `mvp-path.md`, `mvp-status.md`, `internal-pilot-checklist.md`, `backlog.md`, `pending.md`, and `ui-ux-backlog.md`.
+- Confirmed the runbook covers tenant setup, data preparation, known caveats, support classification, environment readiness, observability, and dry run.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/prettier --write docs/operational-readiness-backlog.md docs/pilot-operations-runbook.md docs/pending.md docs/mvp-status.md` passed.
+- `git diff --check` passed.
+
 ### OR-001 - Pilot Tenant Setup Runbook
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: Product Owner, Project Manager, Project Leader / Technical Lead, Backend / Security, QA Engineer / Test Agent
@@ -87,7 +114,7 @@ Verification:
 
 ### OR-002 - Customer Data Preparation Checklist
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: Product Owner, Project Manager, Commercial Domain, QA Engineer / Test Agent
@@ -123,7 +150,7 @@ Verification:
 
 ### OR-003 - Known Limitations And Pilot Caveats
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: Product Owner, Project Manager, Project Leader / Technical Lead, UI/UX Specialist
@@ -157,7 +184,7 @@ Verification:
 
 ### OR-004 - Support And Issue Classification Runbook
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `MVP`
 Primary roles: Project Manager, Project Leader / Technical Lead, QA Engineer / Test Agent, Backend / Security
@@ -192,7 +219,7 @@ Verification:
 
 ### OR-005 - Environment And Deployment Readiness Checklist
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `MVP`
 Primary roles: Project Leader / Technical Lead, Backend / Security, QA Engineer / Test Agent
@@ -229,7 +256,7 @@ Verification:
 
 ### OR-006 - Minimal Observability And Error Review Procedure
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `MVP`
 Primary roles: Project Leader / Technical Lead, Backend / Security, QA Engineer / Test Agent
@@ -263,7 +290,7 @@ Verification:
 
 ### OR-007 - Pilot Dry Run Checklist
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `MVP`
 Primary roles: Product Owner, Project Manager, Project Leader / Technical Lead, QA Engineer / Test Agent, UI/UX Specialist

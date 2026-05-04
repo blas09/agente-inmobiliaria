@@ -8,7 +8,7 @@ Current MVP flow:
 
 ## Current Release State
 
-Status: internal manual testing completed; preparing the path toward a supervised customer MVP.
+Status: internal manual testing and UI/UX polish completed; operational readiness documentation completed; preparing security review before a supervised customer MVP.
 
 Reference:
 
@@ -18,18 +18,18 @@ Reference:
 - [Operational MVP Readiness Backlog](./operational-readiness-backlog.md)
 
 The implementation backlog for the first MVP cut is complete. The UI/UX MVP polish backlog is complete. The current proposed next phase is operational readiness for a supervised customer pilot.
+The operational readiness block is now documented in [Supervised Pilot Operations Runbook](./pilot-operations-runbook.md).
 
 ## Required Before Customer-Facing MVP
 
-1. Review and approve `operational-readiness-backlog.md`.
-2. Execute approved operational readiness tasks one by one.
-3. Complete the security, onboarding, and pilot readiness groomings defined in `mvp-path.md`.
-4. Confirm whether real WhatsApp provider delivery is part of the first customer pilot.
-5. If real WhatsApp delivery is in scope, verify valid Meta credentials and template behavior.
+1. Start the `Security And Permissions Review` grooming defined in `mvp-path.md`.
+2. Complete real tenant onboarding and pilot readiness groomings after security review.
+3. Confirm whether real WhatsApp provider delivery is part of the first customer pilot.
+4. If real WhatsApp delivery is in scope, verify valid Meta credentials and template behavior.
 
 ## Known Caveats
 
-- Operational readiness backlog is proposed for review.
+- Security and permissions review has not yet been groomed for this phase.
 - Real Meta outbound delivery requires valid provider credentials.
 - Real Meta template approval/sync is post-MVP unless it blocks the pilot.
 - No persistent distributed rate limiter is implemented for public endpoints.
