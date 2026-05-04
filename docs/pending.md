@@ -8,7 +8,7 @@ Current MVP flow:
 
 ## Current Release State
 
-Status: internal manual testing, UI/UX polish, and operational readiness documentation completed; security review grooming proposed before a supervised customer MVP.
+Status: internal manual testing, UI/UX polish, operational readiness documentation, and security permissions review completed with pilot caveats before a supervised customer MVP.
 
 Reference:
 
@@ -19,19 +19,18 @@ Reference:
 - [Security And Permissions Review Backlog](./security-permissions-review-backlog.md)
 
 The implementation backlog for the first MVP cut is complete. The UI/UX MVP polish backlog is complete. The operational readiness block is documented in [Supervised Pilot Operations Runbook](./pilot-operations-runbook.md).
-The current proposed next phase is to review and execute the security and permissions backlog before moving to real tenant onboarding.
+The current proposed next phase is real tenant onboarding for a supervised pilot, after confirming the documented security caveats.
 
 ## Required Before Customer-Facing MVP
 
-1. Review and approve `security-permissions-review-backlog.md`.
-2. Execute approved security review tasks.
-3. Complete real tenant onboarding and pilot readiness groomings after security review.
-4. Confirm whether real WhatsApp provider delivery is part of the first customer pilot.
-5. If real WhatsApp delivery is in scope, verify valid Meta credentials and template behavior.
+1. Complete real tenant onboarding grooming and execution.
+2. Complete pilot readiness grooming after real tenant onboarding.
+3. Confirm whether real WhatsApp provider delivery is part of the first customer pilot.
+4. If real WhatsApp delivery is in scope, verify valid Meta credentials, template behavior, and `WHATSAPP_APP_SECRET`.
 
 ## Known Caveats
 
-- Security and permissions review backlog is proposed for review.
+- Security and permissions review is complete, but pilot caveats remain documented in `security-permissions-review-backlog.md`.
 - Real Meta outbound delivery requires valid provider credentials.
 - Real Meta template approval/sync is post-MVP unless it blocks the pilot.
 - No persistent distributed rate limiter is implemented for public endpoints.

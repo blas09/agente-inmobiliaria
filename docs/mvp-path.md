@@ -15,7 +15,8 @@ The scoped internal MVP covers:
 Current decision:
 
 - the internal MVP flow has been manually tested
-- the next product phase should focus on polish and readiness, not broad new feature work
+- UI/UX polish, operational readiness documentation, and security permissions review are complete with documented caveats
+- the next product phase should focus on real tenant onboarding for a supervised pilot
 - work should continue through sequenced grooming passes
 - each grooming pass should be reviewed before execution starts
 
@@ -297,6 +298,6 @@ Exit criteria:
 
 ## Immediate Next Step
 
-Review the `UI/UX MVP Polish` grooming output in [UI/UX MVP Polish Backlog](./ui-ux-backlog.md).
+Groom `Real Tenant Onboarding` into a prioritized backlog with clear customer data requirements, setup steps, acceptance criteria, and verification.
 
-After review, accepted UI/UX tasks can be executed one by one.
+The security permissions review output is documented in [Security And Permissions Review Backlog](./security-permissions-review-backlog.md).

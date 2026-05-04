@@ -2,7 +2,7 @@
 
 Date: 2026-05-04
 
-Status: proposed for review.
+Status: review completed with pilot caveats.
 
 This grooming covers the next project stage defined in [MVP Path To Customer Use](./mvp-path.md): `Security And Permissions Review`.
 
@@ -69,11 +69,33 @@ Existing expected role/action matrix from the MVP backlog:
 | FAQs create/update/delete              | `tenant_owner`, `tenant_admin`, `operator`            | `requireFaqManageContext`                           |
 | WhatsApp webhook ingestion             | machine-to-machine                                    | signature verification plus service-role processing |
 
+## Review Result
+
+Review date: 2026-05-04
+
+Decision: no code-level pilot blocker was found in this pass. The project can move to `Real Tenant Onboarding` for a supervised pilot after the environment-level caveats below are confirmed.
+
+Pilot caveats:
+
+- Real WhatsApp webhook traffic must run with `WHATSAPP_APP_SECRET` configured. Without it, the POST webhook route can accept unsigned payloads by design for local/dev flexibility.
+- The `platform_admin` role has global tenant visibility through the RLS helper functions. This is intentional, but platform admin accounts must be treated as highly privileged and should not be used for daily agency operations.
+- Public endpoint rate limiting remains a known hardening gap. It should not block a supervised pilot, but it should stay visible before broader exposure.
+- Browser-level E2E cross-tenant tests are still not in place. Representative RLS checks were executed locally, but full browser automation remains future hardening.
+
+Verification performed:
+
+- Static review of `supabase/migrations`, `server/auth/tenant-context.ts`, `lib/permissions.ts`, critical `features/*/actions.ts`, dashboard route/page files, auth callback, and WhatsApp webhook code.
+- Local Supabase inspection confirmed RLS enabled and forced on all 21 public tables.
+- Local Supabase inspection confirmed 47 public RLS policies across all public tables.
+- Local Supabase inspection confirmed all tenant-scoped business tables expose `tenant_id`.
+- Transacted local RLS negative case confirmed a user from the demo tenant cannot read or update a property created under another tenant.
+- Local RLS negative case confirmed a `viewer` cannot insert a property in its own tenant.
+
 ## Tasks
 
 ### SEC-001 - RLS Policy Review For Critical Tables
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: Project Leader / Technical Lead, Architecture and Multitenancy, Backend / Security, QA Engineer / Test Agent
@@ -109,9 +131,17 @@ Verification:
 - Local SQL/policy inspection if Supabase is available.
 - Documented exceptions for service-role processing.
 
+Completion notes:
+
+- Verified RLS is enabled and forced on `appointments`, `audit_logs`, `automation_rules`, `channel_events`, `channel_whatsapp_accounts`, `channels`, `conversations`, `faqs`, `lead_property_interests`, `lead_stage_history`, `leads`, `messages`, `pipeline_stages`, `platform_users`, `properties`, `property_features`, `property_media`, `tenant_users`, `tenants`, `user_profiles`, and `whatsapp_message_templates`.
+- Verified policies exist for every public table.
+- Verified tenant-scoped business tables include `tenant_id`; `tenants`, `platform_users`, and `user_profiles` are intentionally scoped by table-specific rules instead.
+- Verified a transacted cross-tenant property read/update attempt returns no rows for a tenant member from another tenant.
+- Service-role processing is used for WhatsApp ingestion and invitation activation; this is intentional and constrained to machine-to-machine or admin workflows.
+
 ### SEC-002 - Server Action Permission Review
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: Project Leader / Technical Lead, Backend / Security, QA Engineer / Test Agent
@@ -146,9 +176,17 @@ Verification:
 - Targeted tests where existing test helpers make it practical.
 - Manual negative-case checklist for actions not covered by tests.
 
+Completion notes:
+
+- Reviewed tenant, property, lead, conversation, appointment, FAQ, pipeline, and WhatsApp template actions.
+- Critical mutations use domain-specific guards such as `requirePlatformAdmin`, `requireTenantAdminContext`, `requirePropertyWriteContext`, `requirePropertyDeleteContext`, `requireLeadWriteContext`, `requireLeadDeleteContext`, `requireConversationOperateContext`, `requireAppointmentWriteContext`, and `requireFaqManageContext`.
+- Tenant-scoped update/delete paths reviewed include `tenant_id` filters or resolve the active tenant server-side.
+- Cross-entity links for conversations and appointments validate that referenced leads, properties, advisors, and templates belong to the active tenant.
+- No mutation relying only on UI permissions was found in this pass.
+
 ### SEC-003 - Route Protection And Active Tenant Review
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: Project Leader / Technical Lead, Backend / Security, QA Engineer / Test Agent
@@ -183,9 +221,18 @@ Verification:
 - Static review of `app` route/page files.
 - Manual route-access checks with owner/admin/advisor/operator/viewer where practical.
 
+Completion notes:
+
+- Dashboard layout resolves authenticated app context on the server.
+- Tenant dashboard pages use `getActiveTenantContext` or a stricter domain/page guard.
+- Settings and channels pages apply server-side tenant admin checks when admin-only content is required.
+- Platform tenant pages use `requirePlatformAdmin`.
+- Auth callback uses a same-origin redirect helper and activates accepted invitations through the controlled service-role path.
+- Active tenant selection ignores tenant cookie values that do not match one of the authenticated user's active memberships.
+
 ### SEC-004 - Cross-Tenant Negative Case Plan
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: Architecture and Multitenancy, Backend / Security, QA Engineer / Test Agent
@@ -220,9 +267,16 @@ Verification:
 - Execute representative negative cases locally or in staging.
 - Add tests where low-cost and high-value.
 
+Completion notes:
+
+- Representative local SQL negative case was executed in a transaction: a property inserted under a second tenant was invisible and not updatable for a user from the demo tenant.
+- Representative role negative case was executed locally: the seeded `viewer` cannot insert a property in the demo tenant.
+- Existing code-level tenant filters cover detail/edit URL tampering for properties, leads, conversations, FAQs, and appointments by resolving records through the active tenant.
+- Recommended future automation: add browser-level E2E tests for URL tampering and cross-tenant server action submissions before unsupervised customer use.
+
 ### SEC-005 - Role/Action Matrix Validation
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `MVP`
 Primary roles: Product Owner, Project Leader / Technical Lead, Backend / Security, QA Engineer / Test Agent
@@ -256,9 +310,18 @@ Verification:
 - Static code review.
 - Manual checks with seed users where practical.
 
+Completion notes:
+
+- The role/action matrix matches `lib/permissions.ts`, `server/auth/tenant-context.ts`, server actions, and RLS policies.
+- `viewer` remains read-oriented and is excluded from business mutations by helpers and RLS.
+- `advisor` and `operator` can perform operational writes for properties, leads, conversations, and appointments.
+- `operator` can manage FAQs; `advisor` cannot.
+- Deletes for leads and properties remain limited to owner/admin roles.
+- `platform_admin` remains globally privileged by design.
+
 ### SEC-006 - Public Endpoint And Webhook Boundary Review
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `MVP`
 Primary roles: Project Leader / Technical Lead, Backend / Security, QA Engineer / Test Agent
@@ -295,9 +358,18 @@ Verification:
 - Existing tests for webhook payload/signature handling.
 - Manual invalid-signature and invalid-payload checks where practical.
 
+Completion notes:
+
+- WhatsApp GET verification requires the configured verify token.
+- WhatsApp POST enforces body size limits and validates JSON/schema before processing.
+- WhatsApp POST verifies `x-hub-signature-256` when `WHATSAPP_APP_SECRET` is configured.
+- Rejected webhook events are logged through service-role `channel_events` inserts with `tenant_id = null`.
+- Webhook processing resolves tenant/channel by `phone_number_id`, writes through service-role paths, and records channel events for traceability and idempotency.
+- Caveat: if `WHATSAPP_APP_SECRET` is absent, unsigned POST payloads are accepted. This is acceptable for local development, but must be configured for real provider traffic.
+
 ### SEC-007 - Security Review Exit Checklist
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `MVP`
 Primary roles: Product Owner, Project Manager, Project Leader / Technical Lead, Backend / Security, QA Engineer / Test Agent
@@ -329,3 +401,11 @@ Verification:
 
 - Review checklist against completed security tasks.
 - Confirm all findings have owner, classification, and next action.
+
+Completion notes:
+
+- `SEC-001` through `SEC-006` are completed for this review pass.
+- No pilot blocker was found at code level.
+- Pilot caveats are documented in `Review Result`.
+- Go/no-go recommendation: proceed to `Real Tenant Onboarding` for a supervised pilot after confirming required environment variables, especially real WhatsApp webhook secret configuration if WhatsApp provider traffic is in scope.
+- Remaining hardening items should stay classified as pilot caveats or post-MVP unless a real customer test exposes a concrete bug.

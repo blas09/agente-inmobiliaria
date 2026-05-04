@@ -44,7 +44,8 @@ Practical conclusion:
 - it is not ready for unsupervised real customers yet
 - UI/UX MVP polish is complete
 - operational readiness documentation is complete in [Supervised Pilot Operations Runbook](./pilot-operations-runbook.md)
-- the highest-value next work is to review and execute [Security And Permissions Review Backlog](./security-permissions-review-backlog.md)
+- security and permissions review is complete with pilot caveats in [Security And Permissions Review Backlog](./security-permissions-review-backlog.md)
+- the highest-value next work is real tenant onboarding for a supervised pilot
 
 ## Current MVP Cut
 
