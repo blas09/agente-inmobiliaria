@@ -8,7 +8,7 @@ Current MVP flow:
 
 ## Current Release State
 
-Status: internal manual testing, UI/UX polish, operational readiness documentation, security permissions review, and real tenant onboarding documentation completed with pilot caveats before a supervised customer MVP.
+Status: internal manual testing, UI/UX polish, operational readiness documentation, security permissions review, and real tenant onboarding documentation completed with pilot caveats; pilot readiness grooming proposed before a supervised customer MVP.
 
 Reference:
 
@@ -19,17 +19,19 @@ Reference:
 - [Security And Permissions Review Backlog](./security-permissions-review-backlog.md)
 - [Real Tenant Onboarding Backlog](./real-tenant-onboarding-backlog.md)
 - [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md)
+- [Pilot Readiness Backlog](./pilot-readiness-backlog.md)
 
 The implementation backlog for the first MVP cut is complete. The UI/UX MVP polish backlog is complete. The operational readiness block is documented in [Supervised Pilot Operations Runbook](./pilot-operations-runbook.md).
 The real tenant onboarding block is documented in [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md).
-The current proposed next phase is `Pilot Readiness` grooming for a supervised customer pilot.
+The current proposed next phase is to review and execute the `Pilot Readiness` backlog for a supervised customer pilot.
 
 ## Required Before Customer-Facing MVP
 
-1. Complete `Pilot Readiness` grooming.
-2. Confirm whether real WhatsApp provider delivery is part of the first customer pilot.
-3. If real WhatsApp delivery is in scope, verify valid Meta credentials, template behavior, and `WHATSAPP_APP_SECRET`.
-4. Execute final go/no-go checklist for the supervised pilot.
+1. Review and approve `pilot-readiness-backlog.md`.
+2. Execute approved pilot readiness tasks.
+3. Confirm whether real WhatsApp provider delivery is part of the first customer pilot.
+4. If real WhatsApp delivery is in scope, verify valid Meta credentials, template behavior, and `WHATSAPP_APP_SECRET`.
+5. Execute final go/no-go checklist for the supervised pilot.
 
 ## Known Caveats
 

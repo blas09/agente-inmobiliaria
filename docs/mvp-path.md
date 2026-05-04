@@ -298,6 +298,6 @@ Exit criteria:
 
 ## Immediate Next Step
 
-Groom `Pilot Readiness` into a prioritized backlog with final QA, go/no-go criteria, support ownership, rollback or pause criteria, and feedback capture.
+Review the `Pilot Readiness` grooming output in [Pilot Readiness Backlog](./pilot-readiness-backlog.md).
 
 The real tenant onboarding output is documented in [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md).
