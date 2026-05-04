@@ -1095,3 +1095,559 @@ values
   ('80000000-0000-4000-8000-000000000007', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', 'meta_whatsapp_cloud', 'webhook.rejected', 'inbound', 'evt-demo-007', '{"reason":"invalid_signature"}'::jsonb, 'rejected', 'Invalid webhook signature.', null, timezone('utc', now()) - interval '2 hours'),
   ('80000000-0000-4000-8000-000000000008', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', 'meta_whatsapp_cloud', 'message.inbound.received', 'inbound', 'evt-demo-008', '{"message_id":"wamid.demo.016"}'::jsonb, 'processed', null, timezone('utc', now()) - interval '20 minutes', timezone('utc', now()) - interval '20 minutes')
 on conflict (id) do nothing;
+
+-- Heavy demo dataset for pagination and production-like density checks.
+-- Generated rows are deterministic, fake, tenant-scoped, and safe to reset.
+
+insert into public.tenants (
+  id,
+  name,
+  slug,
+  status,
+  primary_currency,
+  timezone,
+  locale,
+  settings,
+  branding
+)
+select
+  ('90000000-0000-4000-8000-' || lpad(series.index::text, 12, '0'))::uuid,
+  'Inmobiliaria Piloto ' || lpad(series.index::text, 2, '0'),
+  'piloto-' || lpad(series.index::text, 2, '0'),
+  (
+    case
+      when series.index % 11 = 0 then 'suspended'
+      when series.index % 7 = 0 then 'trial'
+      else 'active'
+    end
+  )::public.tenant_status,
+  'PYG',
+  'America/Asuncion',
+  'es-PY',
+  jsonb_build_object(
+    'lead_sources',
+    jsonb_build_array('whatsapp', 'manual', 'email'),
+    'default_country',
+    'Paraguay'
+  ),
+  jsonb_build_object('logoText', 'Piloto ' || lpad(series.index::text, 2, '0'))
+from generate_series(1, 18) as series(index)
+on conflict (id) do nothing;
+
+insert into public.properties (
+  id,
+  tenant_id,
+  external_ref,
+  title,
+  description,
+  operation_type,
+  property_type,
+  price,
+  currency,
+  expenses_amount,
+  location_text,
+  city,
+  neighborhood,
+  address,
+  bedrooms,
+  bathrooms,
+  garages,
+  area_m2,
+  lot_area_m2,
+  pets_allowed,
+  furnished,
+  has_pool,
+  has_garden,
+  has_balcony,
+  status,
+  advisor_id,
+  source,
+  published_at,
+  created_at
+)
+select
+  ('91000000-0000-4000-8000-' || lpad(series.index::text, 12, '0'))::uuid,
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  'BULK-' || lpad(series.index::text, 4, '0'),
+  case
+    when series.index % 9 = 0 then 'Casa familiar con patio en barrio cerrado ' || series.index
+    when series.index % 8 = 0 then 'Local comercial sobre avenida principal ' || series.index
+    when series.index % 7 = 0 then 'Terreno listo para desarrollo residencial ' || series.index
+    when series.index % 6 = 0 then 'Oficina corporativa con cocheras ' || series.index
+    else 'Departamento luminoso para operacion comercial ' || series.index
+  end,
+  'Ficha generada para probar listados extensos, filtros por estado y rendimiento visual.',
+  (
+    case when series.index % 3 = 0 then 'rent' else 'sale' end
+  )::public.property_operation_type,
+  (
+    case
+      when series.index % 9 = 0 then 'house'
+      when series.index % 8 = 0 then 'commercial'
+      when series.index % 7 = 0 then 'land'
+      when series.index % 6 = 0 then 'office'
+      when series.index % 5 = 0 then 'duplex'
+      else 'apartment'
+    end
+  )::public.property_type,
+  case
+    when series.index % 3 = 0 then 3200000 + (series.index * 145000)
+    else 420000000 + (series.index * 27000000)
+  end,
+  'PYG',
+  case when series.index % 3 = 0 then 450000 + (series.index * 15000) else null end,
+  (
+    case
+      when series.index % 5 = 0 then 'Carmelitas'
+      when series.index % 4 = 0 then 'Villa Morra'
+      when series.index % 3 = 0 then 'Las Mercedes'
+      when series.index % 2 = 0 then 'San Lorenzo'
+      else 'Fernando de la Mora'
+    end
+  ) || ', Paraguay',
+  case
+    when series.index % 4 = 0 then 'Asuncion'
+    when series.index % 3 = 0 then 'Lambare'
+    when series.index % 2 = 0 then 'San Lorenzo'
+    else 'Fernando de la Mora'
+  end,
+  case
+    when series.index % 5 = 0 then 'Carmelitas'
+    when series.index % 4 = 0 then 'Villa Morra'
+    when series.index % 3 = 0 then 'Las Mercedes'
+    when series.index % 2 = 0 then 'Barcequillo'
+    else 'Zona Norte'
+  end,
+  'Calle Demo ' || series.index,
+  case when series.index % 7 = 0 then null else 1 + (series.index % 4) end,
+  case when series.index % 7 = 0 then null else 1 + (series.index % 3) end,
+  series.index % 4,
+  case when series.index % 7 = 0 then null else 45 + (series.index * 3) end,
+  case when series.index % 7 = 0 then 300 + (series.index * 12) else null end,
+  series.index % 2 = 0,
+  series.index % 6 = 0,
+  series.index % 10 = 0,
+  series.index % 9 = 0,
+  series.index % 4 = 0,
+  (
+    case
+      when series.index % 13 = 0 then 'inactive'
+      when series.index % 11 = 0 then 'sold'
+      when series.index % 7 = 0 then 'reserved'
+      when series.index % 6 = 0 then 'draft'
+      else 'available'
+    end
+  )::public.property_status,
+  case
+    when series.index % 4 = 0 then '44444444-1111-4111-8111-111111111111'::uuid
+    when series.index % 5 = 0 then '55555555-1111-4111-8111-111111111111'::uuid
+    else '22222222-2222-4222-8222-222222222222'::uuid
+  end,
+  'seed-bulk',
+  case when series.index % 6 = 0 then null else timezone('utc', now()) - (series.index || ' days')::interval end,
+  timezone('utc', now()) - (series.index || ' days')::interval
+from generate_series(1, 90) as series(index)
+on conflict (id) do nothing;
+
+insert into public.property_features (
+  id,
+  tenant_id,
+  property_id,
+  feature_key,
+  feature_value
+)
+select
+  ('91100000-0000-4000-8000-' || lpad(series.index::text, 12, '0'))::uuid,
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  ('91000000-0000-4000-8000-' || lpad(series.index::text, 12, '0'))::uuid,
+  case
+    when series.index % 5 = 0 then 'commercial_notes'
+    when series.index % 4 = 0 then 'amenities'
+    when series.index % 3 = 0 then 'financing'
+    else 'sales_notes'
+  end,
+  case
+    when series.index % 5 = 0 then 'Alta visibilidad, transito y estacionamiento cercano.'
+    when series.index % 4 = 0 then 'Amenities, seguridad y espacios comunes.'
+    when series.index % 3 = 0 then 'Apta para credito sujeto a evaluacion bancaria.'
+    else 'Ficha cargada para probar densidad operacional.'
+  end
+from generate_series(1, 90) as series(index)
+on conflict (id) do nothing;
+
+insert into public.faqs (
+  id,
+  tenant_id,
+  question,
+  answer,
+  category,
+  status,
+  created_at
+)
+select
+  ('91200000-0000-4000-8000-' || lpad(series.index::text, 12, '0'))::uuid,
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  'Pregunta frecuente operativa ' || series.index,
+  'Respuesta generada para probar una base editorial extensa con categorias, estados y textos de longitud media.',
+  case
+    when series.index % 6 = 0 then 'documentacion'
+    when series.index % 5 = 0 then 'financiacion'
+    when series.index % 4 = 0 then 'visitas'
+    when series.index % 3 = 0 then 'alquileres'
+    else 'general'
+  end,
+  case when series.index % 8 = 0 then 'inactive' else 'active' end::public.faq_status,
+  timezone('utc', now()) - (series.index || ' hours')::interval
+from generate_series(1, 42) as series(index)
+on conflict (id) do nothing;
+
+insert into public.leads (
+  id,
+  tenant_id,
+  full_name,
+  email,
+  phone,
+  source,
+  source_details,
+  interest_type,
+  budget_min,
+  budget_max,
+  desired_city,
+  desired_neighborhood,
+  bedrooms_needed,
+  move_in_date,
+  financing_needed,
+  pets,
+  notes,
+  qualification_status,
+  score,
+  assigned_to,
+  pipeline_stage_id,
+  is_human_handoff_required,
+  created_at
+)
+select
+  ('92000000-0000-4000-8000-' || lpad(series.index::text, 12, '0'))::uuid,
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  'Lead Demo ' || lpad(series.index::text, 3, '0'),
+  'lead.demo.' || lpad(series.index::text, 3, '0') || '@example.com',
+  '+5959812' || lpad(series.index::text, 5, '0'),
+  case
+    when series.index % 6 = 0 then 'email'
+    when series.index % 5 = 0 then 'instagram'
+    when series.index % 4 = 0 then 'facebook_leads'
+    when series.index % 3 = 0 then 'manual'
+    else 'whatsapp'
+  end,
+  jsonb_build_object('campaign', 'bulk-density-' || (series.index % 7)),
+  case when series.index % 3 = 0 then 'rent' else 'sale' end::public.lead_interest_type,
+  case when series.index % 3 = 0 then 2800000 + (series.index * 45000) else 350000000 + (series.index * 8000000) end,
+  case when series.index % 3 = 0 then 5200000 + (series.index * 65000) else 900000000 + (series.index * 11000000) end,
+  case
+    when series.index % 5 = 0 then 'Asuncion'
+    when series.index % 4 = 0 then 'Lambare'
+    when series.index % 3 = 0 then 'San Lorenzo'
+    else 'Fernando de la Mora'
+  end,
+  case
+    when series.index % 5 = 0 then 'Carmelitas'
+    when series.index % 4 = 0 then 'Centro'
+    when series.index % 3 = 0 then 'Barcequillo'
+    else 'Zona Norte'
+  end,
+  1 + (series.index % 4),
+  (current_date + ((series.index % 45) || ' days')::interval)::date,
+  series.index % 2 = 0,
+  series.index % 5 = 0,
+  'Lead generado para probar bandejas extensas, tabs por estado y busqueda.',
+  (
+    case
+      when series.index % 17 = 0 then 'lost'
+      when series.index % 13 = 0 then 'won'
+      when series.index % 11 = 0 then 'unqualified'
+      when series.index % 7 = 0 then 'nurturing'
+      when series.index % 5 = 0 then 'qualified'
+      when series.index % 3 = 0 then 'contacted'
+      else 'new'
+    end
+  )::public.lead_qualification_status,
+  least(100, 25 + (series.index % 76)),
+  case
+    when series.index % 4 = 0 then '44444444-1111-4111-8111-111111111111'::uuid
+    when series.index % 5 = 0 then '55555555-1111-4111-8111-111111111111'::uuid
+    else '22222222-2222-4222-8222-222222222222'::uuid
+  end,
+  ('10000000-0000-4000-8000-' || lpad(((series.index % 6) + 1)::text, 12, '0'))::uuid,
+  series.index % 6 = 0,
+  timezone('utc', now()) - ((series.index * 3) || ' hours')::interval
+from generate_series(1, 140) as series(index)
+on conflict (id) do nothing;
+
+insert into public.lead_property_interests (
+  tenant_id,
+  lead_id,
+  property_id,
+  interest_level
+)
+select
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  ('92000000-0000-4000-8000-' || lpad(series.index::text, 12, '0'))::uuid,
+  ('91000000-0000-4000-8000-' || lpad((((series.index - 1) % 90) + 1)::text, 12, '0'))::uuid,
+  case
+    when series.index % 5 = 0 then 'high'
+    when series.index % 3 = 0 then 'low'
+    else 'medium'
+  end::public.lead_interest_level
+from generate_series(1, 140) as series(index)
+on conflict (lead_id, property_id) do nothing;
+
+insert into public.conversations (
+  id,
+  tenant_id,
+  channel_id,
+  lead_id,
+  property_id,
+  assigned_to,
+  status,
+  contact_identifier,
+  contact_display_name,
+  handoff_reason,
+  last_message_at,
+  ai_enabled,
+  created_at
+)
+select
+  ('93000000-0000-4000-8000-' || lpad(series.index::text, 12, '0'))::uuid,
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+  ('92000000-0000-4000-8000-' || lpad(series.index::text, 12, '0'))::uuid,
+  ('91000000-0000-4000-8000-' || lpad((((series.index - 1) % 90) + 1)::text, 12, '0'))::uuid,
+  case
+    when series.index % 4 = 0 then '44444444-1111-4111-8111-111111111111'::uuid
+    when series.index % 5 = 0 then '55555555-1111-4111-8111-111111111111'::uuid
+    else '22222222-2222-4222-8222-222222222222'::uuid
+  end,
+  (
+    case
+      when series.index % 13 = 0 then 'closed'
+      when series.index % 7 = 0 then 'automated'
+      when series.index % 4 = 0 then 'pending_human'
+      else 'open'
+    end
+  )::public.conversation_status,
+  '+5959823' || lpad(series.index::text, 5, '0'),
+  'Lead Demo ' || lpad(series.index::text, 3, '0'),
+  case when series.index % 4 = 0 then 'Requiere respuesta humana por condicion comercial.' else null end,
+  timezone('utc', now()) - ((series.index * 17) || ' minutes')::interval,
+  series.index % 9 <> 0,
+  timezone('utc', now()) - ((series.index * 18) || ' minutes')::interval
+from generate_series(1, 110) as series(index)
+on conflict (id) do nothing;
+
+insert into public.messages (
+  id,
+  tenant_id,
+  conversation_id,
+  sender_type,
+  direction,
+  external_message_id,
+  content,
+  content_type,
+  message_status,
+  error_message,
+  created_at
+)
+select
+  ('94000000-0000-4000-8000-' || lpad(((conversation.index * 10) + message.index)::text, 12, '0'))::uuid,
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  ('93000000-0000-4000-8000-' || lpad(conversation.index::text, 12, '0'))::uuid,
+  case
+    when message.index = 1 then 'lead'
+    when message.index = 2 then 'agent'
+    else 'advisor'
+  end::public.sender_type,
+  case when message.index = 1 then 'inbound' else 'outbound' end::public.message_direction,
+  'wamid.bulk.' || conversation.index || '.' || message.index,
+  case
+    when message.index = 1 then 'Hola, quiero informacion sobre la propiedad publicada.'
+    when message.index = 2 then 'Gracias por escribirnos. Te comparto datos y validamos disponibilidad.'
+    else 'Quedo atento para coordinar visita o seguimiento.'
+  end,
+  'text',
+  case
+    when message.index = 1 then 'received'
+    when conversation.index % 12 = 0 and message.index = 2 then 'failed'
+    when conversation.index % 5 = 0 then 'read'
+    when conversation.index % 3 = 0 then 'delivered'
+    else 'sent'
+  end::public.message_status,
+  case
+    when conversation.index % 12 = 0 and message.index = 2 then 'Simulated provider failure for density testing.'
+    else null
+  end,
+  timezone('utc', now()) - (((conversation.index * 17) - message.index) || ' minutes')::interval
+from generate_series(1, 110) as conversation(index)
+cross join generate_series(1, 3) as message(index)
+on conflict (id) do nothing;
+
+insert into public.appointments (
+  id,
+  tenant_id,
+  lead_id,
+  property_id,
+  advisor_id,
+  scheduled_at,
+  status,
+  notes,
+  created_at
+)
+select
+  ('95000000-0000-4000-8000-' || lpad(series.index::text, 12, '0'))::uuid,
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  ('92000000-0000-4000-8000-' || lpad(series.index::text, 12, '0'))::uuid,
+  ('91000000-0000-4000-8000-' || lpad((((series.index - 1) % 90) + 1)::text, 12, '0'))::uuid,
+  case
+    when series.index % 4 = 0 then '44444444-1111-4111-8111-111111111111'::uuid
+    when series.index % 5 = 0 then '55555555-1111-4111-8111-111111111111'::uuid
+    else '22222222-2222-4222-8222-222222222222'::uuid
+  end,
+  timezone('utc', now()) + (((series.index % 28) - 10) || ' days')::interval + ((9 + (series.index % 8)) || ' hours')::interval,
+  (
+    case
+      when series.index % 17 = 0 then 'no_show'
+      when series.index % 13 = 0 then 'canceled'
+      when series.index % 7 = 0 then 'completed'
+      when series.index % 4 = 0 then 'confirmed'
+      else 'scheduled'
+    end
+  )::public.appointment_status,
+  'Visita generada para probar agenda con volumen y estados variados.',
+  timezone('utc', now()) - ((series.index * 2) || ' hours')::interval
+from generate_series(1, 100) as series(index)
+on conflict (id) do nothing;
+
+insert into public.lead_stage_history (
+  id,
+  tenant_id,
+  lead_id,
+  stage_id,
+  changed_by,
+  changed_at,
+  notes
+)
+select
+  ('96000000-0000-4000-8000-' || lpad(series.index::text, 12, '0'))::uuid,
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  ('92000000-0000-4000-8000-' || lpad(series.index::text, 12, '0'))::uuid,
+  ('10000000-0000-4000-8000-' || lpad(((series.index % 6) + 1)::text, 12, '0'))::uuid,
+  case
+    when series.index % 4 = 0 then '44444444-1111-4111-8111-111111111111'::uuid
+    else '22222222-2222-4222-8222-222222222222'::uuid
+  end,
+  timezone('utc', now()) - ((series.index * 4) || ' hours')::interval,
+  'Movimiento generado para poblar historial comercial.'
+from generate_series(1, 140) as series(index)
+on conflict (id) do nothing;
+
+insert into public.whatsapp_message_templates (
+  id,
+  tenant_id,
+  name,
+  language,
+  category,
+  status,
+  components,
+  is_active,
+  status_updated_by,
+  status_updated_at,
+  approved_by,
+  approved_at
+)
+select
+  ('97000000-0000-4000-8000-' || lpad(series.index::text, 12, '0'))::uuid,
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  'bulk_template_' || lpad(series.index::text, 2, '0'),
+  'es_PY',
+  case when series.index % 4 = 0 then 'MARKETING' else 'UTILITY' end,
+  (
+    case
+      when series.index % 11 = 0 then 'paused'
+      when series.index % 7 = 0 then 'rejected'
+      when series.index % 5 = 0 then 'pending'
+      else 'approved'
+    end
+  ),
+  jsonb_build_array(
+    jsonb_build_object(
+      'type',
+      'body',
+      'parameters',
+      jsonb_build_array(jsonb_build_object('type', 'text', 'text', '{{1}}'))
+    )
+  ),
+  series.index % 9 <> 0,
+  case
+    when series.index % 4 = 0 then '44444444-1111-4111-8111-111111111111'::uuid
+    else '11111111-1111-4111-8111-111111111111'::uuid
+  end,
+  timezone('utc', now()) - (series.index || ' days')::interval,
+  case
+    when series.index % 5 = 0 or series.index % 7 = 0 then null
+    when series.index % 4 = 0 then '44444444-1111-4111-8111-111111111111'::uuid
+    else '11111111-1111-4111-8111-111111111111'::uuid
+  end,
+  case
+    when series.index % 5 = 0 or series.index % 7 = 0 then null
+    else timezone('utc', now()) - (series.index || ' days')::interval
+  end
+from generate_series(1, 28) as series(index)
+on conflict (id) do nothing;
+
+insert into public.channel_events (
+  id,
+  tenant_id,
+  channel_id,
+  provider,
+  event_type,
+  direction,
+  external_event_id,
+  payload,
+  processing_status,
+  error_message,
+  processed_at,
+  created_at
+)
+select
+  ('98000000-0000-4000-8000-' || lpad(series.index::text, 12, '0'))::uuid,
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+  'meta_whatsapp_cloud',
+  case
+    when series.index % 19 = 0 then 'webhook.rejected'
+    when series.index % 13 = 0 then 'message.outbound.retry_failed'
+    when series.index % 11 = 0 then 'message.outbound.failed'
+    when series.index % 5 = 0 then 'message.outbound.read'
+    when series.index % 3 = 0 then 'message.outbound.delivered'
+    else 'message.inbound.received'
+  end,
+  case when series.index % 2 = 0 then 'outbound' else 'inbound' end::public.message_direction,
+  'evt-bulk-' || lpad(series.index::text, 4, '0'),
+  jsonb_build_object('sequence', series.index),
+  case
+    when series.index % 19 = 0 then 'rejected'
+    when series.index % 13 = 0 or series.index % 11 = 0 then 'failed'
+    else 'processed'
+  end,
+  case
+    when series.index % 19 = 0 then 'Invalid signature in simulated webhook.'
+    when series.index % 13 = 0 then 'Retry limit reached in simulated provider.'
+    when series.index % 11 = 0 then 'Provider rejected simulated message.'
+    else null
+  end,
+  case
+    when series.index % 19 = 0 then null
+    else timezone('utc', now()) - ((series.index * 11) || ' minutes')::interval
+  end,
+  timezone('utc', now()) - ((series.index * 11) || ' minutes')::interval
+from generate_series(1, 150) as series(index)
+on conflict (id) do nothing;

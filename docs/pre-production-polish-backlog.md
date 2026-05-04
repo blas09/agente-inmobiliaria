@@ -25,7 +25,8 @@ The goal is to complete a focused UI/UX and demo-data polish pass before prepari
 6. `P1` Settings Page Structure Cleanup
 7. `P1` Public Commercial Index
 8. `P1` Richer Demo Seed Dataset
-9. `P1` Focused QA And Manual Review
+9. `P1` Pagination For Dense Operational Lists
+10. `P1` Focused QA And Manual Review
 
 ## Tasks
 
@@ -265,6 +266,78 @@ Recommended checks for `PPP-009`:
 - Data:
   - richer seeds reset cleanly
   - seed UUID tests pass
+
+## Pagination Analysis
+
+The richer seed dataset makes pagination necessary before a production-like pilot. The goal should be to keep each operational list scannable, preserve filter state in the URL, and avoid loading unbounded tenant data into server-rendered pages.
+
+Recommended priority:
+
+- `P0 / P1`: `/dashboard/properties` needs pagination because the catalog is expected to grow quickly, status tabs now expose dense inventory segments, and the page uses a table that should stay bounded.
+- `P0 / P1`: `/dashboard/leads` needs pagination because it is one of the main daily work queues, has status tabs plus search, and will grow continuously from WhatsApp and manual intake.
+- `P1`: `/dashboard/conversations` needs pagination because it is an inbox-style list ordered by activity. It should eventually combine pagination with status tabs or inbox filters.
+- `P1`: `/dashboard/appointments` needs pagination because status tabs reduce density, but each appointment card is still relatively tall.
+- `P1`: `/dashboard/faqs` needs pagination once the FAQ library grows beyond a small editorial set. It may also benefit from category/status tabs later.
+- `P1`: `/dashboard/channels?tab=templates` needs pagination for WhatsApp templates when the template library grows.
+- `P1`: `/dashboard/channels?tab=incidents` needs pagination or a hard recent-event limit because channel events can grow fast and should not render unbounded history.
+- `P2`: `/dashboard/platform/tenants` should get pagination before real platform operations with many tenants, but it is less urgent for a single-tenant pilot.
+- `P2`: settings team and pipeline sections do not need pagination for MVP unless the team or pipeline becomes unusually large.
+- `No pagination for now`: dashboard summary widgets and detail sublists should stay intentionally capped instead of paginated.
+
+Implementation guidance:
+
+- Add a shared server-side pagination helper for URL params, bounds, offsets, and page size.
+- Prefer database-level `range` / `limit` plus total count over fetching all rows and slicing in UI.
+- Preserve existing filters and tabs when changing page.
+- Reset to page 1 when search or status filters change.
+- Use conservative default page sizes: 12 for card grids, 20 for tables, 10 for tall appointment/conversation cards.
+- Keep tenant filters in every paginated query.
+
+### PPP-010 - Pagination For Dense Operational Lists
+
+Status: `todo`
+Priority: `P1`
+Type: `MVP`
+Primary roles: Project Leader / Technical Lead, Backend / Security, Frontend Engineer, UI/UX Specialist, QA Engineer / Test Agent
+
+Problem:
+
+After enriching the seed data, dense list pages can render too many records at once and become harder to scan.
+
+Scope:
+
+- Add pagination to:
+  - `/dashboard/properties`
+  - `/dashboard/leads`
+  - `/dashboard/conversations`
+  - `/dashboard/appointments`
+  - `/dashboard/faqs`
+  - `/dashboard/channels?tab=templates`
+  - `/dashboard/channels?tab=incidents`
+- Consider `/dashboard/platform/tenants` after the tenant list is expanded.
+- Keep filters, tabs, and search state in URL params.
+- Add or reuse a small pagination UI component.
+- Update list queries to fetch bounded results with total counts.
+
+Out of scope:
+
+- Infinite scroll.
+- Client-side data fetching rewrite.
+- Broad dashboard redesign.
+- Advanced sorting or saved views.
+
+Acceptance criteria:
+
+- Dense operational lists render a bounded number of rows/cards.
+- Page navigation preserves active tab and filters.
+- Tenant-scoped queries remain tenant-scoped.
+- Empty states still work with filters and pages.
+- Page params are validated and invalid values fall back safely.
+
+Verification:
+
+- Run lint, typecheck, and focused tests.
+- Manually review dense seeded data for properties, leads, conversations, appointments, FAQs, channel templates, and channel incidents.
 
 ### PPP-002 - Lead Detail Page Density Reduction
 
