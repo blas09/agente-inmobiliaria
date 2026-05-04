@@ -268,10 +268,15 @@ Recommended checks for `PPP-009`:
 
 ### PPP-002 - Lead Detail Page Density Reduction
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: UI/UX Specialist, Frontend Engineer, Commercial Domain, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-04: Started implementation together with `PPP-003`.
+- 2026-05-04: Completed lead detail density reduction with compact overview, focused operational sections, and progressive disclosure for secondary history.
 
 Problem:
 
@@ -304,12 +309,25 @@ Verification:
 - Validate route `/dashboard/leads/ffffffff-ffff-4fff-8fff-ffffffffffff`.
 - Confirm lead routing and appointment scheduling still work.
 
+Completion notes:
+
+- Replaced repeated top metric/profile blocks with a single compact commercial overview.
+- Kept routing and appointment scheduling available as primary operational forms.
+- Moved notes, conversations, visits, and pipeline history into grouped sections with progressive disclosure.
+- Preserved existing permission checks and server actions.
+- Verification run: `pnpm lint`, `pnpm test`, `./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json`.
+
 ### PPP-003 - Advisor Dashboard Focus Pass
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: UI/UX Specialist, Frontend Engineer, Commercial Domain, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-04: Started implementation together with `PPP-002`.
+- 2026-05-04: Completed advisor-focused dashboard view with assigned leads, assigned conversations, upcoming visits, and reduced admin reporting density.
 
 Problem:
 
@@ -339,6 +357,14 @@ Verification:
 - Manual check as advisor.
 - Manual check as tenant owner/admin.
 - Confirm no role loses required access.
+
+Completion notes:
+
+- Added a role-aware advisor dashboard branch while keeping owner/admin dashboard behavior intact.
+- Scoped advisor lead counts and recent lead lists to the authenticated advisor.
+- Scoped advisor conversation and upcoming appointment data to the authenticated advisor where applicable.
+- Added upcoming appointment data to dashboard summary for the advisor operational view.
+- Verification run: `pnpm lint`, `pnpm test`, `./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json`.
 
 ### PPP-004 - Platform Admin Navigation Cleanup
 

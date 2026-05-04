@@ -87,6 +87,51 @@ export default async function LeadDetailPage({
     `/dashboard/leads/${lead.id}`,
     "/dashboard/appointments",
   ]);
+  const advisorLabel =
+    assignedAdvisor?.user_profiles?.full_name ??
+    assignedAdvisor?.user_profiles?.email ??
+    "Sin asignar";
+  const contactLabel = lead.phone ?? lead.email ?? "Sin contacto";
+  const budgetLabel =
+    lead.budget_min || lead.budget_max
+      ? `${lead.budget_min ?? "-"} / ${lead.budget_max ?? "-"}`
+      : "Sin definir";
+  const zoneLabel =
+    lead.desired_neighborhood ?? lead.desired_city ?? "Sin preferencia cargada";
+  const overviewItems = [
+    {
+      label: "Etapa",
+      value: stage?.name ?? "Sin etapa",
+    },
+    {
+      label: "Asesor",
+      value: advisorLabel,
+    },
+    {
+      label: "Contacto",
+      value: contactLabel,
+    },
+    {
+      label: "Fuente",
+      value: getLeadSourceLabel(lead.source),
+    },
+    {
+      label: "Presupuesto",
+      value: budgetLabel,
+    },
+    {
+      label: "Zona objetivo",
+      value: zoneLabel,
+    },
+    {
+      label: "Interés",
+      value: getLeadInterestTypeLabel(lead.interest_type),
+    },
+    {
+      label: "Creado",
+      value: formatDateTime(lead.created_at),
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -115,11 +160,17 @@ export default async function LeadDetailPage({
           ) : null
         }
       />
-      <section className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">Estado comercial</p>
-            <div className="mt-3 flex items-center gap-3">
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <CardTitle>Resumen comercial</CardTitle>
+              <CardDescription>
+                Datos clave para decidir la próxima acción sin recorrer todo el
+                historial.
+              </CardDescription>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
               <Badge
                 variant={
                   lead.qualification_status === "qualified"
@@ -133,129 +184,21 @@ export default async function LeadDetailPage({
                 Score {lead.score ?? "-"}
               </span>
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">Etapa</p>
-            <p className="mt-3 text-lg font-semibold">
-              {stage?.name ?? "Sin etapa"}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">Asesor</p>
-            <p className="mt-3 text-lg font-semibold">
-              {assignedAdvisor?.user_profiles?.full_name ??
-                assignedAdvisor?.user_profiles?.email ??
-                "Sin asignar"}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">Creado</p>
-            <p className="mt-3 text-lg font-semibold">
-              {formatDateTime(lead.created_at)}
-            </p>
-          </CardContent>
-        </Card>
-      </section>
-      <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Perfil comercial</CardTitle>
-            <CardDescription>
-              Contexto de negocio y datos principales del lead.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm">
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-              <span className="text-muted-foreground">Interés</span>
-              <span>{getLeadInterestTypeLabel(lead.interest_type)}</span>
+          </div>
+        </CardHeader>
+        <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {overviewItems.map((item) => (
+            <div
+              className="border-border bg-card rounded-xl border px-4 py-3 text-sm"
+              key={item.label}
+            >
+              <p className="text-muted-foreground">{item.label}</p>
+              <p className="mt-1 font-semibold">{item.value}</p>
             </div>
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-              <span className="text-muted-foreground">Score</span>
-              <span>{lead.score ?? "-"}</span>
-            </div>
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-              <span className="text-muted-foreground">Asesor</span>
-              <span>
-                {assignedAdvisor?.user_profiles?.full_name ??
-                  assignedAdvisor?.user_profiles?.email ??
-                  "Sin asignar"}
-              </span>
-            </div>
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-              <span className="text-muted-foreground">Etapa</span>
-              <span>{stage?.name ?? "Sin etapa"}</span>
-            </div>
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-              <span className="text-muted-foreground">Creado</span>
-              <span>{formatDateTime(lead.created_at)}</span>
-            </div>
-            <div className="border-border bg-muted grid gap-3 rounded-xl border p-4 sm:grid-cols-2">
-              <div>
-                <p className="text-muted-foreground text-xs font-medium tracking-[0.16em] uppercase">
-                  Fuente
-                </p>
-                <p className="mt-1 font-medium">
-                  {getLeadSourceLabel(lead.source)}
-                </p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-xs tracking-[0.16em] uppercase">
-                  Contacto
-                </p>
-                <p className="mt-1 font-medium">
-                  {lead.phone ?? lead.email ?? "Sin contacto"}
-                </p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-xs tracking-[0.16em] uppercase">
-                  Presupuesto
-                </p>
-                <p className="mt-1 font-medium">
-                  {lead.budget_min || lead.budget_max
-                    ? `${lead.budget_min ?? "-"} / ${lead.budget_max ?? "-"}`
-                    : "Sin definir"}
-                </p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-xs tracking-[0.16em] uppercase">
-                  Zona objetivo
-                </p>
-                <p className="mt-1 font-medium">
-                  {lead.desired_neighborhood ??
-                    lead.desired_city ??
-                    "Sin preferencia cargada"}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Contexto y notas</CardTitle>
-            <CardDescription>
-              Observaciones internas y necesidad de handoff.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm">
-            <p className="text-foreground/80 leading-7">
-              {lead.notes ?? "Sin notas cargadas."}
-            </p>
-            <div className="border-border bg-lightprimary rounded-xl border p-4">
-              <p className="font-medium">Derivación humana</p>
-              <p className="text-muted-foreground mt-1">
-                {lead.is_human_handoff_required ? "Sí" : "No"}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+          ))}
+        </CardContent>
+      </Card>
+      <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
         {canEditLead ? (
           <LeadRoutingForm
             action={updateLeadRoutingAction.bind(null, lead.id)}
@@ -281,58 +224,79 @@ export default async function LeadDetailPage({
         ) : null}
         <Card>
           <CardHeader>
-            <CardTitle>Conversaciones asociadas</CardTitle>
+            <CardTitle>Contexto operativo</CardTitle>
             <CardDescription>
-              Historial de contacto conectado a este lead.
+              Notas internas, derivación y conversaciones vinculadas.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            {conversations.length === 0 ? (
-              <EmptyState
-                title="Sin conversaciones vinculadas"
-                description="Cuando el lead entre por WhatsApp o se lo vincule manualmente, va a aparecer acá."
-                actionHref="/dashboard/conversations"
-                actionLabel="Ver conversaciones"
-              />
-            ) : (
-              conversations.map((conversation) => (
-                <Link
-                  key={conversation.id}
-                  className="border-border bg-card hover:border-primary/25 block rounded-xl border px-4 py-3 transition hover:shadow-sm"
-                  href={`/dashboard/conversations/${conversation.id}`}
-                >
-                  <p className="font-medium">
-                    {conversation.contact_display_name ??
-                      "Conversación sin nombre"}
-                  </p>
-                  <p className="text-muted-foreground">
-                    {getConversationStatusLabel(conversation.status)} ·{" "}
-                    {formatDateTime(conversation.last_message_at)}
-                  </p>
-                  <p className="text-muted-foreground mt-1">
-                    Propiedad:{" "}
-                    {conversation.properties ? (
-                      <span className="text-foreground">
-                        {conversation.properties.title}
-                        {conversation.properties.external_ref
-                          ? ` · ${conversation.properties.external_ref}`
-                          : ""}
-                      </span>
-                    ) : conversation.property_id ? (
-                      <span className="text-foreground">
-                        Propiedad no disponible
-                      </span>
-                    ) : (
-                      <span className="text-foreground">Sin propiedad</span>
-                    )}
-                  </p>
-                </Link>
-              ))
-            )}
+          <CardContent className="space-y-4 text-sm">
+            <div className="border-border bg-lightprimary rounded-xl border p-4">
+              <p className="font-medium">Derivación humana</p>
+              <p className="text-muted-foreground mt-1">
+                {lead.is_human_handoff_required ? "Sí" : "No"}
+              </p>
+            </div>
+            <details className="border-border rounded-xl border p-4" open>
+              <summary className="cursor-pointer text-sm font-semibold">
+                Notas internas
+              </summary>
+              <p className="text-foreground/80 mt-3 leading-7">
+                {lead.notes ?? "Sin notas cargadas."}
+              </p>
+            </details>
+            <details className="border-border rounded-xl border p-4">
+              <summary className="cursor-pointer text-sm font-semibold">
+                Conversaciones asociadas ({conversations.length})
+              </summary>
+              <div className="mt-3 space-y-3">
+                {conversations.length === 0 ? (
+                  <EmptyState
+                    title="Sin conversaciones vinculadas"
+                    description="Cuando el lead entre por WhatsApp o se lo vincule manualmente, va a aparecer acá."
+                    actionHref="/dashboard/conversations"
+                    actionLabel="Ver conversaciones"
+                  />
+                ) : (
+                  conversations.map((conversation) => (
+                    <Link
+                      key={conversation.id}
+                      className="border-border bg-card hover:border-primary/25 block rounded-xl border px-4 py-3 transition hover:shadow-sm"
+                      href={`/dashboard/conversations/${conversation.id}`}
+                    >
+                      <p className="font-medium">
+                        {conversation.contact_display_name ??
+                          "Conversación sin nombre"}
+                      </p>
+                      <p className="text-muted-foreground">
+                        {getConversationStatusLabel(conversation.status)} ·{" "}
+                        {formatDateTime(conversation.last_message_at)}
+                      </p>
+                      <p className="text-muted-foreground mt-1">
+                        Propiedad:{" "}
+                        {conversation.properties ? (
+                          <span className="text-foreground">
+                            {conversation.properties.title}
+                            {conversation.properties.external_ref
+                              ? ` · ${conversation.properties.external_ref}`
+                              : ""}
+                          </span>
+                        ) : conversation.property_id ? (
+                          <span className="text-foreground">
+                            Propiedad no disponible
+                          </span>
+                        ) : (
+                          <span className="text-foreground">Sin propiedad</span>
+                        )}
+                      </p>
+                    </Link>
+                  ))
+                )}
+              </div>
+            </details>
           </CardContent>
         </Card>
       </div>
-      <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+      <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
         {canScheduleAppointment ? (
           <AppointmentForm
             action={appointmentAction}
@@ -359,90 +323,97 @@ export default async function LeadDetailPage({
         ) : null}
         <Card>
           <CardHeader>
-            <CardTitle>Visitas del lead</CardTitle>
+            <CardTitle>Seguimiento</CardTitle>
             <CardDescription>
-              Agenda interna vinculada a este lead.
+              Visitas e historial comercial disponibles sin ocupar la vista
+              principal.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            {appointments.length === 0 ? (
-              <EmptyState
-                title="Sin visitas todavía"
-                description="Podés agendar una visita interna desde este lead usando las reglas activas del tenant."
-              />
-            ) : (
-              appointments.map((appointment) => (
-                <div
-                  key={appointment.id}
-                  className="border-border bg-card rounded-xl border px-4 py-3"
-                >
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="font-medium">
-                      {formatDateTime(appointment.scheduled_at)}
-                    </p>
-                    <Badge
-                      variant={getAppointmentStatusTone(appointment.status)}
+          <CardContent className="space-y-4 text-sm">
+            <details className="border-border rounded-xl border p-4" open>
+              <summary className="cursor-pointer text-sm font-semibold">
+                Visitas del lead ({appointments.length})
+              </summary>
+              <div className="mt-3 space-y-3">
+                {appointments.length === 0 ? (
+                  <EmptyState
+                    title="Sin visitas todavía"
+                    description="Podés agendar una visita interna desde este lead usando las reglas activas del tenant."
+                  />
+                ) : (
+                  appointments.map((appointment) => (
+                    <div
+                      key={appointment.id}
+                      className="border-border bg-card rounded-xl border px-4 py-3"
                     >
-                      {getAppointmentStatusLabel(appointment.status)}
-                    </Badge>
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="font-medium">
+                          {formatDateTime(appointment.scheduled_at)}
+                        </p>
+                        <Badge
+                          variant={getAppointmentStatusTone(appointment.status)}
+                        >
+                          {getAppointmentStatusLabel(appointment.status)}
+                        </Badge>
+                      </div>
+                      <p className="text-muted-foreground mt-1">
+                        {appointment.property?.title ?? "Sin propiedad"} ·{" "}
+                        {appointment.advisor?.full_name ??
+                          appointment.advisor?.email ??
+                          "Sin asesor"}
+                      </p>
+                    </div>
+                  ))
+                )}
+                <Link
+                  className="text-primary inline-flex hover:underline"
+                  href="/dashboard/appointments"
+                >
+                  Ir a la agenda completa
+                </Link>
+              </div>
+            </details>
+            <details className="border-border rounded-xl border p-4">
+              <summary className="cursor-pointer text-sm font-semibold">
+                Historial de pipeline ({stageHistory.length})
+              </summary>
+              <div className="mt-3 grid gap-3 md:grid-cols-2">
+                {stageHistory.length === 0 ? (
+                  <div className="md:col-span-2">
+                    <EmptyState
+                      title="Sin cambios de etapa"
+                      description="El historial va a aparecer cuando el lead avance o retroceda dentro del pipeline comercial."
+                    />
                   </div>
-                  <p className="text-muted-foreground mt-1">
-                    {appointment.property?.title ?? "Sin propiedad"} ·{" "}
-                    {appointment.advisor?.full_name ??
-                      appointment.advisor?.email ??
-                      "Sin asesor"}
-                  </p>
-                </div>
-              ))
-            )}
-            <Link
-              className="text-primary hover:underline"
-              href="/dashboard/appointments"
-            >
-              Ir a la agenda completa
-            </Link>
+                ) : (
+                  stageHistory.map((entry) => {
+                    const historyStage = stages.find(
+                      (stageOption) => stageOption.id === entry.stage_id,
+                    );
+
+                    return (
+                      <div
+                        key={entry.id}
+                        className="border-border bg-card rounded-xl border px-4 py-3"
+                      >
+                        <p className="font-medium">
+                          {historyStage?.name ?? "Etapa desconocida"}
+                        </p>
+                        <p className="text-muted-foreground">
+                          {formatDateTime(entry.changed_at)}
+                        </p>
+                        {entry.notes ? (
+                          <p className="mt-1">{entry.notes}</p>
+                        ) : null}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </details>
           </CardContent>
         </Card>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Historial de pipeline</CardTitle>
-          <CardDescription>
-            Registro de cambios de etapa comerciales.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-3 text-sm md:grid-cols-2 xl:grid-cols-3">
-          {stageHistory.length === 0 ? (
-            <div className="md:col-span-2 xl:col-span-3">
-              <EmptyState
-                title="Sin cambios de etapa"
-                description="El historial va a aparecer cuando el lead avance o retroceda dentro del pipeline comercial."
-              />
-            </div>
-          ) : (
-            stageHistory.map((entry) => {
-              const historyStage = stages.find(
-                (stageOption) => stageOption.id === entry.stage_id,
-              );
-
-              return (
-                <div
-                  key={entry.id}
-                  className="border-border bg-card rounded-xl border px-4 py-3"
-                >
-                  <p className="font-medium">
-                    {historyStage?.name ?? "Etapa desconocida"}
-                  </p>
-                  <p className="text-muted-foreground">
-                    {formatDateTime(entry.changed_at)}
-                  </p>
-                  {entry.notes ? <p className="mt-1">{entry.notes}</p> : null}
-                </div>
-              );
-            })
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }

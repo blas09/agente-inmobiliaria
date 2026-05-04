@@ -5,9 +5,66 @@ import {
   buildFirstResponseReport,
   buildPipelineReport,
 } from "@/server/queries/dashboard-reporting";
+import type { Tables } from "@/types/database";
 
-export async function getDashboardSummary(tenantId: string) {
+interface DashboardSummaryOptions {
+  advisorId?: string;
+}
+
+interface DashboardUpcomingAppointment {
+  id: string;
+  scheduled_at: string;
+  status: Tables<"appointments">["status"];
+  leads: { id: string; full_name: string } | null;
+  properties: { id: string; title: string } | null;
+}
+
+export async function getDashboardSummary(
+  tenantId: string,
+  options: DashboardSummaryOptions = {},
+) {
   const supabase = await createSupabaseServerClient();
+  const leadCountQuery = supabase
+    .from("leads")
+    .select("*", { head: true, count: "exact" })
+    .eq("tenant_id", tenantId);
+  const recentLeadsQuery = supabase
+    .from("leads")
+    .select(
+      "id, full_name, source, qualification_status, assigned_to, created_at",
+    )
+    .eq("tenant_id", tenantId)
+    .order("created_at", { ascending: false })
+    .limit(5);
+  const openConversationsQuery = supabase
+    .from("conversations")
+    .select("*", { head: true, count: "exact" })
+    .eq("tenant_id", tenantId)
+    .neq("status", "closed");
+  const recentConversationsQuery = supabase
+    .from("conversations")
+    .select("id, status, contact_display_name, last_message_at")
+    .eq("tenant_id", tenantId)
+    .order("last_message_at", { ascending: false })
+    .limit(5);
+  const upcomingAppointmentsQuery = supabase
+    .from("appointments")
+    .select(
+      "id, scheduled_at, status, leads(id, full_name), properties(id, title)",
+    )
+    .eq("tenant_id", tenantId)
+    .in("status", ["scheduled", "confirmed"])
+    .gte("scheduled_at", new Date().toISOString())
+    .order("scheduled_at", { ascending: true })
+    .limit(5);
+
+  if (options.advisorId) {
+    leadCountQuery.eq("assigned_to", options.advisorId);
+    recentLeadsQuery.eq("assigned_to", options.advisorId);
+    openConversationsQuery.eq("assigned_to", options.advisorId);
+    recentConversationsQuery.eq("assigned_to", options.advisorId);
+    upcomingAppointmentsQuery.eq("advisor_id", options.advisorId);
+  }
 
   const [
     properties,
@@ -19,6 +76,7 @@ export async function getDashboardSummary(tenantId: string) {
     leadReportRows,
     pipelineStages,
     appointments,
+    upcomingAppointments,
     messages,
   ] = await Promise.all([
     supabase
@@ -26,28 +84,11 @@ export async function getDashboardSummary(tenantId: string) {
       .select("*", { head: true, count: "exact" })
       .eq("tenant_id", tenantId)
       .eq("status", "available"),
-    supabase
-      .from("leads")
-      .select("*", { head: true, count: "exact" })
-      .eq("tenant_id", tenantId),
-    supabase
-      .from("conversations")
-      .select("*", { head: true, count: "exact" })
-      .eq("tenant_id", tenantId)
-      .neq("status", "closed"),
+    leadCountQuery,
+    openConversationsQuery,
     supabase.from("leads").select("source").eq("tenant_id", tenantId),
-    supabase
-      .from("leads")
-      .select("id, full_name, source, qualification_status, created_at")
-      .eq("tenant_id", tenantId)
-      .order("created_at", { ascending: false })
-      .limit(5),
-    supabase
-      .from("conversations")
-      .select("id, status, contact_display_name, last_message_at")
-      .eq("tenant_id", tenantId)
-      .order("last_message_at", { ascending: false })
-      .limit(5),
+    recentLeadsQuery,
+    recentConversationsQuery,
     supabase
       .from("leads")
       .select("assigned_to, pipeline_stage_id")
@@ -58,6 +99,7 @@ export async function getDashboardSummary(tenantId: string) {
       .eq("tenant_id", tenantId)
       .order("position", { ascending: true }),
     supabase.from("appointments").select("status").eq("tenant_id", tenantId),
+    upcomingAppointmentsQuery,
     supabase
       .from("messages")
       .select("conversation_id, direction, created_at")
@@ -123,5 +165,8 @@ export async function getDashboardSummary(tenantId: string) {
     firstResponseReport,
     recentLeads: recentLeads.data ?? [],
     recentConversations: recentConversations.data ?? [],
+    upcomingAppointments:
+      (upcomingAppointments.data as DashboardUpcomingAppointment[] | null) ??
+      [],
   };
 }

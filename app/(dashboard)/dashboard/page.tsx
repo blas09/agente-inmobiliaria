@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { MessageCircleMore, Building2, Users, Shield } from "lucide-react";
+import {
+  CalendarCheck2,
+  MessageCircleMore,
+  Building2,
+  Users,
+  Shield,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { CardBox } from "@/components/dashboard/card-box";
@@ -111,7 +117,213 @@ export default async function DashboardPage() {
   }
 
   const { activeTenant } = context;
-  const summary = await getDashboardSummary(activeTenant.id);
+  const activeRole = context.activeMembership?.role;
+  const isAdvisorDashboard = activeRole === "advisor";
+  const summary = await getDashboardSummary(
+    activeTenant.id,
+    isAdvisorDashboard ? { advisorId: context.user.id } : undefined,
+  );
+
+  if (isAdvisorDashboard) {
+    const pendingConversations = summary.recentConversations.filter(
+      (conversation) => conversation.status === "pending_human",
+    );
+
+    return (
+      <div className="space-y-6">
+        <ProfileWelcome
+          title="Mi operación"
+          description="Prioridades del día: leads asignados, conversaciones pendientes y próximas visitas."
+        />
+        <DashboardTopCards
+          items={[
+            {
+              key: "leads",
+              label: "Leads asignados",
+              value: formatCompactNumber(summary.metrics.leads),
+              icon: Users,
+              tone: "primary",
+            },
+            {
+              key: "pending-conversations",
+              label: "Conversaciones abiertas",
+              value: formatCompactNumber(summary.metrics.openConversations),
+              icon: MessageCircleMore,
+              tone: "warning",
+            },
+            {
+              key: "upcoming-visits",
+              label: "Próximas visitas",
+              value: formatCompactNumber(summary.upcomingAppointments.length),
+              icon: CalendarCheck2,
+              tone: "success",
+            },
+          ]}
+        />
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-12 xl:col-span-7">
+            <CardBox className="h-full w-full">
+              <CardHeader>
+                <CardTitle>Próximas acciones</CardTitle>
+                <CardDescription>
+                  Conversaciones y leads recientes para retomar primero.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-5">
+                <section className="space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold">
+                      Conversaciones pendientes
+                    </p>
+                    <Badge variant="lightWarning">
+                      {pendingConversations.length}
+                    </Badge>
+                  </div>
+                  {pendingConversations.length === 0 ? (
+                    <p className="text-muted-foreground text-sm">
+                      No hay conversaciones recientes pendientes de atención.
+                    </p>
+                  ) : (
+                    pendingConversations.map((conversation) => (
+                      <Link
+                        key={conversation.id}
+                        href={`/dashboard/conversations/${conversation.id}`}
+                        className="border-border hover:border-primary/20 hover:bg-lightprimary/30 block rounded-xl border px-4 py-3 transition"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="font-medium">
+                            {conversation.contact_display_name ??
+                              "Contacto sin nombre"}
+                          </p>
+                          <Badge variant="lightWarning">
+                            {getConversationStatusLabel(conversation.status)}
+                          </Badge>
+                        </div>
+                        <p className="text-muted-foreground text-sm">
+                          {formatDateTime(conversation.last_message_at)}
+                        </p>
+                      </Link>
+                    ))
+                  )}
+                </section>
+                <section className="space-y-3">
+                  <p className="text-sm font-semibold">
+                    Leads asignados recientes
+                  </p>
+                  {summary.recentLeads.length === 0 ? (
+                    <EmptyState
+                      title="Sin leads recientes"
+                      description="Cuando tengas leads nuevos o actualizados, van a aparecer acá."
+                      actionHref="/dashboard/leads"
+                      actionLabel="Ver leads"
+                    />
+                  ) : (
+                    summary.recentLeads.map((lead) => (
+                      <Link
+                        key={lead.id}
+                        href={`/dashboard/leads/${lead.id}`}
+                        className="border-border hover:border-primary/20 hover:bg-lightprimary/30 block rounded-xl border px-4 py-3 transition"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="font-medium">{lead.full_name}</p>
+                          <Badge variant="gray">
+                            {getLeadQualificationStatusLabel(
+                              lead.qualification_status,
+                            )}
+                          </Badge>
+                        </div>
+                        <p className="text-muted-foreground text-sm">
+                          {getLeadSourceLabel(lead.source)} ·{" "}
+                          {formatDateTime(lead.created_at)}
+                        </p>
+                      </Link>
+                    ))
+                  )}
+                </section>
+              </CardContent>
+            </CardBox>
+          </div>
+          <div className="col-span-12 xl:col-span-5">
+            <CardBox className="h-full w-full">
+              <CardHeader>
+                <CardTitle>Agenda cercana</CardTitle>
+                <CardDescription>
+                  Visitas próximas para preparar o confirmar.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {summary.upcomingAppointments.length === 0 ? (
+                  <EmptyState
+                    title="Sin visitas próximas"
+                    description="Las visitas agendadas o confirmadas van a aparecer acá."
+                    actionHref="/dashboard/appointments"
+                    actionLabel="Ver agenda"
+                  />
+                ) : (
+                  summary.upcomingAppointments.map((appointment) => (
+                    <Link
+                      key={appointment.id}
+                      href="/dashboard/appointments"
+                      className="border-border hover:border-primary/20 hover:bg-lightprimary/30 block rounded-xl border px-4 py-3 transition"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="font-medium">
+                          {formatDateTime(appointment.scheduled_at)}
+                        </p>
+                        <Badge
+                          variant={getAppointmentStatusTone(appointment.status)}
+                        >
+                          {getAppointmentStatusLabel(appointment.status)}
+                        </Badge>
+                      </div>
+                      <p className="text-muted-foreground mt-1 text-sm">
+                        {appointment.leads?.full_name ?? "Lead sin nombre"} ·{" "}
+                        {appointment.properties?.title ?? "Sin propiedad"}
+                      </p>
+                    </Link>
+                  ))
+                )}
+              </CardContent>
+            </CardBox>
+          </div>
+          <div className="col-span-12">
+            <CardBox>
+              <CardHeader>
+                <CardTitle>Resumen rápido</CardTitle>
+                <CardDescription>
+                  Señales comerciales útiles sin vista administrativa completa.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-4 text-sm md:grid-cols-3">
+                <div className="border-border rounded-xl border px-4 py-3">
+                  <span className="text-muted-foreground">
+                    Primera respuesta
+                  </span>
+                  <p className="mt-1 font-semibold">
+                    {formatResponseMinutes(
+                      summary.firstResponseReport.averageFirstResponseMinutes,
+                    )}
+                  </p>
+                </div>
+                <div className="border-border rounded-xl border px-4 py-3">
+                  <span className="text-muted-foreground">Respondidas</span>
+                  <p className="mt-1 font-semibold">
+                    {summary.firstResponseReport.respondedConversations}
+                  </p>
+                </div>
+                <div className="border-border rounded-xl border px-4 py-3">
+                  <span className="text-muted-foreground">Pendientes</span>
+                  <p className="mt-1 font-semibold">
+                    {summary.firstResponseReport.pendingResponseConversations}
+                  </p>
+                </div>
+              </CardContent>
+            </CardBox>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
