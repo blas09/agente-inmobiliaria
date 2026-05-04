@@ -368,10 +368,15 @@ Completion notes:
 
 ### PPP-004 - Platform Admin Navigation Cleanup
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `bug`
 Primary roles: Project Leader / Technical Lead, Frontend Engineer, Backend / Security, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-04: Started platform admin navigation cleanup.
+- 2026-05-04: Completed platform-only navigation behavior for platform admins without an active tenant role.
 
 Problem:
 
@@ -400,6 +405,14 @@ Verification:
 
 - Manual check as `admin@platform.local`.
 - Manual check as tenant owner/admin/advisor.
+
+Completion notes:
+
+- Updated `getSidebarItems` so platform admins without an active tenant role see only platform navigation.
+- Preserved tenant navigation when a platform admin also has an active tenant membership.
+- Kept tenant-role filtering for channels/settings unchanged.
+- Added sidebar item unit tests for platform-only, platform-with-tenant, and non-admin tenant navigation.
+- Verification run: `pnpm test -- tests/sidebar-items.test.ts`, `pnpm lint`, `pnpm typecheck`.
 
 ### PPP-005 - Channels Page Progressive Disclosure
 

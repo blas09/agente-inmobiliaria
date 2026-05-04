@@ -14,6 +14,23 @@ export function getSidebarItems(
   isPlatformAdmin: boolean,
   role: TenantRole | null | undefined,
 ): SidebarItem[] {
+  const platformItems: SidebarItem = {
+    heading: "Platform",
+    id: "platform-heading",
+    children: [
+      {
+        id: "platform-tenants",
+        name: "Tenants",
+        icon: "solar:shield-user-linear",
+        url: "/dashboard/platform/tenants",
+      },
+    ],
+  };
+
+  if (isPlatformAdmin && !role) {
+    return [platformItems];
+  }
+
   const items: SidebarItem[] = [
     {
       id: "core-heading",
@@ -77,18 +94,7 @@ export function getSidebarItems(
   }
 
   if (isPlatformAdmin) {
-    items.push({
-      heading: "Platform",
-      id: "platform-heading",
-      children: [
-        {
-          id: "platform-tenants",
-          name: "Tenants",
-          icon: "solar:shield-user-linear",
-          url: "/dashboard/platform/tenants",
-        },
-      ],
-    });
+    items.push(platformItems);
   }
 
   return items;
