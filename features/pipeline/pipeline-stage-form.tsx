@@ -43,10 +43,7 @@ export function PipelineStageForm({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form
-          action={formAction}
-          className="grid gap-4 md:grid-cols-[1.3fr_0.7fr_1fr_auto]"
-        >
+        <form action={formAction} className="grid gap-4 lg:grid-cols-3">
           <FormField
             htmlFor={`name-${title}`}
             label="Nombre"
@@ -81,8 +78,8 @@ export function PipelineStageForm({
               ))}
             </NativeSelect>
           </FormField>
-          <div className="flex items-end gap-3">
-            <label className="border-border bg-card flex items-center gap-2 rounded-full border px-3 py-2 text-sm">
+          <div className="flex flex-col gap-3 lg:col-span-3 lg:flex-row lg:items-center lg:justify-between">
+            <label className="border-border bg-card flex w-fit items-center gap-2 rounded-full border px-3 py-2 text-sm">
               <input
                 defaultChecked={initialValues?.is_default ?? false}
                 name="is_default"
@@ -90,11 +87,7 @@ export function PipelineStageForm({
               />
               Predeterminada
             </label>
-            <SubmitButton
-              label="Guardar"
-              pendingLabel="Guardando..."
-              shape="pill"
-            />
+            <SubmitButton label="Guardar" pendingLabel="Guardando..." />
           </div>
         </form>
         {state.message ? (

@@ -29,6 +29,7 @@ export default async function PlatformTenantsPage() {
     <div className="space-y-6">
       <ProfileWelcome
         title="Tenants"
+        description="Administración de workspaces de plataforma, estado operativo y configuración base."
         action={
           <Link href="/dashboard/platform/tenants/new">
             <Button>Nuevo tenant</Button>

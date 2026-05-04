@@ -151,7 +151,7 @@ export default async function ChannelsPage() {
             </div>
           </div>
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <p className="font-medium">Incidentes recientes</p>
               <span className="text-muted-foreground text-xs">
                 desde {formatDateTime(health.since)}
@@ -197,8 +197,8 @@ export default async function ChannelsPage() {
           return (
             <CardBox key={channel.id}>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
                     <CardTitle>{channel.display_name}</CardTitle>
                     <CardDescription className="mt-1">
                       {getChannelProviderLabel(channel.provider)} ·{" "}
@@ -206,6 +206,7 @@ export default async function ChannelsPage() {
                     </CardDescription>
                   </div>
                   <Badge
+                    className="w-fit"
                     variant={
                       channel.status === "connected"
                         ? "lightSuccess"
@@ -318,7 +319,7 @@ export default async function ChannelsPage() {
                           : "Sin registrar"}
                       </p>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="border-border bg-card flex flex-wrap gap-2 rounded-xl border p-3">
                       <form action={updateWhatsAppTemplateStatusAction}>
                         <input
                           name="template_id"
@@ -326,7 +327,7 @@ export default async function ChannelsPage() {
                           value={template.id}
                         />
                         <input name="status" type="hidden" value="approved" />
-                        <Button size="sm" variant="secondary" type="submit">
+                        <Button size="sm" variant="lightsuccess" type="submit">
                           Aprobar
                         </Button>
                       </form>
@@ -348,7 +349,7 @@ export default async function ChannelsPage() {
                           value={template.id}
                         />
                         <input name="status" type="hidden" value="rejected" />
-                        <Button size="sm" variant="ghost" type="submit">
+                        <Button size="sm" variant="ghosterror" type="submit">
                           Rechazar
                         </Button>
                       </form>

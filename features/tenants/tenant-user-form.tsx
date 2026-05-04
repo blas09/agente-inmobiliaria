@@ -57,10 +57,7 @@ export function AddTenantUserForm({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form
-          action={formAction}
-          className="grid gap-4 md:grid-cols-[1.6fr_1fr_auto]"
-        >
+        <form action={formAction} className="grid gap-4 md:grid-cols-2">
           <FormField
             htmlFor="email"
             label="Email"
@@ -83,7 +80,7 @@ export function AddTenantUserForm({
               ))}
             </NativeSelect>
           </FormField>
-          <div className="flex items-end">
+          <div className="flex items-end md:col-span-2">
             <SubmitButton
               label="Agregar"
               pendingLabel="Guardando..."
@@ -131,21 +128,22 @@ function TenantUserRow({
   return (
     <Card>
       <CardContent>
-        <form
-          action={formAction}
-          className="grid gap-4 md:grid-cols-[1.5fr_1fr_1fr_auto]"
-        >
+        <form action={formAction} className="grid gap-4 lg:grid-cols-2">
           <input name="member_id" type="hidden" value={user.id} />
-          <div className="border-border bg-muted space-y-2 rounded-xl border p-4">
-            <p className="font-medium">
-              {user.user_profiles?.full_name ?? "Perfil sin sincronizar"}
-            </p>
-            <p className="text-muted-foreground text-sm">
-              {user.user_profiles?.email ?? user.user_id}
-            </p>
-            <Badge className="w-fit" variant="lightPrimary">
-              {getMembershipStatusLabel(user.status)}
-            </Badge>
+          <div className="border-border bg-muted rounded-xl border p-4 lg:col-span-2">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <p className="font-medium">
+                  {user.user_profiles?.full_name ?? "Perfil sin sincronizar"}
+                </p>
+                <p className="text-muted-foreground mt-1 text-sm break-all">
+                  {user.user_profiles?.email ?? user.user_id}
+                </p>
+              </div>
+              <Badge className="w-fit" variant="lightPrimary">
+                {getMembershipStatusLabel(user.status)}
+              </Badge>
+            </div>
           </div>
           <input
             name="email"
@@ -178,7 +176,7 @@ function TenantUserRow({
               ))}
             </NativeSelect>
           </FormField>
-          <div className="flex items-end">
+          <div className="flex items-end lg:col-span-2">
             <SubmitButton
               label="Actualizar"
               pendingLabel="Guardando..."

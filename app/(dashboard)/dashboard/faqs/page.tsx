@@ -65,8 +65,8 @@ export default async function FaqsPage() {
           {faqs.map((faq) => (
             <CardBox key={faq.id}>
               <CardHeader>
-                <div className="flex items-center justify-between gap-3">
-                  <div className="space-y-1">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0 space-y-1">
                     {canManageTenantFaqs ? (
                       <Link href={`/dashboard/faqs/${faq.id}/edit`}>
                         <CardTitle className="hover:text-primary text-base">
@@ -83,6 +83,7 @@ export default async function FaqsPage() {
                     </CardDescription>
                   </div>
                   <Badge
+                    className="w-fit"
                     variant={
                       faq.status === "active" ? "lightSuccess" : "outline"
                     }
@@ -92,7 +93,7 @@ export default async function FaqsPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground text-sm leading-6">
+                <p className="text-muted-foreground line-clamp-4 text-sm leading-6">
                   {faq.answer}
                 </p>
               </CardContent>

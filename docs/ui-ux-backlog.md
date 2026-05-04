@@ -653,10 +653,30 @@ Verification:
 
 ### UI-010 - Secondary Admin Screen Polish
 
-Status: `todo`
+Status: `done`
 Priority: `P2`
 Type: `UI/UX`
 Primary roles: Product Owner, UI/UX Specialist, Frontend Engineer, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Reviewing settings, tenant users, pipeline stages, channels, templates, FAQs, and platform tenant screens for admin clarity.
+- 2026-05-03: Completed. Reduced settings density with action sheets, improved admin list hierarchy, clarified channel/template actions, and added platform tenant page context.
+
+Completed:
+
+- Reworked settings tenant summary into compact read-only context with editing available through an action sheet.
+- Moved add-member and create-pipeline-stage actions into action sheets to reduce admin page density.
+- Improved tenant user and pipeline stage edit forms with clearer responsive grids and less cramped actions.
+- Clarified channel cards, incident headers, template status actions, and destructive/status-changing controls.
+- Improved FAQ cards so long answers do not dominate the list view.
+- Added context copy to platform tenant administration.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
 
 Problem:
 
