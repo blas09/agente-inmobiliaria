@@ -416,10 +416,16 @@ Completion notes:
 
 ### PPP-005 - Channels Page Progressive Disclosure
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `MVP`
 Primary roles: UI/UX Specialist, Frontend Engineer, Integrations / WhatsApp, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-04: Started channels page progressive disclosure pass.
+- 2026-05-04: Completed channels page progressive disclosure and provider-state clarification.
+- 2026-05-04: Reworked the page from nested expandable sections into URL-driven tabs to reduce visual nesting.
 
 Problem:
 
@@ -449,6 +455,14 @@ Verification:
 - Manual check as tenant owner/admin.
 - Confirm template create/status actions still work.
 - Confirm channel health still renders with richer seed data.
+
+Completion notes:
+
+- Added a provider-state summary that distinguishes operational readiness from pending WhatsApp provider validation.
+- Replaced the nested expandable layout with tabs for `Estado`, `Plantillas`, `Nueva plantilla`, and `Incidentes`.
+- Flattened tab content into rows and simple metric blocks to avoid card-within-card visual saturation.
+- Kept template creation, template status actions, channel health, and incident review available without changing server actions.
+- Verification run: `pnpm lint`, `pnpm typecheck`, `pnpm test`.
 
 ### PPP-006 - Settings Page Structure Cleanup
 
