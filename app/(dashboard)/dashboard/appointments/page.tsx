@@ -32,6 +32,33 @@ import { getAssignableTenantUsers } from "@/server/queries/tenants";
 import { formatDateTime } from "@/lib/utils";
 import { canManageAppointments } from "@/lib/permissions";
 
+const appointmentStatusTabs = [
+  { id: "all", label: "Todas" },
+  ...Object.entries(appointmentStatusLabels).map(([status, label]) => ({
+    id: status,
+    label,
+  })),
+];
+
+function getAppointmentTabHref(status: string, advisor: string | undefined) {
+  const params = new URLSearchParams();
+
+  if (status !== "all") {
+    params.set("status", status);
+  }
+
+  if (advisor && advisor !== "all") {
+    params.set("advisor", advisor);
+  }
+
+  const query = params.toString();
+  return query ? `/dashboard/appointments?${query}` : "/dashboard/appointments";
+}
+
+function resolveAppointmentStatus(status: string | undefined) {
+  return status && status in appointmentStatusLabels ? status : "all";
+}
+
 export default async function AppointmentsPage({
   searchParams,
 }: {
@@ -41,13 +68,13 @@ export default async function AppointmentsPage({
   const { activeTenant, activeMembership } = await getActiveTenantContext();
   const canEditAppointments = canManageAppointments(activeMembership.role);
   const appointmentRules = getAppointmentRules(activeTenant.settings);
+  const activeStatus = resolveAppointmentStatus(params.status);
   const hasActiveFilters = Boolean(
-    (params.status && params.status !== "all") ||
-    (params.advisor && params.advisor !== "all"),
+    activeStatus !== "all" || (params.advisor && params.advisor !== "all"),
   );
   const [appointments, advisors, properties] = await Promise.all([
     listAppointments(activeTenant.id, {
-      status: params.status,
+      status: activeStatus,
       advisorId: params.advisor,
     }),
     getAssignableTenantUsers(activeTenant.id),
@@ -99,63 +126,66 @@ export default async function AppointmentsPage({
           {activeTenant.timezone}
         </CardContent>
       </CardBox>
-      <CardBox>
-        <CardHeader>
-          <CardTitle>Vista de agenda</CardTitle>
-          <CardDescription>
-            Filtrá por estado o asesor para revisar el avance operativo.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form
-            className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto]"
-            method="get"
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-2xl font-semibold">Vista de agenda</h2>
+          <p className="text-muted-foreground mt-2">
+            Usá los estados como tabs y filtrá por asesor cuando necesites
+            revisar una operación puntual.
+          </p>
+        </div>
+        <nav className="border-border flex gap-2 overflow-x-auto border-b">
+          {appointmentStatusTabs.map((tab) => (
+            <Link
+              className={
+                activeStatus === tab.id
+                  ? "border-primary text-primary border-b-2 px-4 py-3 text-sm font-semibold whitespace-nowrap"
+                  : "text-muted-foreground hover:text-foreground px-4 py-3 text-sm font-medium whitespace-nowrap"
+              }
+              href={getAppointmentTabHref(tab.id, params.advisor)}
+              key={tab.id}
+            >
+              {tab.label}
+            </Link>
+          ))}
+        </nav>
+        <form
+          className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]"
+          method="get"
+        >
+          {activeStatus !== "all" ? (
+            <input name="status" type="hidden" value={activeStatus} />
+          ) : null}
+          <NativeSelect
+            aria-label="Filtrar por asesor"
+            defaultValue={params.advisor ?? "all"}
+            name="advisor"
           >
-            <NativeSelect
-              aria-label="Filtrar por estado"
-              defaultValue={params.status ?? "all"}
-              name="status"
+            <option value="all">Todos los asesores</option>
+            {advisors.map((advisor) => (
+              <option key={advisor.user_id} value={advisor.user_id}>
+                {advisor.user_profiles?.full_name ??
+                  advisor.user_profiles?.email ??
+                  advisor.user_id}
+              </option>
+            ))}
+          </NativeSelect>
+          <Button className="w-full" type="submit" variant="lightprimary">
+            Aplicar
+          </Button>
+          {hasActiveFilters ? (
+            <Link
+              className={buttonVariants({
+                variant: "outline",
+                className: "w-full",
+              })}
+              href="/dashboard/appointments"
             >
-              <option value="all">Todos los estados</option>
-              {Object.entries(appointmentStatusLabels).map(
-                ([status, label]) => (
-                  <option key={status} value={status}>
-                    {label}
-                  </option>
-                ),
-              )}
-            </NativeSelect>
-            <NativeSelect
-              aria-label="Filtrar por asesor"
-              defaultValue={params.advisor ?? "all"}
-              name="advisor"
-            >
-              <option value="all">Todos los asesores</option>
-              {advisors.map((advisor) => (
-                <option key={advisor.user_id} value={advisor.user_id}>
-                  {advisor.user_profiles?.full_name ??
-                    advisor.user_profiles?.email ??
-                    advisor.user_id}
-                </option>
-              ))}
-            </NativeSelect>
-            <Button className="w-full" type="submit" variant="lightprimary">
-              Aplicar
-            </Button>
-            {hasActiveFilters ? (
-              <Link
-                className={buttonVariants({
-                  variant: "outline",
-                  className: "w-full",
-                })}
-                href="/dashboard/appointments"
-              >
-                Limpiar
-              </Link>
-            ) : null}
-          </form>
-        </CardContent>
-      </CardBox>
+              Limpiar
+            </Link>
+          ) : null}
+        </form>
+      </section>
       {appointments.length === 0 ? (
         <EmptyState
           title={
