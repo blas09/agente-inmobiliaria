@@ -65,7 +65,7 @@ export function MetricCard({
   return (
     <div
       className={cn(
-        "flex min-h-[8.75rem] flex-col items-center justify-center gap-3 rounded-lg px-5 py-6 text-center transition-transform duration-200 hover:scale-[1.02]",
+        "flex min-h-[8.75rem] flex-col items-center justify-center gap-3 rounded-md px-5 py-6 text-center",
         styles.card,
         className,
       )}

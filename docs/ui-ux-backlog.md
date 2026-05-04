@@ -596,10 +596,30 @@ Verification:
 
 ### UI-009 - Visual System Cleanup
 
-Status: `todo`
+Status: `done`
 Priority: `P2`
 Type: `UI/UX`
 Primary roles: UI/UX Specialist, Frontend Engineer
+
+Progress notes:
+
+- 2026-05-03: Started. Reviewing shared card, metric, button, badge, input, and page wrapper patterns for visible UI drift.
+- 2026-05-03: Completed. Standardized shared card wrappers, control radius, button and badge wrapping behavior, and removed a global badge override that could create inconsistent sizing.
+
+Completed:
+
+- Aligned `Card` and `CardBox` around the same border, radius, background, and title color behavior.
+- Removed the inline `CardBox` border-radius style so shared card styling stays centralized.
+- Standardized text input radius with select and textarea controls.
+- Adjusted buttons and badges to tolerate longer Spanish labels without forced horizontal overflow.
+- Removed a global badge font-size override now that badges expose their `data-slot` explicitly.
+- Removed hover scale from shared metric cards to keep dashboard surfaces steadier and more utilitarian.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
 
 Problem:
 
