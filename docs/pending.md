@@ -8,7 +8,7 @@ Current MVP flow:
 
 ## Current Release State
 
-Status: internal manual testing, UI/UX polish, operational readiness documentation, and security permissions review completed with pilot caveats; real tenant onboarding grooming proposed before a supervised customer MVP.
+Status: internal manual testing, UI/UX polish, operational readiness documentation, security permissions review, and real tenant onboarding documentation completed with pilot caveats before a supervised customer MVP.
 
 Reference:
 
@@ -18,21 +18,23 @@ Reference:
 - [Operational MVP Readiness Backlog](./operational-readiness-backlog.md)
 - [Security And Permissions Review Backlog](./security-permissions-review-backlog.md)
 - [Real Tenant Onboarding Backlog](./real-tenant-onboarding-backlog.md)
+- [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md)
 
 The implementation backlog for the first MVP cut is complete. The UI/UX MVP polish backlog is complete. The operational readiness block is documented in [Supervised Pilot Operations Runbook](./pilot-operations-runbook.md).
-The current proposed next phase is to review and execute the real tenant onboarding backlog for a supervised pilot, after confirming the documented security caveats.
+The real tenant onboarding block is documented in [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md).
+The current proposed next phase is `Pilot Readiness` grooming for a supervised customer pilot.
 
 ## Required Before Customer-Facing MVP
 
-1. Review and approve `real-tenant-onboarding-backlog.md`.
-2. Execute approved real tenant onboarding tasks.
-3. Complete pilot readiness grooming after real tenant onboarding.
-4. Confirm whether real WhatsApp provider delivery is part of the first customer pilot.
-5. If real WhatsApp delivery is in scope, verify valid Meta credentials, template behavior, and `WHATSAPP_APP_SECRET`.
+1. Complete `Pilot Readiness` grooming.
+2. Confirm whether real WhatsApp provider delivery is part of the first customer pilot.
+3. If real WhatsApp delivery is in scope, verify valid Meta credentials, template behavior, and `WHATSAPP_APP_SECRET`.
+4. Execute final go/no-go checklist for the supervised pilot.
 
 ## Known Caveats
 
 - Security and permissions review is complete, but pilot caveats remain documented in `security-permissions-review-backlog.md`.
+- Real tenant onboarding is documented, but actual first-customer data and setup still need to be executed for the selected pilot tenant.
 - Real Meta outbound delivery requires valid provider credentials.
 - Real Meta template approval/sync is post-MVP unless it blocks the pilot.
 - No persistent distributed rate limiter is implemented for public endpoints.

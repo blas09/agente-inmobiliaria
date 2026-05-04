@@ -2,7 +2,7 @@
 
 Date: 2026-05-04
 
-Status: proposed for review.
+Status: completed for operational review.
 
 This grooming covers the next project stage defined in [MVP Path To Customer Use](./mvp-path.md): `Real Tenant Onboarding`.
 
@@ -53,11 +53,24 @@ The product already supports manual tenant creation, user invitations, role assi
 
 This phase should use the existing admin and settings surfaces instead of building self-service onboarding. Any data that cannot be loaded through existing UI or safe manual setup should become a focused task only if it blocks the first pilot tenant.
 
+## Completion Result
+
+Completion date: 2026-05-04
+
+Decision: real tenant onboarding is documented and ready for operational review. The project can move to `Pilot Readiness` grooming after the team reviews [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md) and confirms whether the first pilot will include real WhatsApp provider delivery.
+
+Pilot caveats:
+
+- Onboarding remains manual and supervised.
+- Customer data intake must be completed before tenant setup starts.
+- If real WhatsApp provider delivery is in scope, credentials, webhook reachability, and `WHATSAPP_APP_SECRET` must be confirmed before pilot readiness.
+- Automated imports, self-service onboarding, billing, public signup, and broad production launch automation remain out of scope.
+
 ## Tasks
 
 ### RTO-001 - Customer Data Intake Template
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: Product Owner, Project Manager, Commercial Domain
@@ -91,9 +104,16 @@ Verification:
 - Review against the setup needs in `pilot-operations-runbook.md`.
 - Dry-run the template with sample tenant data.
 
+Completion notes:
+
+- Covered in [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md), section `2. Customer Data Intake Template`.
+- Required, optional, and WhatsApp-specific data are separated.
+- Missing required data is defined as an onboarding blocker.
+- Data quality gate is documented before setup.
+
 ### RTO-002 - First Tenant Setup Checklist
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: Project Manager, Project Leader / Technical Lead, Backend / Security
@@ -127,9 +147,15 @@ Verification:
 - Execute checklist against a local or staging tenant with sample data.
 - Confirm the tenant appears correctly in the platform tenant list and active tenant context.
 
+Completion notes:
+
+- Covered in [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md), sections `1. Onboarding Record`, `3. Data Quality Gate`, and `4. Tenant Setup Checklist`.
+- Checklist includes setup owner, technical reviewer, environment, tenant configuration, caveats, and exit decision.
+- Setup remains manual and uses existing UI/admin surfaces.
+
 ### RTO-003 - Initial Users And Roles Plan
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: Product Owner, Project Manager, Backend / Security, QA Engineer / Test Agent
@@ -167,9 +193,16 @@ Verification:
 - Confirm advisor/operator can operate core flows.
 - Confirm viewer cannot perform restricted writes if included.
 
+Completion notes:
+
+- Covered in [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md), sections `2. Customer Data Intake Template` and `5. Users And Roles Verification`.
+- Requires at least one owner/admin and one daily operator role.
+- Explicitly discourages using `platform_admin` for daily customer operation.
+- Owner/admin, advisor/operator, and optional viewer verification checks are documented.
+
 ### RTO-004 - Initial Property Catalog Preparation
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: Commercial Domain, Project Manager, QA Engineer / Test Agent
@@ -205,9 +238,16 @@ Verification:
 - Property detail screens show expected data.
 - Properties can be selected from lead/conversation appointment flows.
 
+Completion notes:
+
+- Covered in [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md), sections `2. Customer Data Intake Template` and `6. Property Catalog Verification`.
+- Defines required property fields and optional fields.
+- Recommends 3 to 10 properties for the first pilot, unless the customer explicitly accepts fewer for the first walkthrough.
+- Verification links catalog data to the lead/conversation/visit walkthrough.
+
 ### RTO-005 - Appointment Rules And Pipeline Setup
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: Commercial Domain, Project Manager, Project Leader / Technical Lead, QA Engineer / Test Agent
@@ -242,9 +282,16 @@ Verification:
 - Confirm the visit appears in agenda, lead detail, and property detail.
 - Confirm a known invalid schedule is rejected.
 
+Completion notes:
+
+- Covered in [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md), sections `2. Customer Data Intake Template` and `7. Appointment Rules And Pipeline Verification`.
+- Required appointment rule fields are defined.
+- Pipeline setup expectations and default stage verification are documented.
+- Valid and invalid visit scheduling checks are included.
+
 ### RTO-006 - FAQ And Customer Response Base Preparation
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `MVP`
 Primary roles: Product Owner, Commercial Domain, UI/UX Specialist
@@ -277,9 +324,16 @@ Verification:
 - FAQs appear in the tenant FAQ list.
 - Operators can identify relevant answers quickly.
 
+Completion notes:
+
+- Covered in [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md), sections `2. Customer Data Intake Template` and `8. FAQ Verification`.
+- Initial FAQ categories are defined.
+- Spanish customer-facing answer rules are documented.
+- Internal notes and unsupported promises are explicitly disallowed in FAQ answers.
+
 ### RTO-007 - WhatsApp Channel Decision And Setup Plan
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `MVP`
 Primary roles: Product Owner, Project Leader / Technical Lead, Integrations / WhatsApp, Backend / Security
@@ -313,9 +367,16 @@ Verification:
 - If real provider is in scope, run a controlled inbound/outbound smoke test.
 - If not in scope, verify the app surfaces expected caveats without promising real delivery.
 
+Completion notes:
+
+- Covered in [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md), sections `2. Customer Data Intake Template` and `9. WhatsApp Setup Verification`.
+- WhatsApp mode must be explicitly decided as real provider, simulated/manual, or out of scope.
+- Real provider mode requires credentials, phone number ID, verify token, `WHATSAPP_APP_SECRET`, templates, webhook reachability, and smoke testing.
+- Simulated/manual or out-of-scope modes require documented customer expectations.
+
 ### RTO-008 - First Login And Active Tenant Verification
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `MVP`
 Primary roles: QA Engineer / Test Agent, Project Manager, Backend / Security
@@ -348,9 +409,15 @@ Verification:
 - Manual login walkthrough for each pilot role where practical.
 - Record any issue as `pilot blocker`, `pilot degraded`, `non-blocker`, `post-MVP`, or `invalid/test-data`.
 
+Completion notes:
+
+- Covered in [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md), sections `5. Users And Roles Verification` and `10. Core Flow Verification`.
+- Login, active tenant, role access, restricted actions, and customer-like core flow checks are documented.
+- Issue classification reuses the pilot operations runbook taxonomy.
+
 ### RTO-009 - Onboarding Exit Checklist
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `MVP`
 Primary roles: Product Owner, Project Manager, Project Leader / Technical Lead, QA Engineer / Test Agent
@@ -381,3 +448,9 @@ Verification:
 
 - Review checklist against completed onboarding tasks.
 - Confirm every unresolved item has a classification, owner, and next action.
+
+Completion notes:
+
+- Covered in [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md), sections `11. Onboarding Exit Checklist` and `12. Issue Classification`.
+- Exit decisions are defined as `ready for pilot readiness`, `blocked`, or `needs follow-up`.
+- Pause criteria are documented for tenant/security, role, login, core flow, and WhatsApp delivery risks.

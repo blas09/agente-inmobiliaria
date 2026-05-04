@@ -45,8 +45,8 @@ Practical conclusion:
 - UI/UX MVP polish is complete
 - operational readiness documentation is complete in [Supervised Pilot Operations Runbook](./pilot-operations-runbook.md)
 - security and permissions review is complete with pilot caveats in [Security And Permissions Review Backlog](./security-permissions-review-backlog.md)
-- real tenant onboarding grooming is proposed in [Real Tenant Onboarding Backlog](./real-tenant-onboarding-backlog.md)
-- the highest-value next work is to review and execute real tenant onboarding for a supervised pilot
+- real tenant onboarding documentation is complete in [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md)
+- the highest-value next work is `Pilot Readiness` grooming for a supervised pilot
 
 ## Current MVP Cut
 
