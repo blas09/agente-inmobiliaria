@@ -46,8 +46,9 @@ Practical conclusion:
 - operational readiness documentation is complete in [Supervised Pilot Operations Runbook](./pilot-operations-runbook.md)
 - security and permissions review is complete with pilot caveats in [Security And Permissions Review Backlog](./security-permissions-review-backlog.md)
 - real tenant onboarding documentation is complete in [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md)
-- pilot readiness grooming is proposed in [Pilot Readiness Backlog](./pilot-readiness-backlog.md)
-- the highest-value next work is to review and execute pilot readiness for a supervised customer pilot
+- pilot readiness documentation is complete in [Pilot Readiness Runbook](./pilot-readiness-runbook.md)
+- the current recommendation is `go with caveats` for local supervised readiness with WhatsApp in `simulated/manual` mode
+- the highest-value next work is to run the final automated checks and manual customer-like walkthrough against the selected tenant
 
 ## Current MVP Cut
 

@@ -15,8 +15,8 @@ The scoped internal MVP covers:
 Current decision:
 
 - the internal MVP flow has been manually tested
-- UI/UX polish, operational readiness documentation, security permissions review, and real tenant onboarding documentation are complete with documented caveats
-- the next product phase should focus on pilot readiness for a supervised customer pilot
+- UI/UX polish, operational readiness documentation, security permissions review, real tenant onboarding documentation, and pilot readiness documentation are complete with documented caveats
+- the current recommendation is `go with caveats` for local supervised readiness with WhatsApp in `simulated/manual` mode
 - work should continue through sequenced grooming passes
 - each grooming pass should be reviewed before execution starts
 
@@ -298,6 +298,6 @@ Exit criteria:
 
 ## Immediate Next Step
 
-Review the `Pilot Readiness` grooming output in [Pilot Readiness Backlog](./pilot-readiness-backlog.md).
+Run the final automated checks and manual customer-like walkthrough defined in [Pilot Readiness Runbook](./pilot-readiness-runbook.md).
 
-The real tenant onboarding output is documented in [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md).
+Real WhatsApp provider delivery remains outside this readiness pass until a separate Meta smoke test is completed.

@@ -2,7 +2,7 @@
 
 Date: 2026-05-04
 
-Status: proposed for review.
+Status: completed for local supervised readiness with caveats.
 
 This grooming covers the final project stage before a supervised customer MVP pilot: `Pilot Readiness`.
 
@@ -58,11 +58,27 @@ The MVP implementation, UI/UX polish, operational readiness documentation, secur
 
 This phase assumes the first tenant onboarding process has either been executed with customer-like data or is ready enough to execute before final go/no-go. If first-customer data or tenant setup is still missing, classify that as a pilot readiness blocker or accepted caveat before the final decision.
 
+## Completion Result
+
+Completion date: 2026-05-04
+
+Decision: pilot readiness is documented for local supervised execution with `WhatsApp mode: simulated/manual`.
+
+Recommendation: `go with caveats` for local supervised readiness, provided automated checks and the manual walkthrough in [Pilot Readiness Runbook](./pilot-readiness-runbook.md) pass and the pilot does not promise real WhatsApp provider delivery.
+
+Accepted caveats:
+
+- Real Meta WhatsApp inbound/outbound delivery is not part of this readiness pass.
+- Conversation workflow is validated with existing or manually prepared conversation data.
+- A separate Meta provider smoke test is required before promising real WhatsApp operation.
+- Browser-level E2E coverage is not in place; manual walkthrough remains required.
+- Public endpoint rate limiting remains a known hardening gap for broader exposure.
+
 ## Tasks
 
 ### PRD-001 - Final QA Scope And Environment Confirmation
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: Project Manager, Project Leader / Technical Lead, QA Engineer / Test Agent, Backend / Security
@@ -98,9 +114,16 @@ Verification:
 - Review against `pilot-operations-runbook.md`.
 - Execute documented checks during pilot readiness execution.
 
+Completion notes:
+
+- Covered in [Pilot Readiness Runbook](./pilot-readiness-runbook.md), section `2. Final QA Scope`.
+- Local environment and WhatsApp simulated/manual mode are documented.
+- Automated checks are defined as `pnpm lint`, `pnpm test`, and `pnpm build`, with `pnpm test` as the minimum during iteration.
+- Manual readiness checks are listed for login, active tenant, roles, catalog, leads, conversations, visits, and accepted caveats.
+
 ### PRD-002 - Customer-Like Core Flow Walkthrough
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: Product Owner, Commercial Domain, QA Engineer / Test Agent, UI/UX Specialist
@@ -135,9 +158,15 @@ Verification:
 - Manual walkthrough using the selected pilot tenant or a customer-like tenant.
 - Record findings using the pilot issue intake format.
 
+Completion notes:
+
+- Covered in [Pilot Readiness Runbook](./pilot-readiness-runbook.md), section `3. Customer-Like Walkthrough`.
+- The walkthrough validates `property -> lead -> conversation -> visit -> follow-up` without requiring real WhatsApp provider delivery.
+- Conversation validation uses existing or manually prepared conversation data.
+
 ### PRD-003 - Pilot Caveats And Known Issues Review
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: Product Owner, Project Manager, Project Leader / Technical Lead, Backend / Security, QA Engineer / Test Agent
@@ -169,9 +198,15 @@ Verification:
 - Review `pending.md`, `security-permissions-review-backlog.md`, `pilot-operations-runbook.md`, and `first-tenant-onboarding-runbook.md`.
 - Produce a final caveat list during pilot readiness execution.
 
+Completion notes:
+
+- Covered in [Pilot Readiness Runbook](./pilot-readiness-runbook.md), section `5. Caveats And Known Issues`.
+- WhatsApp real provider delivery, Meta template approval/sync, rate limiting, browser E2E, self-service onboarding, billing, Google Calendar, and advanced AI are classified.
+- Blocker conditions are documented for tenant isolation, unauthorized writes, login, active tenant, core flow, and WhatsApp expectation mismatch.
+
 ### PRD-004 - WhatsApp Pilot Mode Decision
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: Product Owner, Project Leader / Technical Lead, Integrations / WhatsApp, Backend / Security, QA Engineer / Test Agent
@@ -207,9 +242,16 @@ Verification:
 - If real provider is in scope, run controlled inbound/outbound checks during execution.
 - If not real provider, verify the pilot checklist and customer expectation wording.
 
+Completion notes:
+
+- Covered in [Pilot Readiness Runbook](./pilot-readiness-runbook.md), section `4. WhatsApp Mode Decision`.
+- Decision: `simulated/manual`.
+- Real inbound, outbound, webhook signature verification, template approval/sync, and provider lifecycle statuses are out of scope for this local readiness pass.
+- Required wording states that real WhatsApp provider delivery is not part of this readiness pass and requires a separate Meta smoke test.
+
 ### PRD-005 - Support Ownership And Issue Intake Plan
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `MVP`
 Primary roles: Project Manager, Product Owner, Project Leader / Technical Lead, QA Engineer / Test Agent
@@ -244,9 +286,15 @@ Verification:
 - Review against the support section in `pilot-operations-runbook.md`.
 - Dry-run issue intake with one sample issue.
 
+Completion notes:
+
+- Covered in [Pilot Readiness Runbook](./pilot-readiness-runbook.md), sections `6. Support Ownership` and `7. Issue Intake Format`.
+- Support, product decision, technical escalation, issue intake, and customer communication ownership slots are defined.
+- Issue classes reuse the existing pilot operations taxonomy.
+
 ### PRD-006 - Pause And Rollback Criteria
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `MVP`
 Primary roles: Product Owner, Project Manager, Project Leader / Technical Lead, Backend / Security, QA Engineer / Test Agent
@@ -279,9 +327,15 @@ Verification:
 - Review against known caveats and support runbook.
 - Tabletop one serious issue scenario before go/no-go.
 
+Completion notes:
+
+- Covered in [Pilot Readiness Runbook](./pilot-readiness-runbook.md), section `8. Pause And Rollback Criteria`.
+- Pause criteria include tenant isolation, unauthorized writes, login/active tenant failures, core flow blockers, role setup blockers, suspected data corruption, and WhatsApp expectation mismatch.
+- Practical mitigation paths are documented for tenant data, roles, core flow blockers, WhatsApp mode mismatch, and data quality issues.
+
 ### PRD-007 - Feedback Capture Plan
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `MVP`
 Primary roles: Product Owner, Project Manager, UI/UX Specialist, QA Engineer / Test Agent
@@ -312,9 +366,15 @@ Verification:
 
 - Dry-run feedback capture with one sample UX issue and one feature request.
 
+Completion notes:
+
+- Covered in [Pilot Readiness Runbook](./pilot-readiness-runbook.md), section `9. Feedback Capture Plan`.
+- Feedback classifications are defined as bug, UX friction, operational gap, feature request, post-MVP idea, and invalid/test-data.
+- The runbook explicitly prevents adding new scope directly from pilot feedback without classification.
+
 ### PRD-008 - Final Go/No-Go Checklist
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: Product Owner, Project Manager, Project Leader / Technical Lead, Backend / Security, QA Engineer / Test Agent
@@ -347,3 +407,10 @@ Verification:
 
 - Review completed pilot readiness tasks.
 - Confirm decision with Product Owner, Project Manager, and Project Leader / Technical Lead.
+
+Completion notes:
+
+- Covered in [Pilot Readiness Runbook](./pilot-readiness-runbook.md), section `10. Final Go/No-Go Checklist`.
+- Current recommendation is `go with caveats` for local supervised readiness.
+- Final execution still requires automated checks and manual walkthrough to pass against the selected tenant.
+- Real WhatsApp provider delivery must remain excluded unless a separate Meta provider smoke test is completed.
