@@ -42,7 +42,8 @@ Practical conclusion:
 
 - the system has passed a manual internal functional testing round
 - it is not ready for unsupervised real customers yet
-- the highest-value work is now to groom and execute customer-facing MVP readiness work in sequence
+- UI/UX MVP polish is complete
+- the highest-value work is now to review and execute [Operational MVP Readiness Backlog](./operational-readiness-backlog.md)
 
 ## Current MVP Cut
 

@@ -15,21 +15,21 @@ Reference:
 - [Internal Pilot Checklist](./internal-pilot-checklist.md)
 - [MVP Path To Customer Use](./mvp-path.md)
 - [UI/UX MVP Polish Backlog](./ui-ux-backlog.md)
+- [Operational MVP Readiness Backlog](./operational-readiness-backlog.md)
 
-The implementation backlog for the first MVP cut is complete. The next work should be sequenced grooming and readiness, not broad feature expansion.
+The implementation backlog for the first MVP cut is complete. The UI/UX MVP polish backlog is complete. The current proposed next phase is operational readiness for a supervised customer pilot.
 
 ## Required Before Customer-Facing MVP
 
-1. Execute approved UI/UX tasks one by one.
-2. Start with `UI-002` from `ui-ux-backlog.md`.
-3. Complete the `UI/UX MVP Polish` exit criteria.
-4. Complete the operational, security, onboarding, and pilot readiness groomings defined in `mvp-path.md`.
-5. Confirm whether real WhatsApp provider delivery is part of the first customer pilot.
-6. If real WhatsApp delivery is in scope, verify valid Meta credentials and template behavior.
+1. Review and approve `operational-readiness-backlog.md`.
+2. Execute approved operational readiness tasks one by one.
+3. Complete the security, onboarding, and pilot readiness groomings defined in `mvp-path.md`.
+4. Confirm whether real WhatsApp provider delivery is part of the first customer pilot.
+5. If real WhatsApp delivery is in scope, verify valid Meta credentials and template behavior.
 
 ## Known Caveats
 
-- UI/UX backlog is approved; implementation is pending.
+- Operational readiness backlog is proposed for review.
 - Real Meta outbound delivery requires valid provider credentials.
 - Real Meta template approval/sync is post-MVP unless it blocks the pilot.
 - No persistent distributed rate limiter is implemented for public endpoints.
