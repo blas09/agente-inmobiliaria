@@ -423,10 +423,29 @@ Verification:
 
 ### UI-006 - Form Structure And Field Help
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `UI/UX`
 Primary roles: UI/UX Specialist, Frontend Engineer, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Reviewing property and lead forms for clearer grouping, field help, and required versus optional structure.
+- 2026-05-03: Completed. Split property and lead forms into focused sections, added field help, and standardized checkbox groups for light and dark modes.
+
+Completed:
+
+- Grouped the property form into commercial data, price, location, characteristics, description, and attributes.
+- Grouped the lead form into contact, commercial interest, search criteria, routing, notes, and operational signals.
+- Added targeted helper text for required identifiers, optional fields, routing, sensitive location data, and commercial matching fields.
+- Standardized checkbox groups with bordered selectable rows that work consistently in light and dark mode.
+- Preserved existing submitted field names and validation behavior.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
 
 Problem:
 

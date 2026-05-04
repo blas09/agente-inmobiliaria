@@ -8,7 +8,13 @@ import { INITIAL_ACTION_STATE, type ActionState } from "@/types/actions";
 import { ActionFeedback } from "@/components/shared/action-feedback";
 import { FormField } from "@/components/shared/form-field";
 import { SubmitButton } from "@/components/shared/submit-button";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,11 +42,18 @@ export function LeadForm({
   return (
     <form action={formAction} className="space-y-6">
       <Card>
-        <CardContent className="grid gap-4 pt-6 md:grid-cols-2">
+        <CardHeader>
+          <CardTitle>Contacto</CardTitle>
+          <CardDescription>
+            Datos mínimos para identificar y contactar al lead.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-5 md:grid-cols-2">
           <FormField
             htmlFor="full_name"
             label="Nombre completo"
             error={state.fieldErrors?.full_name?.[0]}
+            description="Campo requerido para identificar al contacto."
           >
             <Input
               defaultValue={initialValues?.full_name ?? ""}
@@ -49,7 +62,11 @@ export function LeadForm({
               required
             />
           </FormField>
-          <FormField htmlFor="phone" label="Teléfono">
+          <FormField
+            htmlFor="phone"
+            label="Teléfono"
+            description="Principal para WhatsApp o coordinación comercial."
+          >
             <Input
               defaultValue={initialValues?.phone ?? ""}
               id="phone"
@@ -60,6 +77,7 @@ export function LeadForm({
             htmlFor="email"
             label="Email"
             error={state.fieldErrors?.email?.[0]}
+            description="Opcional, pero útil para seguimiento formal."
           >
             <Input
               defaultValue={initialValues?.email ?? ""}
@@ -68,14 +86,32 @@ export function LeadForm({
               type="email"
             />
           </FormField>
-          <FormField htmlFor="source" label="Fuente">
+          <FormField
+            htmlFor="source"
+            label="Fuente"
+            description="Origen del lead, por ejemplo web, referido o WhatsApp."
+          >
             <Input
               defaultValue={initialValues?.source ?? ""}
               id="source"
               name="source"
             />
           </FormField>
-          <FormField htmlFor="interest_type" label="Interés">
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Interés comercial</CardTitle>
+          <CardDescription>
+            Clasificación inicial para entender qué necesita el lead.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-5 md:grid-cols-2">
+          <FormField
+            htmlFor="interest_type"
+            label="Interés"
+            description="Compra, alquiler u otro tipo de necesidad."
+          >
             <NativeSelect
               defaultValue={initialValues?.interest_type ?? ""}
               id="interest_type"
@@ -89,7 +125,11 @@ export function LeadForm({
               ))}
             </NativeSelect>
           </FormField>
-          <FormField htmlFor="qualification_status" label="Estado comercial">
+          <FormField
+            htmlFor="qualification_status"
+            label="Estado comercial"
+            description="Estado operativo de calificación del lead."
+          >
             <NativeSelect
               defaultValue={initialValues?.qualification_status ?? "new"}
               id="qualification_status"
@@ -104,6 +144,28 @@ export function LeadForm({
               )}
             </NativeSelect>
           </FormField>
+          <FormField
+            htmlFor="score"
+            label="Score"
+            description="Prioridad interna. Usá números más altos para leads más relevantes."
+          >
+            <Input
+              defaultValue={initialValues?.score ?? ""}
+              id="score"
+              name="score"
+              type="number"
+            />
+          </FormField>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Búsqueda</CardTitle>
+          <CardDescription>
+            Presupuesto, zona y requisitos para matchear propiedades.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-5 md:grid-cols-2">
           <FormField htmlFor="budget_min" label="Presupuesto mínimo">
             <Input
               defaultValue={initialValues?.budget_min ?? ""}
@@ -134,7 +196,11 @@ export function LeadForm({
               name="desired_neighborhood"
             />
           </FormField>
-          <FormField htmlFor="bedrooms_needed" label="Dormitorios necesarios">
+          <FormField
+            htmlFor="bedrooms_needed"
+            label="Dormitorios necesarios"
+            description="Completá si el lead tiene un mínimo definido."
+          >
             <Input
               defaultValue={initialValues?.bedrooms_needed ?? ""}
               id="bedrooms_needed"
@@ -142,15 +208,21 @@ export function LeadForm({
               type="number"
             />
           </FormField>
-          <FormField htmlFor="score" label="Score">
-            <Input
-              defaultValue={initialValues?.score ?? ""}
-              id="score"
-              name="score"
-              type="number"
-            />
-          </FormField>
-          <FormField htmlFor="assigned_to" label="Asesor asignado">
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Routing</CardTitle>
+          <CardDescription>
+            Responsable y etapa del pipeline para dar seguimiento.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-5 md:grid-cols-2">
+          <FormField
+            htmlFor="assigned_to"
+            label="Asesor asignado"
+            description="Responsable interno del seguimiento."
+          >
             <NativeSelect
               defaultValue={initialValues?.assigned_to ?? ""}
               id="assigned_to"
@@ -164,7 +236,11 @@ export function LeadForm({
               ))}
             </NativeSelect>
           </FormField>
-          <FormField htmlFor="pipeline_stage_id" label="Etapa pipeline">
+          <FormField
+            htmlFor="pipeline_stage_id"
+            label="Etapa pipeline"
+            description="Ubicación actual dentro del proceso comercial."
+          >
             <NativeSelect
               defaultValue={initialValues?.pipeline_stage_id ?? ""}
               id="pipeline_stage_id"
@@ -178,40 +254,64 @@ export function LeadForm({
               ))}
             </NativeSelect>
           </FormField>
-          <FormField htmlFor="notes" label="Notas" className="md:col-span-2">
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Notas y preferencias</CardTitle>
+          <CardDescription>
+            Información adicional para calificar y atender el caso.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <FormField
+            htmlFor="notes"
+            label="Notas"
+            description="Usá este campo para contexto comercial que no encaje en campos estructurados."
+          >
             <Textarea
+              className="min-h-32"
               defaultValue={initialValues?.notes ?? ""}
               id="notes"
               name="notes"
             />
           </FormField>
-          <div className="border-border grid gap-3 rounded-lg border bg-slate-50 p-4 md:col-span-2 md:grid-cols-3">
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                defaultChecked={initialValues?.financing_needed ?? false}
-                name="financing_needed"
-                type="checkbox"
-              />
-              Requiere financiación
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                defaultChecked={initialValues?.pets ?? false}
-                name="pets"
-                type="checkbox"
-              />
-              Tiene mascotas
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                defaultChecked={
-                  initialValues?.is_human_handoff_required ?? false
-                }
-                name="is_human_handoff_required"
-                type="checkbox"
-              />
-              Derivación humana
-            </label>
+          <div className="border-border bg-lightprimary space-y-3 rounded-xl border p-5">
+            <p className="text-foreground text-sm font-medium">
+              Señales operativas
+            </p>
+            <p className="text-muted-foreground text-xs">
+              Marcá condiciones que cambian la forma de priorizar o responder el
+              caso.
+            </p>
+            <div className="grid gap-3 md:grid-cols-3">
+              <label className="border-border bg-card text-foreground flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
+                <input
+                  defaultChecked={initialValues?.financing_needed ?? false}
+                  name="financing_needed"
+                  type="checkbox"
+                />
+                Requiere financiación
+              </label>
+              <label className="border-border bg-card text-foreground flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
+                <input
+                  defaultChecked={initialValues?.pets ?? false}
+                  name="pets"
+                  type="checkbox"
+                />
+                Tiene mascotas
+              </label>
+              <label className="border-border bg-card text-foreground flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
+                <input
+                  defaultChecked={
+                    initialValues?.is_human_handoff_required ?? false
+                  }
+                  name="is_human_handoff_required"
+                  type="checkbox"
+                />
+                Derivación humana
+              </label>
+            </div>
           </div>
         </CardContent>
       </Card>
