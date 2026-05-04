@@ -148,6 +148,7 @@ export default async function SettingsPage({
             {canManage ? (
               <ActionSheet
                 triggerLabel="Editar configuración del tenant"
+                triggerClassName="w-fit justify-center"
                 title="Configuración del tenant"
                 description="Actualizá datos operativos del workspace activo."
               >
@@ -215,6 +216,7 @@ export default async function SettingsPage({
               {canManage ? (
                 <ActionSheet
                   triggerLabel="Agregar miembro"
+                  triggerClassName="w-fit justify-center"
                   title="Agregar miembro"
                   description="Invitá o activá un usuario dentro del tenant."
                 >
@@ -262,6 +264,7 @@ export default async function SettingsPage({
               {canManage ? (
                 <ActionSheet
                   triggerLabel="Crear etapa"
+                  triggerClassName="w-fit justify-center"
                   title="Nueva etapa"
                   description="Agregá una etapa al pipeline comercial del tenant."
                 >

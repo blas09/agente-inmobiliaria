@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetClose,
@@ -16,6 +17,7 @@ import {
 
 interface ActionSheetProps {
   triggerLabel: string;
+  triggerClassName?: string;
   title: string;
   description: string;
   children: ReactNode;
@@ -23,6 +25,7 @@ interface ActionSheetProps {
 
 export function ActionSheet({
   triggerLabel,
+  triggerClassName,
   title,
   description,
   children,
@@ -30,7 +33,10 @@ export function ActionSheet({
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button className="w-full justify-start" variant="outline">
+        <Button
+          className={cn("w-full justify-start", triggerClassName)}
+          variant="outline"
+        >
           {triggerLabel}
         </Button>
       </SheetTrigger>
