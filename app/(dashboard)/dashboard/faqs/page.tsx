@@ -8,12 +8,6 @@ import { PaginationControls } from "@/components/shared/pagination-controls";
 import { SortableHeader } from "@/components/shared/sortable-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import {
   getFaqListStats,
@@ -130,43 +124,47 @@ export default async function FaqsPage({
               sortKey="status"
             />
           </section>
-          {faqs.map((faq) => (
-            <CardBox key={faq.id}>
-              <CardHeader>
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0 space-y-1">
-                    {canManageTenantFaqs ? (
-                      <Link href={`/dashboard/faqs/${faq.id}/edit`}>
-                        <CardTitle className="hover:text-primary text-base">
-                          {faq.question}
-                        </CardTitle>
-                      </Link>
-                    ) : (
-                      <CardTitle className="text-base">
-                        {faq.question}
-                      </CardTitle>
-                    )}
-                    <CardDescription>
-                      {faq.category ?? "Sin categoría"}
-                    </CardDescription>
+          <CardBox className="overflow-hidden">
+            <div className="divide-border divide-y">
+              {faqs.map((faq) => {
+                const content = (
+                  <div className="grid gap-3 px-5 py-4 lg:grid-cols-[minmax(260px,0.9fr)_minmax(320px,1.2fr)_auto] lg:items-start">
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold">{faq.question}</p>
+                      <p className="text-muted-foreground mt-1 truncate text-sm">
+                        {faq.category ?? "Sin categoría"}
+                      </p>
+                    </div>
+                    <p className="text-muted-foreground line-clamp-2 text-sm leading-6">
+                      {faq.answer}
+                    </p>
+                    <div className="flex lg:justify-end">
+                      <Badge
+                        className="w-fit"
+                        variant={
+                          faq.status === "active" ? "lightSuccess" : "outline"
+                        }
+                      >
+                        {getFaqStatusLabel(faq.status)}
+                      </Badge>
+                    </div>
                   </div>
-                  <Badge
-                    className="w-fit"
-                    variant={
-                      faq.status === "active" ? "lightSuccess" : "outline"
-                    }
+                );
+
+                return canManageTenantFaqs ? (
+                  <Link
+                    className="hover:bg-lightprimary/15 block transition"
+                    href={`/dashboard/faqs/${faq.id}/edit`}
+                    key={faq.id}
                   >
-                    {getFaqStatusLabel(faq.status)}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground line-clamp-4 text-sm leading-6">
-                  {faq.answer}
-                </p>
-              </CardContent>
-            </CardBox>
-          ))}
+                    {content}
+                  </Link>
+                ) : (
+                  <div key={faq.id}>{content}</div>
+                );
+              })}
+            </div>
+          </CardBox>
           <PaginationControls
             page={pagination.page}
             pageSize={pagination.pageSize}

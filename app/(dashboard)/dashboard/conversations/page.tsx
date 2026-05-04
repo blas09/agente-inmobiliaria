@@ -7,12 +7,6 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { PaginationControls } from "@/components/shared/pagination-controls";
 import { SortableHeader } from "@/components/shared/sortable-header";
 import { Badge } from "@/components/ui/badge";
-import {
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { getActiveTenantContext } from "@/server/auth/tenant-context";
 import {
   getConversationListStats,
@@ -129,24 +123,36 @@ export default async function ConversationsPage({
           actionLabel="Revisar canales"
         />
       ) : (
-        <div className="grid gap-6">
-          {conversations.map((conversation) => (
-            <Link
-              href={`/dashboard/conversations/${conversation.id}`}
-              key={conversation.id}
-            >
-              <CardBox className="hover:border-primary/20 hover:bg-lightprimary/15 transition">
-                <CardHeader>
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="space-y-1">
-                      <CardTitle className="truncate">
-                        {conversation.contact_display_name ??
-                          "Contacto sin nombre"}
-                      </CardTitle>
-                      <CardDescription>
-                        {conversation.contact_identifier ?? "Sin identificador"}
-                      </CardDescription>
-                    </div>
+        <div className="space-y-4">
+          <CardBox className="overflow-hidden">
+            <div className="divide-border divide-y">
+              {conversations.map((conversation) => (
+                <Link
+                  className="hover:bg-lightprimary/15 grid gap-3 px-5 py-4 transition lg:grid-cols-[minmax(220px,1.2fr)_minmax(220px,1fr)_auto] lg:items-center"
+                  href={`/dashboard/conversations/${conversation.id}`}
+                  key={conversation.id}
+                >
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold">
+                      {conversation.contact_display_name ??
+                        "Contacto sin nombre"}
+                    </p>
+                    <p className="text-muted-foreground mt-1 truncate text-sm">
+                      {conversation.contact_identifier ?? "Sin identificador"}
+                    </p>
+                  </div>
+                  <div className="text-muted-foreground min-w-0 text-sm">
+                    <p className="truncate">
+                      Último mensaje{" "}
+                      {formatDateTime(conversation.last_message_at)}
+                    </p>
+                    {conversation.channels?.display_name ? (
+                      <p className="mt-1 truncate text-xs">
+                        {conversation.channels.display_name}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 lg:justify-end">
                     <Badge
                       variant={
                         conversation.status === "pending_human"
@@ -156,24 +162,6 @@ export default async function ConversationsPage({
                     >
                       {getConversationStatusLabel(conversation.status)}
                     </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
-                  <div className="min-w-0 space-y-2">
-                    <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-xs">
-                      <span>
-                        Último mensaje{" "}
-                        {formatDateTime(conversation.last_message_at)}
-                      </span>
-                      {conversation.channels?.display_name ? (
-                        <>
-                          <span>•</span>
-                          <span>{conversation.channels.display_name}</span>
-                        </>
-                      ) : null}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
                     <Badge
                       variant={
                         conversation.ai_enabled ? "lightSuccess" : "gray"
@@ -183,10 +171,10 @@ export default async function ConversationsPage({
                       {conversation.ai_enabled ? "habilitada" : "desactivada"}
                     </Badge>
                   </div>
-                </CardContent>
-              </CardBox>
-            </Link>
-          ))}
+                </Link>
+              ))}
+            </div>
+          </CardBox>
           <PaginationControls
             page={pagination.page}
             pageSize={pagination.pageSize}

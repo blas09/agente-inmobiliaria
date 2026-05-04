@@ -267,8 +267,8 @@ export default async function AppointmentsPage({
           tone={hasActiveFilters ? "search" : "default"}
         />
       ) : (
-        <div className="grid gap-4 xl:grid-cols-2">
-          <section className="flex flex-wrap gap-3 border-b pb-4 text-sm xl:col-span-2">
+        <div className="space-y-4">
+          <section className="flex flex-wrap gap-3 border-b pb-4 text-sm">
             <SortableHeader
               activeSort={sorting.sort}
               direction={sorting.direction}
@@ -286,84 +286,64 @@ export default async function AppointmentsPage({
               sortKey="status"
             />
           </section>
-          {appointments.map((appointment) => (
-            <CardBox key={appointment.id}>
-              <CardHeader>
-                <CardTitle className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                  <span>
-                    {appointment.lead?.full_name ?? "Lead no disponible"}
-                  </span>
-                  <Badge variant={getAppointmentStatusTone(appointment.status)}>
-                    {getAppointmentStatusLabel(appointment.status)}
-                  </Badge>
-                </CardTitle>
-                <CardDescription>
-                  {formatDateTime(appointment.scheduled_at)}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4 text-sm">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="border-border bg-muted rounded-xl border px-4 py-3">
-                    <p className="text-muted-foreground text-xs font-medium tracking-[0.16em] uppercase">
-                      Propiedad
+          <CardBox className="overflow-hidden">
+            <div className="divide-border divide-y">
+              {appointments.map((appointment) => (
+                <div
+                  className="grid gap-4 px-5 py-4 xl:grid-cols-[minmax(220px,0.8fr)_minmax(320px,1fr)_minmax(240px,0.8fr)_auto] xl:items-center"
+                  key={appointment.id}
+                >
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Link
+                        className="hover:text-primary truncate font-semibold"
+                        href={`/dashboard/leads/${appointment.lead_id}`}
+                      >
+                        {appointment.lead?.full_name ?? "Lead no disponible"}
+                      </Link>
+                      <Badge
+                        variant={getAppointmentStatusTone(appointment.status)}
+                      >
+                        {getAppointmentStatusLabel(appointment.status)}
+                      </Badge>
+                    </div>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      {formatDateTime(appointment.scheduled_at)}
                     </p>
-                    <p className="mt-1 font-medium">
+                  </div>
+                  <div className="min-w-0 text-sm">
+                    <p className="truncate font-medium">
                       {appointment.property?.title ??
                         (appointment.property_id
                           ? "Propiedad no disponible"
                           : "Sin propiedad")}
                     </p>
-                  </div>
-                  <div className="border-border bg-muted rounded-xl border px-4 py-3">
-                    <p className="text-muted-foreground text-xs font-medium tracking-[0.16em] uppercase">
-                      Asesor
-                    </p>
-                    <p className="mt-1 font-medium">
+                    <p className="text-muted-foreground mt-1 truncate">
                       {appointment.advisor?.full_name ??
                         appointment.advisor?.email ??
                         "Sin asignar"}
                     </p>
                   </div>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <p className="text-muted-foreground">Contacto</p>
-                    <p className="mt-1">
+                  <div className="text-muted-foreground min-w-0 text-sm">
+                    <p className="truncate">
                       {appointment.lead?.phone ??
                         appointment.lead?.email ??
                         "Sin contacto"}
                     </p>
+                    {appointment.notes ? (
+                      <p className="mt-1 line-clamp-1">{appointment.notes}</p>
+                    ) : null}
                   </div>
-                  <div>
-                    <p className="text-muted-foreground">Estado</p>
-                    <p className="mt-1">
-                      {getAppointmentStatusLabel(appointment.status)}
-                    </p>
-                  </div>
-                </div>
-                {appointment.notes ? (
-                  <div className="border-border bg-lightprimary rounded-xl border p-4">
-                    <p className="text-muted-foreground">Notas</p>
-                    <p className="mt-1">{appointment.notes}</p>
-                  </div>
-                ) : null}
-                <div className="flex flex-col gap-2 pt-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-                  <Link
-                    className="text-primary text-sm font-medium hover:underline"
-                    href={`/dashboard/leads/${appointment.lead_id}`}
-                  >
-                    Ver flujo del lead
-                  </Link>
-                  {appointment.property_id ? (
-                    <Link
-                      className="text-primary text-sm font-medium hover:underline"
-                      href={`/dashboard/properties/${appointment.property_id}`}
-                    >
-                      Ver propiedad
-                    </Link>
-                  ) : null}
-                  {canEditAppointments ? (
-                    <div className="sm:ml-auto">
+                  <div className="flex flex-wrap items-center gap-3 xl:justify-end">
+                    {appointment.property_id ? (
+                      <Link
+                        className="text-primary text-sm font-medium hover:underline"
+                        href={`/dashboard/properties/${appointment.property_id}`}
+                      >
+                        Ver propiedad
+                      </Link>
+                    ) : null}
+                    {canEditAppointments ? (
                       <ActionSheet
                         triggerLabel="Editar visita"
                         title="Gestión de la visita"
@@ -402,21 +382,19 @@ export default async function AppointmentsPage({
                           title="Gestión de la visita"
                         />
                       </ActionSheet>
-                    </div>
-                  ) : null}
+                    ) : null}
+                  </div>
                 </div>
-              </CardContent>
-            </CardBox>
-          ))}
-          <div className="xl:col-span-2">
-            <PaginationControls
-              page={pagination.page}
-              pageSize={pagination.pageSize}
-              params={listParams}
-              pathname="/dashboard/appointments"
-              total={appointmentResult.total}
-            />
-          </div>
+              ))}
+            </div>
+          </CardBox>
+          <PaginationControls
+            page={pagination.page}
+            pageSize={pagination.pageSize}
+            params={listParams}
+            pathname="/dashboard/appointments"
+            total={appointmentResult.total}
+          />
         </div>
       )}
     </div>
