@@ -5,27 +5,32 @@ import { Sidebar } from "@/components/layout/sidebar";
 import type { TenantRole } from "@/types/database";
 
 interface AppShellProps {
-	isPlatformAdmin: boolean;
-	activeRole: TenantRole | null | undefined;
-	children: ReactNode;
+  isPlatformAdmin: boolean;
+  activeRole: TenantRole | null | undefined;
+  children: ReactNode;
 }
 
 export function AppShell({
-	isPlatformAdmin,
-	activeRole,
-	children,
+  isPlatformAdmin,
+  activeRole,
+  children,
 }: AppShellProps) {
-	return (
-		<div className="flex min-h-screen w-full">
-			<div className="page-wrapper flex w-full">
-				<div className="hidden xl:block">
-					<Sidebar activeRole={activeRole} isPlatformAdmin={isPlatformAdmin} />
-				</div>
-				<div className="body-wrapper w-full bg-background">
-					<AppHeader activeRole={activeRole} isPlatformAdmin={isPlatformAdmin} />
-					<div className="container mx-auto px-6 py-30">{children}</div>
-				</div>
-			</div>
-		</div>
-	);
+  return (
+    <div className="flex min-h-screen w-full">
+      <div className="page-wrapper flex w-full">
+        <div className="hidden xl:block">
+          <Sidebar activeRole={activeRole} isPlatformAdmin={isPlatformAdmin} />
+        </div>
+        <div className="body-wrapper bg-background w-full min-w-0">
+          <AppHeader
+            activeRole={activeRole}
+            isPlatformAdmin={isPlatformAdmin}
+          />
+          <div className="container mx-auto px-4 py-6 sm:px-6 lg:py-8">
+            {children}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

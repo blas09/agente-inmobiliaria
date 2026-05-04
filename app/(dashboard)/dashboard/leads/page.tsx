@@ -79,7 +79,7 @@ export default async function LeadsPage({
       />
       <FilterCard>
         <form
-          className="grid gap-4 lg:grid-cols-[1fr_240px_auto_auto]"
+          className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_240px_auto_auto]"
           method="get"
         >
           <Input
@@ -102,12 +102,15 @@ export default async function LeadsPage({
               ),
             )}
           </NativeSelect>
-          <Button type="submit" variant="lightprimary">
+          <Button className="w-full" type="submit" variant="lightprimary">
             Aplicar
           </Button>
           {hasActiveFilters ? (
             <Link
-              className={buttonVariants({ variant: "outline" })}
+              className={buttonVariants({
+                variant: "outline",
+                className: "w-full",
+              })}
               href="/dashboard/leads"
             >
               Limpiar

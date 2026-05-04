@@ -45,7 +45,7 @@ interface DashboardTopCardsProps {
 
 export function DashboardTopCards({ items }: DashboardTopCardsProps) {
   return (
-    <div className="grid grid-cols-12 gap-6">
+    <div className="grid grid-cols-12 gap-4 lg:gap-6">
       {items.map((item) => {
         const Icon = item.icon;
         const styles = toneStyles[item.tone];
@@ -54,7 +54,7 @@ export function DashboardTopCards({ items }: DashboardTopCardsProps) {
           <div
             key={item.key}
             className={cn(
-              "col-span-12 rounded-md p-4 text-center md:col-span-6 lg:col-span-4",
+              "col-span-12 rounded-md p-4 text-center sm:col-span-6 xl:col-span-4",
               styles.card,
             )}
           >
@@ -63,7 +63,12 @@ export function DashboardTopCards({ items }: DashboardTopCardsProps) {
                 <Icon className={cn("h-12 w-12", styles.text)} />
               </div>
             ) : null}
-            <h6 className={cn("mb-1 text-lg font-semibold", styles.text)}>
+            <h6
+              className={cn(
+                "mb-1 text-base leading-snug font-semibold sm:text-lg",
+                styles.text,
+              )}
+            >
               {item.label}
             </h6>
             <h3 className={cn("text-2xl font-semibold", styles.text)}>

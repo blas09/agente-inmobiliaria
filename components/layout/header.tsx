@@ -46,7 +46,7 @@ export function AppHeader({ isPlatformAdmin, activeRole }: AppHeaderProps) {
       <header className="bg-background sticky top-0 z-20">
         <nav
           className={cn(
-            "bg-background flex items-center justify-between px-6 py-4 transition-colors sm:ps-6 sm:pe-10",
+            "bg-background flex items-center justify-between gap-2 px-4 py-3 transition-colors sm:ps-6 sm:pe-10",
             isScrolled ? "border-border border-b" : "",
           )}
         >
@@ -115,9 +115,8 @@ export function AppHeader({ isPlatformAdmin, activeRole }: AppHeaderProps) {
               </span>
             </button>
             <form action={signOutAction}>
-              <Button type="submit" variant="outline">
+              <Button type="submit" size="icon" variant="outline">
                 <Icon className="h-4 w-4" icon="solar:logout-3-linear" />
-                Salir
               </Button>
             </form>
           </div>

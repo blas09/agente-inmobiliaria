@@ -108,7 +108,7 @@ export default async function AppointmentsPage({
         </CardHeader>
         <CardContent>
           <form
-            className="grid gap-4 md:grid-cols-[1fr_1fr_auto_auto]"
+            className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto]"
             method="get"
           >
             <NativeSelect
@@ -139,12 +139,15 @@ export default async function AppointmentsPage({
                 </option>
               ))}
             </NativeSelect>
-            <Button type="submit" variant="lightprimary">
+            <Button className="w-full" type="submit" variant="lightprimary">
               Aplicar
             </Button>
             {hasActiveFilters ? (
               <Link
-                className={buttonVariants({ variant: "outline" })}
+                className={buttonVariants({
+                  variant: "outline",
+                  className: "w-full",
+                })}
                 href="/dashboard/appointments"
               >
                 Limpiar

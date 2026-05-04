@@ -481,10 +481,29 @@ Verification:
 
 ### UI-007 - Responsive And Mobile Polish
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `UI/UX`
 Primary roles: UI/UX Specialist, Frontend Engineer, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-03: Started. Reviewing mobile shell spacing, header actions, filter controls, metric cards, and dense list layouts.
+- 2026-05-03: Completed. Tightened mobile shell spacing, compacted mobile header actions, improved metric card wrapping, and made critical filters easier to use on small screens.
+
+Completed:
+
+- Reduced dashboard content padding on mobile and added `min-w-0` to the main body wrapper to prevent layout overflow.
+- Made the mobile header more compact and changed the mobile sign-out action to an icon button.
+- Improved page welcome blocks so long titles, descriptions, and actions wrap cleanly on small screens.
+- Adjusted dashboard metric cards to use tighter gaps and better tablet breakpoints.
+- Updated properties, leads, and appointments filters so controls and action buttons fit cleanly on mobile and tablet widths.
+
+Verification:
+
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/vitest run` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/eslint .` passed.
+- `source ~/.nvm/nvm.sh && nvm use && ./node_modules/.bin/tsc --noEmit -p tsconfig.typecheck.json` passed.
 
 Problem:
 
