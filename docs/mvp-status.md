@@ -48,7 +48,8 @@ Practical conclusion:
 - real tenant onboarding documentation is complete in [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md)
 - pilot readiness documentation is complete in [Pilot Readiness Runbook](./pilot-readiness-runbook.md)
 - the current recommendation is `go with caveats` for local supervised readiness with WhatsApp in `simulated/manual` mode
-- the highest-value next work is to run the final automated checks and manual customer-like walkthrough against the selected tenant
+- pre-production polish grooming is proposed in [Pre-Production Polish Backlog](./pre-production-polish-backlog.md)
+- the highest-value next work is to complete the focused polish pass before production-like pilot setup
 
 ## Current MVP Cut
 

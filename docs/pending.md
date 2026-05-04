@@ -8,7 +8,7 @@ Current MVP flow:
 
 ## Current Release State
 
-Status: internal manual testing, UI/UX polish, operational readiness documentation, security permissions review, real tenant onboarding documentation, and pilot readiness documentation completed with caveats.
+Status: internal manual testing, UI/UX polish, operational readiness documentation, security permissions review, real tenant onboarding documentation, and pilot readiness documentation completed with caveats; pre-production polish grooming proposed before production-like pilot setup.
 
 Reference:
 
@@ -21,19 +21,24 @@ Reference:
 - [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md)
 - [Pilot Readiness Backlog](./pilot-readiness-backlog.md)
 - [Pilot Readiness Runbook](./pilot-readiness-runbook.md)
+- [Pre-Production Polish Requirements](./pre-production-polish-requirements.md)
+- [Pre-Production Polish Backlog](./pre-production-polish-backlog.md)
 
 The implementation backlog for the first MVP cut is complete. The UI/UX MVP polish backlog is complete. The operational readiness block is documented in [Supervised Pilot Operations Runbook](./pilot-operations-runbook.md).
 The real tenant onboarding block is documented in [First Tenant Onboarding Runbook](./first-tenant-onboarding-runbook.md).
 The pilot readiness block is documented in [Pilot Readiness Runbook](./pilot-readiness-runbook.md).
 The current recommendation is `go with caveats` for local supervised readiness, as long as real WhatsApp provider delivery is not promised and the final checks pass.
+Before production-like pilot setup, the proposed next phase is the pre-production polish backlog covering overloaded screens, platform admin navigation, public commercial index, and richer demo seeds.
 
 ## Required Before Customer-Facing MVP
 
-1. Run the automated checks defined in `pilot-readiness-runbook.md`.
-2. Execute the manual customer-like walkthrough against the selected tenant.
-3. Assign support, technical escalation, product decision, and customer communication owners.
-4. Keep WhatsApp in `simulated/manual` mode unless a separate Meta provider smoke test is completed.
-5. Record the final local readiness decision after checks: `go`, `go with caveats`, or `no-go`.
+1. Review and approve `pre-production-polish-backlog.md`.
+2. Execute the accepted polish tasks before production-like pilot setup.
+3. Run the automated checks defined in `pilot-readiness-runbook.md`.
+4. Execute the manual customer-like walkthrough against the selected tenant.
+5. Assign support, technical escalation, product decision, and customer communication owners.
+6. Keep WhatsApp in `simulated/manual` mode unless a separate Meta provider smoke test is completed.
+7. Record the final local readiness decision after checks: `go`, `go with caveats`, or `no-go`.
 
 ## Known Caveats
 

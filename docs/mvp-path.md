@@ -17,6 +17,7 @@ Current decision:
 - the internal MVP flow has been manually tested
 - UI/UX polish, operational readiness documentation, security permissions review, real tenant onboarding documentation, and pilot readiness documentation are complete with documented caveats
 - the current recommendation is `go with caveats` for local supervised readiness with WhatsApp in `simulated/manual` mode
+- before production-like pilot setup, the next phase should focus on targeted UI/UX polish, a commercial index, platform admin navigation cleanup, and richer demo seeds
 - work should continue through sequenced grooming passes
 - each grooming pass should be reviewed before execution starts
 
@@ -298,6 +299,6 @@ Exit criteria:
 
 ## Immediate Next Step
 
-Run the final automated checks and manual customer-like walkthrough defined in [Pilot Readiness Runbook](./pilot-readiness-runbook.md).
+Review the pre-production polish grooming output in [Pre-Production Polish Backlog](./pre-production-polish-backlog.md).
 
-Real WhatsApp provider delivery remains outside this readiness pass until a separate Meta smoke test is completed.
+After that polish pass, return to production-like pilot environment setup and real WhatsApp provider smoke testing.
