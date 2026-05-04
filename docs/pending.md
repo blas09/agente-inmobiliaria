@@ -8,7 +8,7 @@ Current MVP flow:
 
 ## Current Release State
 
-Status: internal manual testing, UI/UX polish, operational readiness documentation, and security permissions review completed with pilot caveats before a supervised customer MVP.
+Status: internal manual testing, UI/UX polish, operational readiness documentation, and security permissions review completed with pilot caveats; real tenant onboarding grooming proposed before a supervised customer MVP.
 
 Reference:
 
@@ -17,16 +17,18 @@ Reference:
 - [UI/UX MVP Polish Backlog](./ui-ux-backlog.md)
 - [Operational MVP Readiness Backlog](./operational-readiness-backlog.md)
 - [Security And Permissions Review Backlog](./security-permissions-review-backlog.md)
+- [Real Tenant Onboarding Backlog](./real-tenant-onboarding-backlog.md)
 
 The implementation backlog for the first MVP cut is complete. The UI/UX MVP polish backlog is complete. The operational readiness block is documented in [Supervised Pilot Operations Runbook](./pilot-operations-runbook.md).
-The current proposed next phase is real tenant onboarding for a supervised pilot, after confirming the documented security caveats.
+The current proposed next phase is to review and execute the real tenant onboarding backlog for a supervised pilot, after confirming the documented security caveats.
 
 ## Required Before Customer-Facing MVP
 
-1. Complete real tenant onboarding grooming and execution.
-2. Complete pilot readiness grooming after real tenant onboarding.
-3. Confirm whether real WhatsApp provider delivery is part of the first customer pilot.
-4. If real WhatsApp delivery is in scope, verify valid Meta credentials, template behavior, and `WHATSAPP_APP_SECRET`.
+1. Review and approve `real-tenant-onboarding-backlog.md`.
+2. Execute approved real tenant onboarding tasks.
+3. Complete pilot readiness grooming after real tenant onboarding.
+4. Confirm whether real WhatsApp provider delivery is part of the first customer pilot.
+5. If real WhatsApp delivery is in scope, verify valid Meta credentials, template behavior, and `WHATSAPP_APP_SECRET`.
 
 ## Known Caveats
 

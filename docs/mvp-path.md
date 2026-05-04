@@ -298,6 +298,6 @@ Exit criteria:
 
 ## Immediate Next Step
 
-Groom `Real Tenant Onboarding` into a prioritized backlog with clear customer data requirements, setup steps, acceptance criteria, and verification.
+Review the `Real Tenant Onboarding` grooming output in [Real Tenant Onboarding Backlog](./real-tenant-onboarding-backlog.md).
 
 The security permissions review output is documented in [Security And Permissions Review Backlog](./security-permissions-review-backlog.md).
