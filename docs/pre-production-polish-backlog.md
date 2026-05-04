@@ -287,13 +287,20 @@ Recommended priority:
 Implementation guidance:
 
 - Add a shared server-side pagination helper for URL params, bounds, offsets, and page size.
-- Prefer database-level `range` / `limit` plus total count over fetching all rows and slicing in UI.
+- Add a shared server-side sorting helper based on per-screen allowlists.
+- Prefer database-level `range` / `limit` / `order` plus total count over fetching all rows and slicing or sorting in UI.
 - Preserve existing filters and tabs when changing page.
-- Reset to page 1 when search or status filters change.
+- Preserve sorting when changing page, filters, tabs, or search.
+- Reset to page 1 when search, status, tab, or other filters change.
 - Use conservative default page sizes: 12 for card grids, 20 for tables, 10 for tall appointment/conversation cards.
 - Keep tenant filters in every paginated query.
+- URL params should use safe defaults:
+  - `page`: positive integer, default `1`
+  - `sort`: allowlisted key per page
+  - `direction`: `asc` or `desc`
+  - `pageSize`: fixed by page or selected from a small allowlist
 
-### PPP-010 - Pagination For Dense Operational Lists
+### PPP-010 - Server-Side Pagination And Sorting For Dense Operational Lists
 
 Status: `todo`
 Priority: `P1`
@@ -302,11 +309,15 @@ Primary roles: Project Leader / Technical Lead, Backend / Security, Frontend Eng
 
 Problem:
 
-After enriching the seed data, dense list pages can render too many records at once and become harder to scan.
+After enriching the seed data, dense list pages can render too many records at once and become harder to scan. If pagination is implemented client-side, the app still loads unbounded tenant data and sorting would only apply to the current client slice, producing misleading results.
+
+Decision:
+
+Pagination and sorting must be server-side for MVP operational lists. The server query is the source of truth for filtering, ordering, total count, and page boundaries. The UI only reflects and changes URL state.
 
 Scope:
 
-- Add pagination to:
+- Add server-side pagination to:
   - `/dashboard/properties`
   - `/dashboard/leads`
   - `/dashboard/conversations`
@@ -315,28 +326,48 @@ Scope:
   - `/dashboard/channels?tab=templates`
   - `/dashboard/channels?tab=incidents`
 - Consider `/dashboard/platform/tenants` after the tenant list is expanded.
-- Keep filters, tabs, and search state in URL params.
+- Add server-side sorting where the list surface supports meaningful ordering:
+  - properties: title, price, status, created/published date
+  - leads: created date, name, qualification status, score
+  - conversations: last message date, status, contact name
+  - appointments: scheduled date, status, advisor/lead when practical
+  - FAQs: created date, category, status
+  - channel templates: name, status, updated date
+  - channel incidents: created date, event type, processing status
+  - platform tenants: name, slug, status, timezone
+- Keep filters, tabs, search, pagination, sorting, and direction state in URL params.
 - Add or reuse a small pagination UI component.
-- Update list queries to fetch bounded results with total counts.
+- Add or reuse sortable table/list header controls where appropriate.
+- Update list queries to fetch bounded results with total counts and allowlisted ordering.
+- Use page-specific safe defaults for initial sorting.
 
 Out of scope:
 
 - Infinite scroll.
+- Client-side pagination or client-side sorting as source of truth.
 - Client-side data fetching rewrite.
 - Broad dashboard redesign.
 - Advanced sorting or saved views.
+- Arbitrary user-provided sort columns.
 
 Acceptance criteria:
 
 - Dense operational lists render a bounded number of rows/cards.
 - Page navigation preserves active tab and filters.
+- Sorting is applied by the database query, not by slicing/sorting already-loaded rows in the UI.
+- Sorting applies to the full filtered dataset, not only to the visible page.
+- Sort params are validated against an allowlist per screen.
+- Invalid `page`, `sort`, `direction`, or `pageSize` params fall back safely.
 - Tenant-scoped queries remain tenant-scoped.
 - Empty states still work with filters and pages.
-- Page params are validated and invalid values fall back safely.
+- Pagination UI communicates current page and total result count.
+- Changing filters, tabs, or search resets to page 1.
+- Changing page preserves filters, tabs, search, sort, and direction.
 
 Verification:
 
 - Run lint, typecheck, and focused tests.
+- Add tests for pagination/sorting param parsing and allowlist behavior if implemented as shared helpers.
 - Manually review dense seeded data for properties, leads, conversations, appointments, FAQs, channel templates, and channel incidents.
 
 ### PPP-002 - Lead Detail Page Density Reduction
