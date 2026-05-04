@@ -4,12 +4,10 @@ import { CardBox } from "@/components/dashboard/card-box";
 import { ProfileWelcome } from "@/components/dashboard/profile-welcome";
 import { DashboardTopCards } from "@/components/dashboard/top-cards";
 import { EmptyState } from "@/components/shared/empty-state";
-import { FilterCard } from "@/components/shared/filter-card";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { NativeSelect } from "@/components/ui/native-select";
 import {
   Table,
   TableBody,
@@ -29,6 +27,34 @@ import {
   propertyStatusLabels,
 } from "@/lib/ui-labels";
 
+const propertyStatusTabs = [
+  { id: "all", label: "Todas" },
+  ...Object.entries(propertyStatusLabels).map(([status, label]) => ({
+    id: status,
+    label,
+  })),
+];
+
+function getPropertyTabHref(status: string, query: string | undefined) {
+  const params = new URLSearchParams();
+  const normalizedQuery = query?.trim();
+
+  if (status !== "all") {
+    params.set("status", status);
+  }
+
+  if (normalizedQuery) {
+    params.set("q", normalizedQuery);
+  }
+
+  const search = params.toString();
+  return search ? `/dashboard/properties?${search}` : "/dashboard/properties";
+}
+
+function resolvePropertyStatus(status: string | undefined) {
+  return status && status in propertyStatusLabels ? status : "all";
+}
+
 export default async function PropertiesPage({
   searchParams,
 }: {
@@ -37,10 +63,13 @@ export default async function PropertiesPage({
   const params = await searchParams;
   const { activeTenant, activeMembership } = await getActiveTenantContext();
   const canManagePropertyRecords = canManageProperties(activeMembership.role);
-  const properties = await listProperties(activeTenant.id, params);
-  const hasActiveFilters = Boolean(
-    params.q || (params.status && params.status !== "all"),
-  );
+  const activeStatus = resolvePropertyStatus(params.status);
+  const searchQuery = params.q?.trim();
+  const properties = await listProperties(activeTenant.id, {
+    q: searchQuery,
+    status: activeStatus,
+  });
+  const hasActiveFilters = Boolean(searchQuery || activeStatus !== "all");
   const availableCount = properties.filter(
     (property) => property.status === "available",
   ).length;
@@ -83,29 +112,42 @@ export default async function PropertiesPage({
           },
         ]}
       />
-      <FilterCard>
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-2xl font-semibold">Vista de propiedades</h2>
+          <p className="text-muted-foreground mt-2">
+            Usá los estados como tabs y buscá por datos comerciales cuando
+            necesites encontrar una ficha puntual.
+          </p>
+        </div>
+        <nav className="border-border flex gap-2 overflow-x-auto border-b">
+          {propertyStatusTabs.map((tab) => (
+            <Link
+              className={
+                activeStatus === tab.id
+                  ? "border-primary text-primary border-b-2 px-4 py-3 text-sm font-semibold whitespace-nowrap"
+                  : "text-muted-foreground hover:text-foreground px-4 py-3 text-sm font-medium whitespace-nowrap"
+              }
+              href={getPropertyTabHref(tab.id, searchQuery)}
+              key={tab.id}
+            >
+              {tab.label}
+            </Link>
+          ))}
+        </nav>
         <form
-          className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_240px_auto_auto]"
+          className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]"
           method="get"
         >
+          {activeStatus !== "all" ? (
+            <input name="status" type="hidden" value={activeStatus} />
+          ) : null}
           <Input
             aria-label="Buscar propiedades"
-            defaultValue={params.q ?? ""}
+            defaultValue={searchQuery ?? ""}
             name="q"
             placeholder="Buscar por título, ciudad o barrio"
           />
-          <NativeSelect
-            aria-label="Filtrar por estado"
-            defaultValue={params.status ?? "all"}
-            name="status"
-          >
-            <option value="all">Todos los estados</option>
-            {Object.entries(propertyStatusLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </NativeSelect>
           <Button className="w-full" type="submit" variant="lightprimary">
             Aplicar
           </Button>
@@ -121,7 +163,7 @@ export default async function PropertiesPage({
             </Link>
           ) : null}
         </form>
-      </FilterCard>
+      </section>
       {properties.length === 0 ? (
         <EmptyState
           title={
