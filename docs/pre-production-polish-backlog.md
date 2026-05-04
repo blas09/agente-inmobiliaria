@@ -2,7 +2,7 @@
 
 Date: 2026-05-04
 
-Status: proposed for review.
+Status: active.
 
 This grooming translates [Pre-Production Polish Requirements](./pre-production-polish-requirements.md) into an executable backlog.
 
@@ -31,10 +31,15 @@ The goal is to complete a focused UI/UX and demo-data polish pass before prepari
 
 ### PPP-001 - UI/UX Audit For Target Screens
 
-Status: `todo`
+Status: `done`
 Priority: `P0`
 Type: `MVP`
 Primary roles: UI/UX Specialist, Product Owner, Project Leader / Technical Lead
+
+Progress notes:
+
+- 2026-05-04: Started UI/UX audit for target screens before implementation.
+- 2026-05-04: Completed audit recommendations and implementation direction for the target screens.
 
 Problem:
 
@@ -68,6 +73,198 @@ Verification:
 
 - Review recommendations against existing UI patterns.
 - Confirm with Product Owner before implementation.
+
+Completion notes:
+
+### Lead Detail
+
+Current issue:
+
+- The page shows summary cards, profile, notes, routing, conversations, appointment creation, visit history, and pipeline history as one long operational surface.
+- The same commercial state appears in multiple places.
+- Appointment creation and lead routing are important actions but compete with secondary context.
+
+Recommendation:
+
+- Keep the lead identity, commercial status, assignment, stage, contact, and next action visible by default.
+- Convert the page into a primary work area plus secondary sections.
+- Use a compact overview at the top and move lower-priority reference material into grouped sections.
+- Keep `LeadRoutingForm` and appointment creation available, but avoid showing every historical/reference block at equal weight.
+- Recommended structure:
+  - top summary: status, stage, advisor, contact, budget/zone
+  - primary actions: edit, route/update status, schedule visit
+  - operational tabs or section groups: `Operación`, `Conversaciones`, `Visitas`, `Historial`
+  - pipeline history should be last or behind progressive disclosure
+
+Implementation guidance for `PPP-002`:
+
+- Prefer tabs or a segmented section layout over stacking all cards vertically.
+- Remove repeated summary information where it appears both in top cards and profile card.
+- Keep appointment scheduling near the primary workflow, not buried after secondary cards.
+
+### Advisor Dashboard
+
+Current issue:
+
+- The dashboard is admin/reporting oriented and visually dense for advisors.
+- Advisor users need to understand what to do next more than they need broad tenant context.
+
+Recommendation:
+
+- Keep owner/admin dashboard mostly intact.
+- Add role-aware dashboard composition for advisor/operator users.
+- For advisor, prioritize:
+  - assigned active leads
+  - pending human conversations
+  - upcoming visits
+  - follow-up/recent activity
+- Deprioritize or hide admin-style sections such as tenant context, broad pipeline distribution, and management reporting for advisor users.
+
+Implementation guidance for `PPP-003`:
+
+- Use `activeMembership.role` to branch dashboard content.
+- Avoid changing dashboard query behavior unless existing summary data is insufficient.
+- If needed, reuse existing recent leads/conversations/appointments data first before adding new queries.
+
+### Platform Admin Navigation
+
+Current issue:
+
+- Platform admins without an active tenant see tenant-operational nav items.
+- Those routes then redirect because there is no active tenant context.
+
+Recommendation:
+
+- If `isPlatformAdmin` is true and `activeRole` is null/undefined, show only platform navigation.
+- If a platform admin also has an active tenant membership, keep tenant navigation plus platform navigation.
+- Apply the same behavior to desktop and mobile sidebar because both use the same item source.
+
+Implementation guidance for `PPP-004`:
+
+- Change `getSidebarItems` only.
+- Do not weaken server-side route guards.
+- Verify with `admin@platform.local` and tenant users.
+
+### Channels
+
+Current issue:
+
+- Channel health, connected accounts, incident data, template creation, template list, metadata, and actions all appear at once.
+- This is especially heavy while WhatsApp real provider is not configured.
+
+Recommendation:
+
+- Introduce clear sections for:
+  - provider/channel state
+  - operational health
+  - templates
+  - template actions/history
+- Show real-provider caveat or simulated/manual expectation prominently when appropriate.
+- Move template creation into an action sheet or compact action area.
+- Keep recent incidents visible but avoid making them dominate when empty.
+
+Implementation guidance for `PPP-005`:
+
+- Prefer progressive disclosure for template create/edit/status actions.
+- Keep channel health summary above details.
+- Make provider state/caveat clearer than raw metrics when no real provider test has been performed.
+
+### Settings
+
+Current issue:
+
+- Tenant data, agenda rules, users, and pipeline are all presented in one dense grid.
+- User and pipeline editing can expand into a long operational page.
+
+Recommendation:
+
+- Split settings into clearer groups:
+  - `Tenant`
+  - `Agenda`
+  - `Equipo`
+  - `Pipeline`
+- Tabs are a good fit because these are peer configuration domains.
+- Keep high-level summary cards at the top only if they help orientation; otherwise reduce them.
+- Keep edit forms in sheets where already supported.
+
+Implementation guidance for `PPP-006`:
+
+- Add a small reusable tabs component or local tab UI if no existing component exists.
+- Keep admin-only checks unchanged.
+- Avoid nesting cards inside cards.
+
+### Public Commercial Index
+
+Current issue:
+
+- `/` redirects to auth and does not explain the product.
+- The product is not ready for self-service signup.
+
+Recommendation:
+
+- Build a public landing page for unauthenticated users with CTA to manual demo/contact.
+- Authenticated users can still navigate to dashboard via a visible action.
+- Messaging should focus on operational value for real estate agencies:
+  - centralize property catalog
+  - organize leads
+  - manage conversations
+  - schedule visits
+  - track follow-up
+- Do not promise automatic signup, billing, or self-service onboarding.
+
+Implementation guidance for `PPP-007`:
+
+- Keep it as a single page.
+- Use Spanish commercial copy.
+- Include login/dashboard CTA.
+- If no backend contact flow is approved, CTA should be mailto/contact placeholder or manual demo CTA without persistence.
+
+### Richer Seeds
+
+Current issue:
+
+- Existing seed data is too small to reveal layout density and operational behavior under realistic use.
+
+Recommendation:
+
+- Add enough deterministic fake data to populate:
+  - dashboard reports
+  - lead lists and detail relations
+  - multiple conversation states
+  - appointment statuses
+  - FAQ categories
+  - channel event failures/successes
+  - WhatsApp template statuses
+- Keep one tenant as the main demo tenant unless cross-tenant UX needs a second tenant.
+
+Implementation guidance for `PPP-008`:
+
+- Keep UUIDs valid and deterministic.
+- Avoid real credentials.
+- Keep data volume realistic but not excessive: enough to stress UI, not thousands of rows.
+
+### QA Direction
+
+Recommended checks for `PPP-009`:
+
+- Owner/admin:
+  - lead detail
+  - channels
+  - settings
+  - dashboard
+- Advisor:
+  - dashboard
+  - lead detail
+  - restricted settings/channels nav behavior
+- Platform admin:
+  - sidebar shows platform-only navigation when there is no tenant role
+  - platform tenants route works
+- Unauthenticated:
+  - public index renders
+  - login path remains reachable
+- Data:
+  - richer seeds reset cleanly
+  - seed UUID tests pass
 
 ### PPP-002 - Lead Detail Page Density Reduction
 
