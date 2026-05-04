@@ -466,10 +466,15 @@ Completion notes:
 
 ### PPP-006 - Settings Page Structure Cleanup
 
-Status: `todo`
+Status: `done`
 Priority: `P1`
 Type: `MVP`
 Primary roles: UI/UX Specialist, Frontend Engineer, Backend / Security, QA Engineer / Test Agent
+
+Progress notes:
+
+- 2026-05-04: Started settings page tabbed structure cleanup following the validated channels pattern.
+- 2026-05-04: Completed settings page tabbed structure for tenant, agenda, team, and pipeline sections.
 
 Problem:
 
@@ -498,6 +503,14 @@ Verification:
 
 - Manual check as tenant owner/admin.
 - Confirm non-admin role access behavior remains unchanged.
+
+Completion notes:
+
+- Replaced the dense settings grid with URL-driven tabs for `Tenant`, `Agenda`, `Equipo`, and `Pipeline`.
+- Kept the top metrics visible as orientation while separating each configuration domain into its own workspace.
+- Flattened tenant, team, and pipeline read-only layouts into simple metric blocks and divided rows.
+- Preserved admin-only checks, action sheets, tenant forms, appointment rules, user management, and pipeline forms.
+- Verification run: `pnpm lint`, `pnpm typecheck`, `pnpm test`.
 
 ### PPP-007 - Public Commercial Index
 
